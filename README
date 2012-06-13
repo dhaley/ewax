@@ -1,0 +1,19 @@
+A Literate Programming implementation of Eric Schulte's Emacs Starter Kit
+
+To use this config, you must first get a working version of the kit.
+
+Follow these installation instructions:
+http://eschulte.github.com/emacs24-starter-kit/
+
+Once Emacs 24 is working with the kit, do the following:
+
+% mkdir ~/.eamcs.d/cache
+% mkdir ~/git/.emacs.d
+% touch ~/git/.emacs.d/.bbdb
+% touch ~/git/.emacs.d/custom.el
+% touch ~/git/.emacs.d/private.org
+% touch ~/git/.emacs.d/dkh-gnus.el
+$ touch ~/git/.emacs.d/.abbrev_defs
+$ touch ~/git/.emacs.d/.emacs.bmk"
+% touch ~/git/.emacs.d/.emacs-bmk-bmenu-state.el
+% touch ~/git/.emacs.d/.diary    
