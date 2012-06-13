@@ -2286,8 +2286,7 @@ A list of the form (FRAME-CONFIGURATION POSITION)
 
 #+begin_src emacs-lisp 
 
-(dolist (r `( (?b (file . "~/git/vinylisland/dkh-bindings.org"))
-             (?v (file . "~/git/vinylisland/dkh-config.org"))))
+(dolist (r `( (?e (file . "~/git/ewax/dkh-core.org"))))
              (set-register (car r) (cadr r)))
 
 #+end_src 
@@ -4815,7 +4814,7 @@ expands it. Else indents the current line. Acts as normal in minibuffer."
   (interactive)
   "Creates a tool config shell and switches to it. If a buffer with name already exists, we simply switch to it."
   (let ((buffer-of-name (get-buffer (concat "*eshell-" (persp-name persp-curr) "-tool-config*")))
-        (default-directory "~/git/vinylisland"))
+        (default-directory "~/git/ewax"))
     (cond ((bufferp buffer-of-name) ;If the buffer exists, switch to it (assume it is a shell)
            (switch-to-buffer buffer-of-name))
           ( t 
