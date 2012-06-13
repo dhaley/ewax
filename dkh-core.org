@@ -2655,8 +2655,6 @@ Don't use a file dialog to ask for files
 
 #+end_src 
 
-* 
-[2012-06-12 Tue 22:16]
 * Utilities (tools)
 ** Tramp
 
