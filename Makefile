@@ -1,0 +1,2 @@
+LISP:
+	rm -f *.el

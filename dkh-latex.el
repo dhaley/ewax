@@ -1,0 +1,36 @@
+
+(setq TeX-auto-save t)
+(setq TeX-parse-self t)
+(setq-default TeX-master nil)
+
+(setq TeX-PDF-mode t)
+
+(add-hook 'LaTeX-mode-hook 'visual-line-mode)
+(add-hook 'LaTeX-mode-hook 'flyspell-mode)
+(add-hook 'LaTeX-mode-hook 'LaTeX-math-mode)
+
+(add-hook 'LaTeX-mode-hook 'turn-on-reftex)
+(setq reftex-plug-into-AUCTeX t)
+
+(add-hook 'LaTeX-mode-hook (lambda () (abbrev-mode +1)))
+
+(setq TeX-save-query nil)
+
+(defun turn-on-outline-minor-mode () (outline-minor-mode 1))
+
+(add-hook 'LaTeX-mode-hook 'turn-on-outline-minor-mode) 
+(add-hook 'latex-mode-hook 'turn-on-outline-minor-mode) 
+(setq outline-minor-mode-prefix "\C-c\C-o")
+
+; Or something else
+
+(setq 
+TeX-source-correlate-method (quote synctex)
+TeX-source-correlate-mode t
+TeX-source-correlate-start-server t
+TeX-view-program-list (quote (("Okular" "okular --unique %o#src:%n%b")))
+;;                                         okular --unique %o#src:%n`pwd`/./%b
+TeX-view-program-selection (quote ((output-pdf "Okular") (output-dvi "xdvi") (output-pdf "Okular") (output-html "xdg-open")))
+)
+
+(message (concat "0 " (buffer-name) "... Done"))

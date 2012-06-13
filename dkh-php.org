@@ -1,0 +1,60 @@
+#+begin_src emacs-lisp 
+
+(defvar php-search-url "http://www.php.net/")
+(defvar php-manual-url "http://www.php.net/manual/en/")
+
+(defun php-search-documentation ()
+  "Search PHP documentation for the word at the point."
+  (interactive)
+  (w3m-browse-url (concat php-search-url (current-word t))))
+
+(add-hook 'php-mode-hook 'my-php-mode-stuff)
+
+(defun my-php-mode-stuff ()
+  (local-set-key (kbd "C-x g p") 'my-php-function-lookup)
+  (local-set-key (kbd "C-x g P") 'my-php-symbol-lookup))
+
+
+(defun my-php-symbol-lookup ()
+  (interactive)
+  (let ((symbol (symbol-at-point)))
+    (if (not symbol)
+        (message "No symbol at point.")
+
+      (browse-url (concat "http://php.net/manual-lookup.php?pattern="
+                          (symbol-name symbol))))))
+
+
+(defun my-php-function-lookup ()
+  (interactive)
+  (let* ((function (symbol-name (or (symbol-at-point)
+                                    (error "No function at point."))))
+         (buf (url-retrieve-synchronously (concat "http://php.net/manual-lookup.php?pattern=" function))))
+    (with-current-buffer buf
+      (goto-char (point-min))
+        (let (desc)
+          (when (re-search-forward "<div class=\"methodsynopsis dc-description\">\\(\\(.\\|\n\\)*?\\)</div>" nil t)
+            (setq desc
+              (replace-regexp-in-string
+                " +" " "
+                (replace-regexp-in-string
+                  "\n" ""
+                  (replace-regexp-in-string "<.*?>" "" (match-string-no-properties 1)))))
+
+            (when (re-search-forward "<p class=\"para rdfs-comment\">\\(\\(.\\|\n\\)*?\\)</p>" nil t)
+              (setq desc
+                    (concat desc "\n\n"
+                            (replace-regexp-in-string
+                             " +" " "
+                             (replace-regexp-in-string
+                              "\n" ""
+                              (replace-regexp-in-string "<.*?>" "" (match-string-no-properties 1))))))))
+
+          (if desc
+              (message desc)
+            (message "Could not extract function info. Press C-x g P to go the description."))))
+    (kill-buffer buf)))
+
+(message "0 dkh-php... Done")
+
+#+end_src 
