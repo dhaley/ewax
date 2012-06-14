@@ -17,7 +17,24 @@ $ touch ~/git/.emacs.d/.abbrev_defs
 $ touch ~/git/.emacs.d/.emacs.bmk"
 % touch ~/git/.emacs.d/.emacs-bmk-bmenu-state.el
 % touch ~/git/.emacs.d/.diary    
-emacs-setup is an emacs package that is meant to help make maintaining your
+
+
+I am using Bernt's org-file.
+
+Bascially, I get the most recent version and then make these changes.
+
+<   (add-hook 'message-mode-hook 'bbdb-define-all-aliases 'append)
+---
+> ;;  (add-hook 'message-mode-hook 'bbdb-define-all-aliases 'append)
+773c773
+<   (ido-mode (quote both))
+---
+> ;;  (ido-mode (quote both))
+
+
+
+
+    emacs-setup is an emacs package that is meant to help make maintaining your
 emacs setup easier. Through the use of M-x customize, the following can be
 setup through emacs-setup:
 

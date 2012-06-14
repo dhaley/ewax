@@ -1,0 +1,11 @@
+* Load private settings and customizations
+
+Override the default variables with user's actual data such as passwords.
+
+You can encrypt this with gpg (if needed)??
+
+#+begin_src emacs-lisp 
+
+(org-babel-load-file "~/git/.emacs.d/private.org")
+
+#+end_src 

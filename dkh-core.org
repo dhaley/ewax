@@ -6450,15 +6450,6 @@ pre-enabled (similar to the last tweets). whitespace-mode ftw :-)
 
 #+end_src 
 
-* Load private stuff
-
-You can encrypt this with gpg (if needed)
-
-#+begin_src emacs-lisp 
-
-(org-babel-load-file "~/git/.emacs.d/private.org")
-
-#+end_src 
 
 * Turn off debugging
 
