@@ -2180,7 +2180,7 @@ This one changes the cursor color on each blink. Define colors in `blink-cursor-
 ;; http://www.emacswiki.org/cgi-bin/wiki/InteractivelyDoThings
 
 (setq 
-  ido-save-directory-list-file "~/.emacs.d/cache/ido.last"
+  ido-save-directory-list-file "~/.emacs.d/ido.last"
 )
 
 (set `ido-ignore-files '("\\`CVS/" "\\`#" "\\`.#" "\\`\\.\\./"
@@ -2827,6 +2827,14 @@ Don't use a file dialog to ask for files
 (setq password-cache nil)
 
 (setq tramp-backup-directory-alist backup-directory-alist)
+
+#+end_src 
+
+*** Clean up tramp before saving desktop
+
+#+begin_src emacs-lisp 
+
+(add-hook 'desktop-save-hook 'tramp-cleanup-all-buffers)
 
 #+end_src 
 

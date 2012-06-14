@@ -52,7 +52,7 @@ files.
   ;;;
   ;;; Org Mode
   ;;;
-  (add-to-list 'load-path (expand-file-name "~/git/foss/org-mode/lisp"))
+  (add-to-list 'load-path (expand-file-name "~/git/org-mode/lisp"))
   (add-to-list 'auto-mode-alist '("\\.\\(org\\|org_archive\\|txt\\)$" . org-mode))
   (require 'org-install)
   ;;
@@ -69,7 +69,7 @@ files.
   ;;
   (if (boundp 'org-mode-user-lisp-path)
       (add-to-list 'load-path org-mode-user-lisp-path)
-    (add-to-list 'load-path (expand-file-name "~/git/foss/org-mode/lisp")))
+    (add-to-list 'load-path (expand-file-name "~/git/org-mode/lisp")))
   
   (add-to-list 'auto-mode-alist '("\\.\\(org\\|org_archive\\|txt\\)$" . org-mode))
   (require 'org-install)
@@ -86,7 +86,7 @@ creating structured email messages.
 #+begin_src emacs-lisp :tangle yes
   (add-hook 'message-mode-hook 'orgstruct++-mode 'append)
   (add-hook 'message-mode-hook 'turn-on-auto-fill 'append)
-;;  (add-hook 'message-mode-hook 'bbdb-define-all-aliases 'append)
+  (add-hook 'message-mode-hook 'bbdb-define-all-aliases 'append)
   (add-hook 'message-mode-hook 'orgtbl-mode 'append)
   (add-hook 'message-mode-hook 'turn-on-flyspell 'append)
   (add-hook 'message-mode-hook
@@ -104,14 +104,15 @@ creating documents with spelling errors.
   ;; flyspell mode for spell checking everywhere
   (add-hook 'org-mode-hook 'turn-on-flyspell 'append)
   
-  ;; Disable C-c [ and C-c ] in org-mode
+  ;; Disable C-c [ and C-c ] and C-c ; in org-mode
   (add-hook 'org-mode-hook
-            (lambda ()
-              ;; Undefine C-c [ and C-c ] since this breaks my
-              ;; org-agenda files when directories are include It
-              ;; expands the files in the directories individually
-              (org-defkey org-mode-map "\C-c["    'undefined)
-              (org-defkey org-mode-map "\C-c]"    'undefined))
+            '(lambda ()
+               ;; Undefine C-c [ and C-c ] since this breaks my
+               ;; org-agenda files when directories are include It
+               ;; expands the files in the directories individually
+               (org-defkey org-mode-map "\C-c["    'undefined)
+               (org-defkey org-mode-map "\C-c]"    'undefined)
+               (org-defkey org-mode-map "\C-c;"    'undefined))
             'append)
   
   (add-hook 'org-mode-hook
@@ -221,6 +222,10 @@ variable.  I just add and remove directories manually in my =.emacs=
 file.  Changing the list of directories in =org-agenda-files= happens
 very rarely since new files in existing directories are automatically
 picked up.
+
+I also disable the comment function =C-c ;= since I never use those.
+I kept accidentally hitting this key sequence when doing =C-c
+singlequote= for editing source blocks.
 
 In the example above I have =~/git/client2= in a separate git
 repository from ~/git/org.  This gives me the flexibility of leaving
@@ -607,9 +612,9 @@ and pick the appropriate capture task.
 Here is my setup for org-capture
 
 #+begin_src emacs-lisp :tangle yes
-  (setq org-directory "~/git/dkh-org")
-  (setq org-default-notes-file "~/git/dkh-org/refile.org")
-
+  (setq org-directory "~/git/org")
+  (setq org-default-notes-file "~/git/org/refile.org")
+  
   ;; I use C-M-r to start capture mode
   (global-set-key (kbd "C-M-r") 'org-capture)
   ;; I use C-c r to start capture mode when using SSH from my Android phone
@@ -617,20 +622,22 @@ Here is my setup for org-capture
   
   ;; Capture templates for: TODO tasks, Notes, appointments, phone calls, and org-protocol
   (setq org-capture-templates
-        (quote (("t" "todo" entry (file "~/git/dkh-org/refile.org")
-                 "* TODO %?\n%U\n%a\n  %i" :clock-in t :clock-resume t)
-                ("n" "note" entry (file "~/git/dkh-org/refile.org")
-                 "* %? :NOTE:\n%U\n%a\n  %i" :clock-in t :clock-resume t)
-                ("j" "Journal" entry (file+datetree "~/git/dkh-org/diary.org")
-                 "* %?\n%U\n  %i" :clock-in t :clock-resume t)
-                ("w" "org-protocol" entry (file "~/git/dkh-org/refile.org")
-                 "* TODO Review %c\n%U\n  %i" :immediate-finish t)
-                ("p" "Phone call" entry (file "~/git/dkh-org/refile.org")
+        (quote (("t" "todo" entry (file "~/git/org/refile.org")
+                 "* TODO %?\n%U\n%a\n" :clock-in t :clock-resume t)
+                ("r" "respond" entry (file "~/git/org/refile.org")
+                 "* TODO Respond to %:from on %:subject\n%U\n%a\n" :clock-in t :clock-resume t :immediate-finish t)
+                ("n" "note" entry (file "~/git/org/refile.org")
+                 "* %? :NOTE:\n%U\n%a\n" :clock-in t :clock-resume t)
+                ("j" "Journal" entry (file+datetree "~/git/org/diary.org")
+                 "* %?\n%U\n" :clock-in t :clock-resume t)
+                ("w" "org-protocol" entry (file "~/git/org/refile.org")
+                 "* TODO Review %c\n%U\n" :immediate-finish t)
+                ("p" "Phone call" entry (file "~/git/org/refile.org")
                  "* PHONE %? :PHONE:\n%U" :clock-in t :clock-resume t)
-                ("h" "Habit" entry (file "~/git/dkh-org/refile.org")
-                 "* NEXT %?\n%U\n%a\nSCHEDULED: %t .+1d/3d\n:PROPERTIES:\n:STYLE: habit\n:REPEAT_TO_STATE: NEXT\n:END:\n  %i"))))
-
-
+                ("h" "Habit" entry (file "~/git/org/refile.org")
+                 "* NEXT %?\n%U\n%a\nSCHEDULED: %t .+1d/3d\n:PROPERTIES:\n:STYLE: habit\n:REPEAT_TO_STATE: NEXT\n:END:\n"))))
+  
+  
 #+end_src
 
 Capture mode now handles automatically clocking in and out of a
@@ -695,7 +702,7 @@ since it's a new task and I get a buffer like this:
 #+begin_src org :exports src
   ,* TODO 
   ,  [2010-08-05 Thu 21:06]
-  ,  [[file:~/git/src/org-mode-doc/org-mode.org::*Capture%20Tasks%20is%20all%20about%20being%20FAST][Capture Tasks is all about being FAST]]
+  ,  [[file:~/git/org-mode-doc/org-mode.org::*Capture%20Tasks%20is%20all%20about%20being%20FAST][Capture Tasks is all about being FAST]]
 #+end_src
 
 Enter the details of the TODO item and =C-c C-c= to file it away in
@@ -854,8 +861,8 @@ don't want to spend time waiting for it to be generated.
 ** Setup
 
 #+begin_src emacs-lisp :tangle yes
-  ;; Do not dim blocked tasks
-  (setq org-agenda-dim-blocked-tasks nil)
+  ;; Dim blocked tasks
+  (setq org-agenda-dim-blocked-tasks t)
   
   ;; Compact the block agenda view
   (setq org-agenda-compact-blocks t)
@@ -901,6 +908,7 @@ don't want to spend time waiting for it to be generated.
                                '(category-keep))))
                   (tags-todo "-CANCELLED/!WAITING|HOLD"
                              ((org-agenda-overriding-header "Waiting and Postponed Tasks")
+                              (org-agenda-skip-function 'bh/skip-stuck-projects)
                               (org-tags-match-list-sublevels nil)
                               (org-agenda-todo-ignore-scheduled 'future)
                               (org-agenda-todo-ignore-deadlines 'future)))
@@ -2052,7 +2060,7 @@ followed by the phone-call related lookup functions.
   ;; Capture templates for: TODO tasks, Notes, appointments, phone calls, and org-protocol
   (setq org-capture-templates
         (quote (...
-                ("p" "Phone call" entry (file "~/git/dkh-org/refile.org")
+                ("p" "Phone call" entry (file "~/git/org/refile.org")
                  "* PHONE %? :PHONE:\n%U" :clock-in t :clock-resume t)
                 ...)))
 #+end_src
@@ -2124,7 +2132,7 @@ handy.  This pops up as a reminder on Monday's.  This week I'm
 doing my weekly review on Tuesday since Monday was a holiday.
 
 #+begin_src org :exports src
-  ,* NEXT Weekly Review [0/8]
+  ,* NEXT Weekly Review [0/6]
   , SCHEDULED: <2009-05-18 Mon ++1w> 
   , LOGBOOK:...
   , PROPERTIES:...
@@ -2132,10 +2140,12 @@ doing my weekly review on Tuesday since Monday was a holiday.
   , What to review:
   
   ,  - [ ] Check follow-up folder
-  ,  - [ ] Review weekly agenda F12 a w //
-  ,  - [ ] Check clocking data for past week v c b
-  ,  - [ ] Review clock report for past week R
+  ,  - [ ] Review weekly agenda =F12 a w //=
+  ,  - [ ] Check clocking data for past week =v c=
+  ,  - [ ] Review clock report for past week =R=
   ,    - Check where we spent time (too much or too little) and rectify this week
+  ,  - [ ] Look at entire agenda for today  =F12 SPC=
+  ,  - [ ] Review projects =F12 SPC //= and =V= repeatedly to view each project
   
   ,  - start work
   ,    - daily agenda first - knock off items
@@ -2287,6 +2297,24 @@ used by agenda views.
         (setq org-tags-match-list-sublevels t)
       (setq org-tags-match-list-sublevels nil))
     nil)
+  
+  (defun bh/skip-stuck-projects ()
+    "Skip trees that are not stuck projects"
+    (save-restriction
+      (widen)
+      (let ((next-headline (save-excursion (or (outline-next-heading) (point-max)))))
+        (if (bh/is-project-p)
+            (let* ((subtree-end (save-excursion (org-end-of-subtree t)))
+                   (has-next ))
+              (save-excursion
+                (forward-line 1)
+                (while (and (not has-next) (< (point) subtree-end) (re-search-forward "^\\*+ NEXT " subtree-end t))
+                  (unless (member "WAITING" (org-get-tags-at))
+                      (setq has-next t))))
+              (if has-next
+                  nil
+                next-headline)) ; a stuck project, has subtasks but no next task
+          nil))))
   
   (defun bh/skip-non-stuck-projects ()
     "Skip trees that are not stuck projects"
@@ -2827,7 +2855,7 @@ I have 5 main projects I use org-mode publishing for currently:
 
 Here's my publishing setup:
 
-#+begin_src emacs-lisp :tangle no
+#+begin_src emacs-lisp :tangle yes
   ; experimenting with docbook exports - not finished
   (setq org-export-docbook-xsl-fo-proc-command "fop %s %s")
   (setq org-export-docbook-xslt-proc-command "xsltproc --output %s /usr/share/xml/docbook/stylesheet/nwalsh/fo/docbook.xsl %s")
@@ -2932,7 +2960,7 @@ Here's my publishing setup:
                 ; Miscellaneous pages for other websites
                 ; org are the org-files that generate the content
                 ("org-org"
-                 :base-directory "~/git/dkh-org/"
+                 :base-directory "~/git/org/"
                  :publishing-directory "/ssh:www-data@www:~/org"
                  :recursive t
                  :section-numbers nil
@@ -2950,7 +2978,7 @@ Here's my publishing setup:
                 ; org-mode-doc is the top-level project that gets published
                 ; This uses the same target directory as the 'doc' project
                 ("org-mode-doc-org"
-                 :base-directory "~/git/dkh-org-mode-doc/"
+                 :base-directory "~/git/org-mode-doc/"
                  :publishing-directory "/ssh:www-data@www:~/doc.norang.ca/htdocs"
                  :recursive t
                  :section-numbers nil
@@ -3257,11 +3285,9 @@ way to focus on what we are doing.
     (interactive "p")
     (if (equal arg 4)
         (save-restriction
-          (widen)
-          (org-narrow-to-subtree)
+          (bh/narrow-to-org-subtree)
           (org-show-todo-tree nil))
-      (widen)
-      (org-narrow-to-subtree)
+      (bh/narrow-to-org-subtree)
       (org-show-todo-tree nil)))
   
   (global-set-key (kbd "<S-f5>") 'bh/widen)
@@ -3315,10 +3341,16 @@ way to focus on what we are doing.
       (outline-up-heading 1 'invisible-ok)
       (bh/narrow-to-org-subtree)))
   
+  (defun bh/get-pom-from-agenda-restriction-or-point ()
+    (or (org-get-at-bol 'org-hd-marker)
+        (and (marker-position org-agenda-restrict-begin) org-agenda-restrict-begin)
+        (and (equal major-mode 'org-mode) (point))
+        org-clock-marker))
+  
   (defun bh/narrow-up-one-level ()
     (interactive)
     (if (equal major-mode 'org-agenda-mode)
-        (org-with-point-at (org-get-at-bol 'org-hd-marker)
+        (org-with-point-at (bh/get-pom-from-agenda-restriction-or-point)
           (bh/narrow-up-one-org-level))
       (bh/narrow-up-one-org-level)))
   
@@ -3335,12 +3367,33 @@ way to focus on what we are doing.
   (defun bh/narrow-to-project ()
     (interactive)
     (if (equal major-mode 'org-agenda-mode)
-        (org-with-point-at (org-get-at-bol 'org-hd-marker)
+        (org-with-point-at (bh/get-pom-from-agenda-restriction-or-point)
           (bh/narrow-to-org-project))
       (bh/narrow-to-org-project)))
   
   (add-hook 'org-agenda-mode-hook
             '(lambda () (org-defkey org-agenda-mode-map "P" 'bh/narrow-to-project))
+            'append)
+  
+  (defvar bh/current-view-project nil)
+  
+  (defun bh/view-next-project ()
+    (interactive)
+    (unless (marker-position org-agenda-restrict-begin)
+      (goto-char (point-min))
+      (re-search-forward "^Projects$")
+      (setq bh/current-view-project (point)))
+    (bh/widen)
+    (goto-char bh/current-view-project)
+    (forward-visible-line 1)
+    (setq bh/current-view-project (point))
+    (if (org-get-at-bol 'org-hd-marker)
+        (bh/narrow-to-project)
+      (message "All projects viewed.")
+      (ding)))
+  
+  (add-hook 'org-agenda-mode-hook
+            '(lambda () (org-defkey org-agenda-mode-map "V" 'bh/view-next-project))
             'append)
 #+end_src
 
@@ -3349,9 +3402,10 @@ temporarily by limiting your view to this task subtree.  Tasks are
 folded and hilighted so that only tasks which are incomplete are
 shown.
 
-I hit =f5= a lot.  This basically does a =org-narrow-to-subtree= and
-=C-c / t= combination leaving the buffer in a narrowed state.  I use
-=S-f5= to widen back to the normal view.
+I hit =f5= (or the =T= speed key) a lot.  This basically does a
+=org-narrow-to-subtree= and =C-c / t= combination leaving the buffer
+in a narrowed state.  I use =S-f5= (or some other widening speed key
+like =U=, =W=, =F=) to widen back to the normal view.
 
 I also have the following setting to force showing the next headline.
 #+begin_src emacs-lisp :tangle yes
@@ -3379,18 +3433,17 @@ The following elisp accomplishes this.
   (defun bh/set-agenda-restriction-lock (arg)
     "Set restriction lock to current task subtree or file if prefix is specified"
     (interactive "p")
-    (let* ((pom (or (org-get-at-bol 'org-hd-marker)
-                    org-agenda-restrict-begin))
+    (let* ((pom (bh/get-pom-from-agenda-restriction-or-point))
            (tags (org-with-point-at pom (org-get-tags-at))))
       (let ((restriction-type (if (equal arg 4) 'file 'subtree)))
         (save-restriction
           (cond
-           ((equal major-mode 'org-agenda-mode)
+           ((and (equal major-mode 'org-agenda-mode) pom)
             (org-with-point-at pom
               (org-agenda-set-restriction-lock restriction-type)))
            ((and (equal major-mode 'org-mode) (org-before-first-heading-p))
             (org-agenda-set-restriction-lock 'file))
-           (t
+           (pom
             (org-with-point-at pom
               (org-agenda-set-restriction-lock restriction-type))))))))
 #+end_src
@@ -3472,10 +3525,7 @@ The clock modeline time is also shown with a reverse background.
     ;; If you edit it by hand, you could mess it up, so be careful.
     ;; Your init file should contain only one such instance.
     ;; If there is more than one, they won't work right.
-   '(highlight ((t (:background "cyan"))))
-   '(hl-line ((t (:inherit highlight :background "darkseagreen2"))))
-   '(org-mode-line-clock ((t (:background "grey75" :foreground "red" :box (:line-width -1 :style released-button)))) t))
-
+   '(org-mode-line-clock ((t (:foreground "red" :box (:line-width -1 :style released-button)))) t))
 #+end_src
 *** Keep tasks with timestamps visible on the global todo lists
 
@@ -3521,7 +3571,7 @@ you're not supposed to be working.
 
 #+begin_src emacs-lisp :tangle yes
   (setq org-agenda-include-diary nil)
-  (setq org-agenda-diary-file "~/git/dkh-org/diary.org")
+  (setq org-agenda-diary-file "~/git/org/diary.org")
 #+end_src
 
 The diary file keeps =date-tree= entries created by the capture mode
@@ -3531,7 +3581,7 @@ want to clock during interruptions.
 I don't use a =~/diary= file anymore.  That is just there as a
 zero-length file to keep Emacs happy.  I use org-mode's diary
 functions instead.  Inserting entries with =i= in the emacs agenda
-creates date entries in the =~/git/dkh-org/diary.org= file.
+creates date entries in the =~/git/org/diary.org= file.
 
 I include holidays from the calendar in my =todo.org= file as follows:
 #+begin_src org :exports src
@@ -3756,7 +3806,7 @@ Add the following to your =.emacs=
   ;;
   (if (boundp 'org-mode-user-contrib-lisp-path)
       (add-to-list 'load-path org-mode-user-contrib-lisp-path)
-    (add-to-list 'load-path (expand-file-name "~/git/foss/org-mode/contrib/lisp")))
+    (add-to-list 'load-path (expand-file-name "~/git/org-mode/contrib/lisp")))
   
   (require 'org-checklist)
 #+end_src
@@ -3926,11 +3976,11 @@ Most of my lists have no body detail so I like the look of collapsed
 lists with no blank lines better.
 
 The following setting prevents creating blank lines before headings
-but allows list items to adapt to existing blank line behaviour:
+and lists items:
 
 #+begin_src emacs-lisp :tangle yes
   (setq org-blank-before-new-entry (quote ((heading)
-                                           (plain-list-item . auto))))
+                                           (plain-list-item))))
 #+end_src
 *** Adding new tasks quickly without disturbing the current task content
 
@@ -4222,7 +4272,7 @@ other help on IRC.
 I set up an alarm so the Star Trek door chime goes off when the
 total estimated time is hit.  (Yes I'm a Trekkie :) )
 
-#+begin_src emacs-lisp :tangle no
+#+begin_src emacs-lisp :tangle yes
   (setq org-clock-sound "/usr/local/lib/tngchime.wav")
 #+end_src
 
@@ -4607,7 +4657,7 @@ the modeline by changing the background to red as follows
     ;; If you edit it by hand, you could mess it up, so be careful.
     ;; Your init file should contain only one such instance.
     ;; If there is more than one, they won't work right.
-   '(org-mode-line-clock ((t (:background "grey75" :foreground "red" :box (:line-width -1 :style released-button)))) t))
+   '(org-mode-line-clock ((t (:foreground "red" :box (:line-width -1 :style released-button)))) t))
 #+end_src
 ** Meeting Notes
 
@@ -4661,13 +4711,13 @@ style.
   ,     + Larry
   ,       - did this
   ,       - and that
-  , TODO: Needs to follow up on this
+  ,>>>>>>>> TODO: Needs to follow up on this
   ,     + Mary
   ,       - got a promotion for her recent efforts
   ,     + Fred
   ,       - completed all his tasks 2 days early
   ,       - needs more work
-  , DONE: everything  
+  ,>>>>>>>> DONE: everything  
 #+end_src
 
 Here is the formatting function.  Just highlight the region for the
@@ -4715,7 +4765,7 @@ up emacs to find the info files from git before the regular (out of
 date) system versions.
 
 #+begin_src emacs-lisp :tangle yes
-  (add-to-list 'Info-default-directory-list "~/git/foss/org-mode/doc")
+  (add-to-list 'Info-default-directory-list "~/git/org-mode/doc")
 #+end_src
 ** Prefer future dates or not?
 
@@ -4810,21 +4860,6 @@ the agenda for flagged items.  See [[#OrgTagAlist][Tags]] for the setup of
 =org-tag-alist= for the =FLAGGED= entry.
 
 Finding flagged entries is then simple - just =F12 ?= and you get them all.
-** Prevent horizontal window splitting
-
-Emacs 23 wants to split the window both horizontally and vertically
-based on screen usage.  With today's widescreen monitors this often
-means we split the window horizontally instead of vertically.
-
-I found this change obtrusive and turn it off with the following
-setting.  However now that I've used it for a long time it makes
-the clocking history list much easier to use -- so reduce the 
-threshold so the clock history list (=C-u C-F11=) shows the menu
-on the right.
-
-#+begin_src emacs-lisp :tangle yes
-  (setq split-width-threshold 120)
-#+end_src
 ** Mail links open compose-mail
 
 The following setting makes org-mode open =mailto:= links
@@ -4977,8 +5012,8 @@ org-mode.
         (quote (("s" "#+begin_src ?\n\n#+end_src" "<src lang=\"?\">\n\n</src>")
                 ("e" "#+begin_example\n?\n#+end_example" "<example>\n?\n</example>")
                 ("q" "#+begin_quote\n?\n#+end_quote" "<quote>\n?\n</quote>")
-                ("v" "#+begin_verse\n?\n#+end_verse" "<verse>\n?\n/verse>")
-                ("c" "#+begin_center\n?\n#+end_center" "<center>\n?\n/center>")
+                ("v" "#+begin_verse\n?\n#+end_verse" "<verse>\n?\n</verse>")
+                ("c" "#+begin_center\n?\n#+end_center" "<center>\n?\n</center>")
                 ("l" "#+begin_latex\n?\n#+end_latex" "<literal style=\"latex\">\n?\n</literal>")
                 ("L" "#+latex: " "<literal style=\"latex\">?</literal>")
                 ("h" "#+begin_html\n?\n#+end_html" "<literal style=\"html\">\n?\n</literal>")
@@ -5026,6 +5061,19 @@ the list _before_ we archive anything.
   (setq org-startup-folded 'content)
 #+end_src
 
+** Allow alphabetical list entries
+[2012-06-06 Wed 22:23]
+
+The following setting adds alphabetical lists like
+
+#+begin_src org :exports src
+  ,a. item one
+  ,b. item two
+#+end_src
+
+#+begin_src emacs-lisp :tangle yes
+  (setq org-alphabetical-lists t)
+#+end_src
 * Things I Don't Use (Anymore)
 
 This is a partial list of things I know about but do not use.
@@ -5520,7 +5568,7 @@ git describe --abbrev=4
 
 #+name: org-mode-version
 #+begin_src sh :exports none
-  cd ~/git/foss/org-mode && git describe origin/master
+  cd ~/git/org-mode && git describe origin/master
 #+end_src
 
 This is version call_org-mode-doc-version() of this document and it is
