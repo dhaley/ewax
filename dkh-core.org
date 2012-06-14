@@ -2733,6 +2733,7 @@ A list of the form (FRAME-CONFIGURATION POSITION)
 
 (defalias 'acm 'auto-complete-mode)
 
+(defalias 'eu 'eudc-query-form)
 #+end_src 
     
 * Documentation
