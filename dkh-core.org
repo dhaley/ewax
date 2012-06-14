@@ -950,7 +950,7 @@ frames with exactly two windows."
 
 #+end_src 
 
-** Paste functionality
+** Copy/Paste functionality
 
 #+begin_src emacs-lisp 
 
@@ -975,6 +975,150 @@ this line:
 (setq x-select-enable-clipboard t)
 
 #+end_src 
+
+*** Copy current file path
+
+One of the drawbacks of integrating the GNU Emacs copy-and-paste
+mechanism with X is that Emacs will grab the clipboard or selection
+every time you do a kill. This becomes a problem over slow network
+links (such as, for example, a DSL connection from home to work, and
+from there to a remote datacenter). I wrote replacements for myself
+that make clipboard operations explicit. This works with CVS GNU
+Emacs. Note that this affects the clipboard, so it will work with
+Firefox and “modern” X apps, but older X apps like xterm need to be
+modified to use CLIPBOARD rather than the PRIMARY selection.
+
+
+#+begin_src emacs-lisp :tangle no
+
+  ;; Disable automatic cutting and pasting to the clipboard.
+  ;; This causes noticeable delays over slow network links.
+  ;; The function `insert-clipboard-contents' and the function
+  ;; `set-clipboard-contents' let me do this explicitly.
+  (setq interprogram-cut-function nil)
+  (setq interprogram-paste-function nil)
+
+  (defun get-clipboard-contents-as-string ()
+    "Return the value of the clipboard contents as a string."
+    (let ((x-select-enable-clipboard t))
+      (or (x-cut-buffer-or-selection-value)
+          x-last-selected-text-clipboard)))
+
+  (defun insert-clipboard-contents ()
+    "Insert the value of the current X selection at point.
+  Uses the clipboard value if it is defined or not empty, otherwise
+  falls back on the primary selection."
+    (interactive)
+    (let ((text (get-clipboard-contents-as-string)))
+      (when text
+        ;; This operation is very much like a yank, so set mark like
+        ;; yank does.  Note that the "longlines" mode advice on this
+        ;; function depends on mark having been set.
+        (push-mark)
+        (insert text))))
+
+  (defun set-clipboard-contents-from-string (str)
+    "Copy the value of string STR into the clipboard."
+    (let ((x-select-enable-clipboard t))
+      (x-select-text str)))
+
+  (defun set-clipboard-contents (beg end)
+    "Copy the value of the current region into the clipboard."
+    (interactive "r")
+    (set-clipboard-contents-from-string
+     (buffer-substring-no-properties beg end))
+    (setq deactivate-mark t))
+
+  (defun set-clipboard-contents-delete (beg end)
+    "Cut the value of the current region into the clipboard.
+  The current region is deleted (without updating the kill ring)."
+    (interactive "r")
+    (set-clipboard-contents-from-string
+     (buffer-substring-no-properties beg end))
+    (delete-region beg end)
+    (setq deactivate-mark t))
+
+  (defun set-clipboard-contents-and-kill-ring-from-string (str)
+    "Copy the value of string STR into the clipboard, and make it the latest kill."
+    (set-clipboard-contents-from-string str)
+    (kill-new str)
+    (message "%s" str))
+
+  (eval-after-load "longlines"
+    '(progn
+       (defadvice insert-clipboard-contents (after longlines-decode-kill activate)
+         ;; Depends on insert-clipboard-contents having set mark at the
+         ;; begging of the text.  If we have to stop doing that, we
+         ;; should turn this into "around" advice that can capture point
+         ;; before doing the insert.
+         (when longlines-mode
+           (longlines-decode-region (point) (mark t))
+           (when longlines-showing
+             (longlines-show-hard-newlines))))
+       (defadvice set-clipboard-contents (around longlines-encode-kill activate)
+         (if longlines-mode
+             (let ((str (buffer-substring beg end)))
+               (with-temp-buffer
+                 (insert str)
+                 (longlines-encode-region (point-min) (point-max))
+                 (setq beg (point-min))
+                 (setq end (point-max))
+                 ad-do-it))
+           ad-do-it))
+       (defadvice set-clipboard-contents-delete (before longlines-encode-kill activate)
+         (when longlines-mode
+           (longlines-encode-region beg end)))))
+
+  (defun path-to-clipboard ()
+    "Copy the current file's path to the clipboard.
+
+  If the current buffer has no file, copy the buffer's default directory."
+    (interactive)
+    (let ((path (expand-file-name (or (buffer-file-name) default-directory))))
+      (set-clipboard-contents-from-string path)
+      (message "%s" path)))
+
+  (defun npath-to-clipboard ()
+    "Copy the current file's path to the clipboard, with a network filename.
+  The resulting value will have the correct syntax to use with SCP.
+
+  If the current buffer has no file, copy the buffer's default directory."
+    (interactive)
+    (let* ((host (system-name))
+           (path (expand-file-name (or (buffer-file-name) default-directory)))
+           (network-path (concat host ":" path)))
+      (set-clipboard-contents-from-string network-path)
+      (message "%s" network-path)))
+
+#+end_src
+
+#+begin_src emacs-lisp 
+
+(defun copy-buffer-file-name (use-backslashes)
+  "Puts the file name of the current buffer (or the current directory,
+if the buffer isn't visiting a file) onto the kill ring, so that it
+can be retrieved with \\[yank], or by another program.  With argument,
+uses backslashes instead of forward slashes."
+  (interactive "P")
+  (let ((fn (subst-char-in-string
+             ?/
+             (if use-backslashes ?\\ ?/)
+             (or
+              (buffer-file-name (current-buffer))
+              ;; Perhaps the buffer isn't visiting a file at all.  In
+              ;; that case, let's return the directory.
+              (expand-file-name default-directory)))))
+    (when (null fn)
+      (error "Buffer doesn't appear to be associated with any file or 
+directory."))
+    (kill-new fn)
+    (message "%s" fn)
+    fn))
+
+(global-set-key (kbd "H-f") 'copy-buffer-file-name)
+
+#+end_src 
+
 
 ** Completion functionality
 *** Ignore case in completion
