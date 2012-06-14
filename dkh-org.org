@@ -770,7 +770,7 @@ Here is my refile configuration:
   (setq org-completion-use-ido t)
   (setq ido-everywhere t)
   (setq ido-max-directory-size 100000)
-  (ido-mode (quote both))
+;;  (ido-mode (quote both))
   
   ;;;; Refile settings
   ; Exclude DONE state tasks from refile targets

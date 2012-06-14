@@ -577,7 +577,7 @@ than a single login session.
 Guru mode disables some common keybindings and suggests the use of the
 established Emacs alternatives instead.
 
-#+begin_src emacs-lisp 
+#+begin_src emacs-lisp :tangle no
 
 (require 'guru-mode)
 (guru-mode) ;; to enable in all buffers
@@ -1953,6 +1953,165 @@ This one changes the cursor color on each blink. Define colors in `blink-cursor-
 
 #+end_src 
 
+* Org (Organize your life)
+** Org Agenda
+
+;; The following setting is different from the document so that you
+;; can override the document org-agenda-files by setting your
+;; org-agenda-files in the variable org-user-agenda-files
+
+#+begin_src emacs-lisp 
+
+(setq org-user-agenda-files (quote (
+"~/git/cu"
+"~/git/cu/igp"
+"~/git/cu/centers"
+"~/git/dkh-org"
+"~/git/dkh-org/wordpress"
+"~/git/netlsd"
+)))
+
+#+end_src 
+
+** Diary location
+
+#+begin_src emacs-lisp 
+
+(setq diary-file "~/git/.emacs.d/.diary")
+
+#+end_src 
+
+** Org modules I like
+
+#+begin_src emacs-lisp 
+
+(require 'org-habit) ;; added by dkh
+
+#+end_src 
+
+** Org Latex
+
+#+begin_src emacs-lisp
+
+(require 'org-latex)
+(unless (boundp 'org-export-latex-classes)
+  (setq org-export-latex-classes nil))
+(add-to-list 'org-export-latex-classes
+             '("article"
+               "\\documentclass{article}"
+               ("\\section{%s}" . "\\section*{%s}")))
+
+(add-to-list 'org-export-latex-classes
+             '("article"
+               "\\documentclass{article}"
+               ("\\section{%s}" . "\\section*{%s}")
+               ("\\subsection{%s}" . "\\subsection*{%s}")
+               ("\\subsubsection{%s}" . "\\subsubsection*{%s}")
+               ("\\paragraph{%s}" . "\\paragraph*{%s}")
+               ("\\subparagraph{%s}" . "\\subparagraph*{%s}")))
+
+(add-to-list 'org-export-latex-classes
+             `("book"
+               "\\documentclass{book}"
+               ("\\part{%s}" . "\\part*{%s}")
+               ("\\chapter{%s}" . "\\chapter*{%s}")
+               ("\\section{%s}" . "\\section*{%s}")
+               ("\\subsection{%s}" . "\\subsection*{%s}")
+               ("\\subsubsection{%s}" . "\\subsubsection*{%s}"))
+             )
+
+(add-to-list 'org-export-latex-classes
+      '("org-article"
+         "\\documentclass{org-article}
+         [NO-DEFAULT-PACKAGES]
+         [PACKAGES]
+         [EXTRA]"
+         ("\\section{%s}" . "\\section*{%s}")
+         ("\\subsection{%s}" . "\\subsection*{%s}")
+         ("\\subsubsection{%s}" . "\\subsubsection*{%s}")
+         ("\\paragraph{%s}" . "\\paragraph*{%s}")
+         ("\\subparagraph{%s}" . "\\subparagraph*{%s}")))
+
+(add-to-list 'org-export-latex-classes
+          '("koma-article"
+             "\\documentclass{scrartcl}
+             [NO-DEFAULT-PACKAGES]
+             [EXTRA]"
+             ("\\section{%s}" . "\\section*{%s}")
+             ("\\subsection{%s}" . "\\subsection*{%s}")
+             ("\\subsubsection{%s}" . "\\subsubsection*{%s}")
+             ("\\paragraph{%s}" . "\\paragraph*{%s}")
+             ("\\subparagraph{%s}" . "\\subparagraph*{%s}")))
+
+(setq org-export-latex-listings 'minted)
+(setq org-export-latex-custom-lang-environments
+      '(
+       (emacs-lisp "common-lispcode")
+        ))
+(setq org-export-latex-minted-options
+      '(("frame" "lines")
+        ("fontsize" "\\scriptsize")
+        ("linenos" "")))
+(setq org-latex-to-pdf-process
+      '("pdflatex -shell-escape -interaction nonstopmode -output-directory %o %f"
+        "pdflatex -shell-escape -interaction nonstopmode -output-directory %o %f"
+        "pdflatex -shell-escape -interaction nonstopmode -output-directory %o %f"))
+
+(setq org-export-latex-listings 'listings)
+(setq org-export-latex-custom-lang-environments
+      '((emacs-lisp "common-lispcode")))
+(setq org-export-latex-listings-options
+      '(("frame" "lines")
+        ("basicstyle" "\\footnotesize")
+        ("numbers" "left")
+        ("numberstyle" "\\tiny")))
+(setq org-latex-to-pdf-process
+      '("pdflatex -interaction nonstopmode -output-directory %o %f"
+      "pdflatex -interaction nonstopmode -output-directory %o %f"
+      "pdflatex -interaction nonstopmode -output-directory %o %f"))
+(org-add-link-type
+ "latex" nil
+ (lambda (path desc format)
+   (cond
+    ((eq format 'html)
+     (format "<span class=\"%s\">%s</span>" path desc))
+    ((eq format 'latex)
+     (format "\\%s{%s}" path desc)))))
+
+#+end_src 
+
+** org subtree cut function
+#+begin_src emacs-lisp 
+
+(define-key org-mode-map (kbd "C-c k") 'org-cut-subtree)
+
+(setq org-export-with-section-numbers nil)
+(setq org-html-include-timestamps nil)
+
+(defun sacha/org-export-subtree-as-html-fragment ()
+  (interactive)
+  (org-export-region-as-html
+   (org-back-to-heading)
+   (org-end-of-subtree)
+   t))
+
+(setq org-link-abbrev-alist
+  '(("google" . "http://www.google.com/search?q=")
+    ("gmap" . "http://maps.google.com/maps?q=%s")
+    ("blog" . "http://sachachua.com/blog/p/")))
+
+#+end_src
+
+** org-bable
+#+begin_src emacs-lisp 
+
+(org-babel-do-load-languages
+    'org-babel-load-languages '((python . t) (R . t) (perl . t)))
+
+#+end_src 
+
+
+   
 * Navigation (Driving the car)
 ** Ibuffer
 
@@ -2575,163 +2734,6 @@ A list of the form (FRAME-CONFIGURATION POSITION)
 (defalias 'acm 'auto-complete-mode)
 
 #+end_src 
-
-* Org (Organize your life)
-** Org Agenda
-
-;; The following setting is different from the document so that you
-;; can override the document org-agenda-files by setting your
-;; org-agenda-files in the variable org-user-agenda-files
-
-#+begin_src emacs-lisp 
-
-(setq org-user-agenda-files (quote (
-"~/git/cu"
-"~/git/cu/igp"
-"~/git/cu/centers"
-"~/git/dkh-org"
-"~/git/dkh-org/wordpress"
-"~/git/netlsd"
-)))
-
-#+end_src 
-
-** Diary location
-
-#+begin_src emacs-lisp 
-
-(setq diary-file "~/git/.emacs.d/.diary")
-
-#+end_src 
-
-** Org modules I like
-
-#+begin_src emacs-lisp 
-
-(require 'org-habit) ;; added by dkh
-
-#+end_src 
-
-** Org Latex
-
-#+begin_src emacs-lisp
-
-(require 'org-latex)
-(unless (boundp 'org-export-latex-classes)
-  (setq org-export-latex-classes nil))
-(add-to-list 'org-export-latex-classes
-             '("article"
-               "\\documentclass{article}"
-               ("\\section{%s}" . "\\section*{%s}")))
-
-(add-to-list 'org-export-latex-classes
-             '("article"
-               "\\documentclass{article}"
-               ("\\section{%s}" . "\\section*{%s}")
-               ("\\subsection{%s}" . "\\subsection*{%s}")
-               ("\\subsubsection{%s}" . "\\subsubsection*{%s}")
-               ("\\paragraph{%s}" . "\\paragraph*{%s}")
-               ("\\subparagraph{%s}" . "\\subparagraph*{%s}")))
-
-(add-to-list 'org-export-latex-classes
-             `("book"
-               "\\documentclass{book}"
-               ("\\part{%s}" . "\\part*{%s}")
-               ("\\chapter{%s}" . "\\chapter*{%s}")
-               ("\\section{%s}" . "\\section*{%s}")
-               ("\\subsection{%s}" . "\\subsection*{%s}")
-               ("\\subsubsection{%s}" . "\\subsubsection*{%s}"))
-             )
-
-(add-to-list 'org-export-latex-classes
-      '("org-article"
-         "\\documentclass{org-article}
-         [NO-DEFAULT-PACKAGES]
-         [PACKAGES]
-         [EXTRA]"
-         ("\\section{%s}" . "\\section*{%s}")
-         ("\\subsection{%s}" . "\\subsection*{%s}")
-         ("\\subsubsection{%s}" . "\\subsubsection*{%s}")
-         ("\\paragraph{%s}" . "\\paragraph*{%s}")
-         ("\\subparagraph{%s}" . "\\subparagraph*{%s}")))
-
-(add-to-list 'org-export-latex-classes
-          '("koma-article"
-             "\\documentclass{scrartcl}
-             [NO-DEFAULT-PACKAGES]
-             [EXTRA]"
-             ("\\section{%s}" . "\\section*{%s}")
-             ("\\subsection{%s}" . "\\subsection*{%s}")
-             ("\\subsubsection{%s}" . "\\subsubsection*{%s}")
-             ("\\paragraph{%s}" . "\\paragraph*{%s}")
-             ("\\subparagraph{%s}" . "\\subparagraph*{%s}")))
-
-(setq org-export-latex-listings 'minted)
-(setq org-export-latex-custom-lang-environments
-      '(
-       (emacs-lisp "common-lispcode")
-        ))
-(setq org-export-latex-minted-options
-      '(("frame" "lines")
-        ("fontsize" "\\scriptsize")
-        ("linenos" "")))
-(setq org-latex-to-pdf-process
-      '("pdflatex -shell-escape -interaction nonstopmode -output-directory %o %f"
-        "pdflatex -shell-escape -interaction nonstopmode -output-directory %o %f"
-        "pdflatex -shell-escape -interaction nonstopmode -output-directory %o %f"))
-
-(setq org-export-latex-listings 'listings)
-(setq org-export-latex-custom-lang-environments
-      '((emacs-lisp "common-lispcode")))
-(setq org-export-latex-listings-options
-      '(("frame" "lines")
-        ("basicstyle" "\\footnotesize")
-        ("numbers" "left")
-        ("numberstyle" "\\tiny")))
-(setq org-latex-to-pdf-process
-      '("pdflatex -interaction nonstopmode -output-directory %o %f"
-      "pdflatex -interaction nonstopmode -output-directory %o %f"
-      "pdflatex -interaction nonstopmode -output-directory %o %f"))
-(org-add-link-type
- "latex" nil
- (lambda (path desc format)
-   (cond
-    ((eq format 'html)
-     (format "<span class=\"%s\">%s</span>" path desc))
-    ((eq format 'latex)
-     (format "\\%s{%s}" path desc)))))
-
-#+end_src 
-
-** org subtree cut function
-#+begin_src emacs-lisp 
-
-(define-key org-mode-map (kbd "C-c k") 'org-cut-subtree)
-
-(setq org-export-with-section-numbers nil)
-(setq org-html-include-timestamps nil)
-
-(defun sacha/org-export-subtree-as-html-fragment ()
-  (interactive)
-  (org-export-region-as-html
-   (org-back-to-heading)
-   (org-end-of-subtree)
-   t))
-
-(setq org-link-abbrev-alist
-  '(("google" . "http://www.google.com/search?q=")
-    ("gmap" . "http://maps.google.com/maps?q=%s")
-    ("blog" . "http://sachachua.com/blog/p/")))
-
-#+end_src
-
-** org-bable
-#+begin_src emacs-lisp 
-
-(org-babel-do-load-languages
-    'org-babel-load-languages '((python . t) (R . t) (perl . t)))
-
-#+end_src 
     
 * Documentation
 ** Self-documentation
@@ -2815,6 +2817,8 @@ Don't use a file dialog to ask for files
 * Utilities (tools)
 ** Tramp
 
+*** General
+    
 #+begin_src emacs-lisp 
 
 (setq tramp-default-method "ssh")
@@ -2825,8 +2829,10 @@ Don't use a file dialog to ask for files
 (setq tramp-verbose 10)
 
 (setq password-cache nil)
+;;(setq password-cache-expiry nil)
 
 (setq tramp-backup-directory-alist backup-directory-alist)
+
 
 #+end_src 
 
@@ -2835,6 +2841,8 @@ Don't use a file dialog to ask for files
 #+begin_src emacs-lisp 
 
 (add-hook 'desktop-save-hook 'tramp-cleanup-all-buffers)
+
+
 
 #+end_src 
 
