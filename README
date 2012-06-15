@@ -50,6 +50,10 @@ Set up the newest bbdb
 % ./configure
 % make    
 
+Set up directory structure for ORG
+
+% mkdir -p ~/git/org/client1    
+    
 Add some more modules from git
         
 % cd ~/.emacs.d

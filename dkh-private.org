@@ -6,6 +6,6 @@ You can encrypt this with gpg (if needed)??
 
 #+begin_src emacs-lisp 
 
-(org-babel-load-file "~/git/.emacs.d/private.org")
+(org-babel-load-file "~/git/.emacs.d/dkh-private.org")
 
 #+end_src 
