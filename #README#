@@ -39,7 +39,7 @@ Get the newest ORG
 
 Now you need to set up some customization files.
 
-Get default file place-holders:
+Get default customization fi
         
 % cd ~/git        
 % git clone https://github.com/dhaley/ewax-default-files.git .emacs.d
