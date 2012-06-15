@@ -6,11 +6,11 @@ More power!
 
 Here's what in the box:
 
-* Org-mode - how to organize your life and get things done...    
+* Org-mode 7.8.08 - how to organize your life and get things done...    
 * Ma Gnus v0.6 - the most powerful pop/IMAP/nntp client ever?
-* BBDB 3.02 - the newest big brother for sucking up your contacts    
-* Erc - powerful IRC client
-* Tron's cli - eterm and ani-term
+* BBDB 3.02 - the newest big brother for sucking up your contacts' email    
+* ERC - powerful IRC client
+* CLI like Tron would use - eterm and ani-term
 * El-get 3.1
         
 To use this config, you must first get Eric's starter kit implemented
@@ -27,6 +27,14 @@ packages from Marmalade.
       
 Okily Dokily! add E-Wax as a git submodule to your starter kit config setup.
 
+% mkdir ~/git
+% cd ~/git
+% git clone https://github.com/dhaley/dkh-foss.git foss
+% cd foss
+% git submodule init org-mode
+% git submodule update org-mode
+
+            
 % cd ~/.emacs.d
 % git submodule add https://github.com/dhaley/ewax.git $USER
 
@@ -44,6 +52,11 @@ Add some more modules from git
 Get the newests GNUS
             
 % git submodule add -f http://git.gnus.org/gnus.git src/gnus
+
+
+Get the newest ORG
+
+% git submodule add -f git://orgmode.org/org-mode.git src/org-mode
 
 Get some other stuff from git repos
     

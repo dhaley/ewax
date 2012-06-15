@@ -73,7 +73,6 @@ make my config public to share.
                     )
               load-path))
 
-
 (add-to-list 'load-path (expand-file-name "~/git/foss/org-mode/contrib/lisp"))
 
 #+end_src 
@@ -92,7 +91,7 @@ make my config public to share.
 
 **** OR get devel branch
 
-#+begin_src emacs-lisp 
+#+begin_src emacs-lisp :tangle no
 
 ;; So the idea is that you copy/paste this code into your *scratch* buffer, ;; hit C-j, and you have a working developper edition of el-get.
  (url-retrieve
@@ -102,9 +101,15 @@ make my config public to share.
 
 #+end_src 
 
+
 **** Sources and packages
 
-#+begin_src emacs-lisp 
+
+
+
+#+begin_src emacs-lisp
+
+(require 'el-get)
 
 ;; (setq
 ;;  el-get-sources
@@ -150,13 +155,6 @@ make my config public to share.
 ;;        my:el-get-packages
 ;;        (loop for src in el-get-sources collect (el-get-source-name src))))
 
-;; install new packages and init already installed packages
-
-;;  (unless (require 'el-get nil t) (with-current-buffer
-;;  (url-retrieve-synchronously
-;;  "https://raw.github.com/dimitri/el-get/master/el-get-install.el")
-;;  (goto-char (point-max)) (eval-print-last-sexp)))
-;; (el-get 'sync)
 
 (el-get 'sync my:el-get-packages)
 
