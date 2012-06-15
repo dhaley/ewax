@@ -40,8 +40,6 @@ Open up a scratch buffer and evaluate this lisp
 It might take a while for el-get to clone itself, but when this
 process is no longer in a ps listing, then you can close down emacs.
 
-gnutls-cli --insecure -p 443 raw.github.com
-
 When el-get is done,
 
 You should see this message:
@@ -61,9 +59,10 @@ Now, let's run the E-WAX install script.
 This will take probably five to ten minutes while gnus and org-mode
 download (and compile your .el into .elc).
     
-Now, let's run emacs, which will download some stuff with el-get.
+When the script is finished, run emacs, which will download some stuff
+with el-get.
 
-You'll know it's done when you don't see any git clone action going on
+You'll know el-get is done when you don't see any git clone action going on
 in your process list.
 
 % ps -ef | grep git
@@ -72,5 +71,8 @@ YOU'RE DONE!!!!!
 
 HOPEFULLY!!!
 
+More documentation both inside the code and in this file to come...
         
 E-wax is written, stolen or maintained by Damon Haley <dhaley@hushmail.com>
+
+
