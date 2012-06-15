@@ -13,7 +13,8 @@ Here's what in the box:
 * CLI like Tron would use - eterm and ani-term
 * Solarized Color Theme
 * El-get 3.1
-        
++++++++++ Rad Free Stuff
+            
 To use this config, you must first get Eric's starter kit implemented
 in emacs 24 following these installation instructions:
 
@@ -50,70 +51,23 @@ You should see this message:
 Download E-WAX
 
 % cd ~/.emacs.d            
-git submodule add https://github.com/dhaley/ewax.git $USER
-                  
+% git submodule add https://github.com/dhaley/ewax.git $USER
+                      
 Okily Dokily!, let's run the E-WAX install script.
 
+% cd $USER
+% ./install.sh    
+
+This will take probably five to ten minutes while gnus and org-mode
+download.
     
+Now, let's run emacs, which will download some stuff with el-get.
 
-Get the newest ORG
-    
-% mkdir ~/git
-% cd ~/git
-% git clone https://github.com/dhaley/dkh-foss.git foss
-% cd foss
-% git submodule init org-mode
-% git submodule update org-mode
+YOU'RE DONE!!!!!
 
+HOPEFULLY!!!
 
-Now you need to set up some customization files.
-
-Get default customization files
         
-% cd ~/git        
-% git clone https://github.com/dhaley/ewax-default-files.git .emacs.d
-
-                
-% cd ~/.emacs.d
-% git submodule add https://github.com/dhaley/ewax.git $USER
-
-Set up the newest bbdb        
-% git submodule add -f git://git.savannah.nongnu.org/bbdb.git src/bbdb
-% cd src/bbdb
-% autoconf
-% ./configure
-% make
-
-Set up directory structure for ORG
-
-% mkdir -p ~/git/org/client1
-    
-Add some more modules from git
-        
-% cd ~/.emacs.d
-
-Get the newests GNUS
-            
-% git submodule add -f http://git.gnus.org/gnus.git src/gnus
-
-% cd ~/.emacs.d/src/gnus
-% ./configure && make
-
-% cd ~/git    
-
-Get some other stuff from git repos
-    
-% git submodule add -f https://github.com/ananthakumaran/jquery-doc.el src/jquery-doc
-% git submodule add -f https://github.com/kiwanami/emacs-calfw.git src/emacs-calfw
-% git submodule add -f git://git.naquadah.org/erc-track-score.git src/erc-track-score
-% git submodule add -f https://github.com/szermatt/emacs-bash-completion.git src/emacs-bash-completion
-% git submodule add -f http://git.savannah.gnu.org/cgit/identica-mode.git src/identica-mode
-% git submodule add -f https://github.com/underhilllabs/drupal-mode.git src/drupal-mode
-    
-
-
-
-
         
 Once Emacs 24 is working with the kit, do the following:
 
