@@ -94,9 +94,9 @@ make my config public to share.
 (setq
  my:el-get-packages
  '(
-   auto-install
+;;   auto-install
    autosmiley
-   bbdb
+;;   bbdb
    browse-kill-ring+
 calfw
    color-theme

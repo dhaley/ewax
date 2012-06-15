@@ -10,15 +10,37 @@ Here's what in the box:
 
 * Org-mode - how to organize your life and get things done...    
 * Ma Gnus v0.6 - the most powerful pop/IMAP/nntp client ever?
+* BBDB 3.02 - the newest big brother for sucking up your contacts    
 * Erc - powerful IRC client
 * Tron's cli - eterm and ani-term
     
+To use this config, you must first get Eric's starter kit implemented
+in emacs 24 following these installation instructions:
 
-To use this config, you must first get a working version of the kit.
-
-Follow these installation instructions:
 http://eschulte.github.com/emacs24-starter-kit/
 
+Or just do this:
+
+% git clone http://github.com/eschulte/emacs24-starter-kit.git .emacs.d
+
+You can now start emacs and let the starter kit download it's required
+packages from Marmalade.
+      
+Okily Dokily! add E-Wax as a git submodule to your starter kit config setup.
+
+% cd ~/.emacs.d
+% git submodule add https://github.com/dhaley/ewax.git $USER
+% git submodule add -f git://git.savannah.nongnu.org/bbdb.git src/bbdb    
+
+Now fire up emacs and el-get package manager will install other
+required packages not found on Marmalade.
+
+        
+    
+
+    
+
+    
 Once Emacs 24 is working with the kit, do the following:
 
 % mkdir ~/.eamcs.d/cache
