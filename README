@@ -70,6 +70,11 @@ required packages not found on Marmalade.
 WARNING: This might take a while as el-get will be downloading some
 packages. You might want to grab some coffee for 20 minutes.
 
+You'll know it's done when you don't see any git clone action going on
+in your process list.
+
+% ps -ef | grep git
+            
 *************************************************************************************
 
 now you need to set up some customization files.
