@@ -76,6 +76,11 @@ make my config public to share.
 
 (add-to-list 'load-path (expand-file-name "~/git/foss/org-mode/contrib/lisp"))
 
+#+end_src 
+
+**** Get stable branch
+
+#+begin_src emacs-lisp :tangle no
 (unless (require 'el-get nil t)
   (url-retrieve
    "https://github.com/dimitri/el-get/raw/master/el-get-install.el"
@@ -83,11 +88,29 @@ make my config public to share.
      (end-of-buffer)
      (eval-print-last-sexp))))
 
-(setq
- el-get-sources
- '(
-   (:name eproject :type git :url "https://github.com/jrockway/eproject.git" :features "eproject-extras")
-   ))
+#+end_src 
+
+**** OR get devel branch
+
+#+begin_src emacs-lisp 
+
+;; So the idea is that you copy/paste this code into your *scratch* buffer, ;; hit C-j, and you have a working developper edition of el-get.
+ (url-retrieve
+   "https://raw.github.com/dimitri/el-get/master/el-get-install.el"
+   (lambda (s) (let (el-get-master-branch) (goto-char (point-max))
+   (eval-print-last-sexp))))
+
+#+end_src 
+
+**** Sources and packages
+
+#+begin_src emacs-lisp 
+
+;; (setq
+;;  el-get-sources
+;;  '(
+;;    (:name eproject :type git :url "https://github.com/jrockway/eproject.git" :features "eproject-extras")
+;;    ))
 
 
 ;; now set our own packages
@@ -116,18 +139,25 @@ make my config public to share.
    ))
 
 
-(when (el-get-executable-find "svn")
-  (loop for p in '(psvn                 ; M-x svn-status
-                   )
-        do (add-to-list 'el-get-sources p)))
+;; (when (el-get-executable-find "svn")
+;;   (loop for p in '(psvn                 ; M-x svn-status
+;;                    )
+;;         do (add-to-list 'el-get-sources p)))
 
 
-(setq my:el-get-packages
-      (append
-       my:el-get-packages
-       (loop for src in el-get-sources collect (el-get-source-name src))))
+;; (setq my:el-get-packages
+;;       (append
+;;        my:el-get-packages
+;;        (loop for src in el-get-sources collect (el-get-source-name src))))
 
 ;; install new packages and init already installed packages
+
+;;  (unless (require 'el-get nil t) (with-current-buffer
+;;  (url-retrieve-synchronously
+;;  "https://raw.github.com/dimitri/el-get/master/el-get-install.el")
+;;  (goto-char (point-max)) (eval-print-last-sexp)))
+;; (el-get 'sync)
+
 (el-get 'sync my:el-get-packages)
 
 #+end_src 
