@@ -62,6 +62,8 @@ Get the newests GNUS
             
 % git submodule add -f http://git.gnus.org/gnus.git src/gnus
 
+% cd ~/.emacs.d/src/gnus    
+% ./configure && make
 
 Get the newest ORG
 

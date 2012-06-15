@@ -86,6 +86,8 @@ annotate your elisp in the following file:
 
 (add-to-list 'load-path (expand-file-name "~/git/foss/org-mode/contrib/lisp"))
 
+(add-to-list 'load-path (expand-file-name "~/git/src/gnus/lisp"))
+   (require 'gnus-load)
 #+end_src 
 
 **** Get stable branch
@@ -3484,11 +3486,12 @@ Require unix zip commandline tool."
 
 #+end_src 
 
+
 *** Main Gnus IMAP config
 
 #+begin_src emacs-lisp 
 
-(require 'gnus)
+;;(require 'gnus)
 (setq message-directory "~/git/gnus/Mail")
 (setq nnml-directory "~/git/gnus/Mail")
 (setq gnus-article-save-directory "~/git/gnus/News")
