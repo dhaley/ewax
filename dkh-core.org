@@ -94,23 +94,17 @@ make my config public to share.
 (setq
  my:el-get-packages
  '(
-;;   auto-install
+   auto-install
    autosmiley
-;;   bbdb
    browse-kill-ring+
-calfw
-   color-theme
    dictem
    el-get ; el-get is self-hosting
    emacs-w3m
    emoticons
    erc-highlight-nicknames
-   erc-track-score
    face-list
    fliptext
    grep+
-nognus
-   key-chord
    keychain-environment
    paste2
    protbuf
@@ -161,6 +155,7 @@ nognus
         'fill-column-indicator
         'guru-mode
         'js2-mode
+        'key-chord
         'lorem-ipsum
         'magit
         'nav
@@ -4385,7 +4380,7 @@ Embed location maps, with directions from home
 
 (setq bbdb-file "~/git/.emacs.d/.bbdb")           ;; keep ~/ clean; set before loading
 
-(require 'bbdb-loaddefs "~/.emacs.d/el-get/bbdb/lisp/bbdb-loaddefs.el")
+(require 'bbdb-loaddefs "~/.emacs.d/src/bbdb/lisp/bbdb-loaddefs.el")
 
 (require 'bbdb)
 

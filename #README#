@@ -53,7 +53,7 @@ Get some other stuff from git repos
 Now fire up emacs and el-get package manager will install other
 required packages not found on Marmalade.
 
-
+el-get-notify-type
 
     
     
