@@ -13,12 +13,16 @@ Here's what in the box:
 * Erc - powerful IRC client
 * Tron's cli - eterm and ani-term
     
+To use this config, you must first get Eric's starter kit implemented
+in emacs 24 following these installation instructions:
 
-To use this config, you must first get a working version of the kit.
-
-Follow these installation instructions:
 http://eschulte.github.com/emacs24-starter-kit/
 
+Okily Dokily! e next do one of the following.
+
+    
+
+    
 Once Emacs 24 is working with the kit, do the following:
 
 % mkdir ~/.eamcs.d/cache
