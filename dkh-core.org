@@ -44,6 +44,17 @@ make my config public to share.
   :CUSTOM_ID: implementation
   :END:
 
+** Pre-process
+
+If there is anything you want to load before running E-Wax, then
+annotate your elisp in the following file:
+
+#+begin_src emacs-lisp 
+
+(org-babel-load-file "~/git/.emacs.d/dkh-pre-setup.org")
+
+#+end_src 
+
 ** Load Starter Kit packages
 
 #+begin_src emacs-lisp 
@@ -136,6 +147,7 @@ make my config public to share.
    keychain-environment
    paste2
    protbuf
+   psvn
    savehist-20+
    second-sel
    tail
@@ -1979,22 +1991,7 @@ This one changes the cursor color on each blink. Define colors in `blink-cursor-
 * Org (Organize your life)
 ** Org Agenda
 
-;; The following setting is different from the document so that you
-;; can override the document org-agenda-files by setting your
-;; org-agenda-files in the variable org-user-agenda-files
-
-#+begin_src emacs-lisp 
-
-(setq org-user-agenda-files (quote (
-"~/git/cu"
-"~/git/cu/igp"
-"~/git/cu/centers"
-"~/git/dkh-org"
-"~/git/dkh-org/wordpress"
-"~/git/netlsd"
-)))
-
-#+end_src 
+See ~/git/.emacs.d/dkh-pre-setup.org file
 
 ** Diary location
 
