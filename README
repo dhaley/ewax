@@ -11,6 +11,7 @@ Here's what in the box:
 * BBDB 3.02 - the newest big brother for sucking up your contacts' email    
 * ERC - powerful IRC client
 * CLI like Tron would use - eterm and ani-term
+* Solarized Color Theme
 * El-get 3.1
         
 To use this config, you must first get Eric's starter kit implemented
@@ -24,8 +25,36 @@ Or just do this:
 
 You can now start emacs and let the starter kit download it's required
 packages from Marmalade.
-      
-Okily Dokily! add E-Wax as a git submodule to your starter kit config setup.
+
+
+While still in emacs 24, download the latest version of el-get devel:
+
+Open up a scratch buffer and evaluate this lisp
+
+ (url-retrieve
+   "https://raw.github.com/dimitri/el-get/master/el-get-install.el"
+   (lambda (s) (let (el-get-master-branch) (goto-char (point-max))
+   (eval-print-last-sexp))))
+
+It might take a while for el-get to clone itself, but when this
+process is no longer in a ps listing, then you can close down emacs.
+
+gnutls-cli --insecure -p 443 raw.github.com
+
+When el-get is done,
+
+You should see this message:
+
+"Congrats, el-get is installed and ready to serve!"
+
+Download E-WAX
+
+% cd ~/.emacs.d            
+git submodule add https://github.com/dhaley/ewax.git $USER
+                  
+Okily Dokily!, let's run the E-WAX install script.
+
+    
 
 Get the newest ORG
     
@@ -39,7 +68,7 @@ Get the newest ORG
 
 Now you need to set up some customization files.
 
-Get default file place-holders:
+Get default customization files
         
 % cd ~/git        
 % git clone https://github.com/dhaley/ewax-default-files.git .emacs.d
