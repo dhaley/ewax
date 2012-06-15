@@ -104,7 +104,7 @@ annotate your elisp in the following file:
 
 **** OR get devel branch
 
-#+begin_src emacs-lisp :tangle no
+#+begin_src emacs-lisp
 
 ;; So the idea is that you copy/paste this code into your *scratch* buffer, ;; hit C-j, and you have a working developper edition of el-get.
  (url-retrieve
