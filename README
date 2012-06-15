@@ -67,10 +67,17 @@ Get some other stuff from git repos
 Now fire up emacs and el-get package manager will install other
 required packages not found on Marmalade.
 
-el-get-notify-type
+WARNING: This might take a while as el-get will be downloading some
+packages. You might want to grab some coffee for 20 minutes.
 
-    
-    
+*************************************************************************************
+
+now you need to set up some customization files.
+
+            
+
+
+        
 Once Emacs 24 is working with the kit, do the following:
 
 % mkdir ~/.eamcs.d/cache
