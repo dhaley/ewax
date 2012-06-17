@@ -1,3 +1,8 @@
+#+TITLE: E-Wax PHP
+#+OPTIONS: toc:nil num:nil ^:nil
+
+This is part of the [[file:dkh-core.org][E-Wax Starter Kit Instance]].
+
 #+begin_src emacs-lisp 
 
 (defvar php-search-url "http://www.php.net/")

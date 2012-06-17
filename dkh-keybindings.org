@@ -1,3 +1,18 @@
+#+TITLE: E-Wax Bindings
+#+OPTIONS: toc:nil num:nil ^:nil
+
+This is part of the [[file:dkh-core.org][E-Wax Starter Kit Instance]].
+
+#+begin_quote
+
+"A gentleman armed with my invention can keep a dozen ruffians at bay."
+
+Samuel Colt
+
+#+end_quote
+
+
+
 #+begin_src emacs-lisp 
 
 

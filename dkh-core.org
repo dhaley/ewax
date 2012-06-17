@@ -3,11 +3,11 @@
 #+CATEGORY: Emacs Init File
 
 #+begin_quote
-  Emacs outshines all other editing software in approximately the same
-  way that the noonday sun does the stars. It is not just bigger and
-  brighter; it simply makes everything else vanish.
+"Men are only as good as their technical development allows them to be."
 
-  -- Neal Stephenson, "In the Beginning was the Command Line"
+George Orwell
+
+Inside the Whale and other essays
 #+end_quote
 
 * Introduction
@@ -191,6 +191,7 @@ annotate your elisp in the following file:
         'bookmark+
         'browse-kill-ring
         'buffer-move
+        'color-theme
         'color-theme-solarized
         'etags-select
         'expand-region
@@ -1991,6 +1992,17 @@ This one changes the cursor color on each blink. Define colors in `blink-cursor-
 #+end_src 
 
 * Org (Organize your life)
+** Org files
+
+#+begin_src emacs-lisp 
+
+(setq org-clock-persist-file "~/git/.emacs.d/org-clock-save")
+
+(setq org-id-locations-file "~/git/.emacs.d/.org-id-locations")
+
+#+end_src 
+
+
 ** Org Agenda
 
 See ~/git/.emacs.d/dkh-pre-setup.org file
@@ -3491,7 +3503,7 @@ Require unix zip commandline tool."
 
 #+begin_src emacs-lisp 
 
-;;(require 'gnus)
+(require 'gnus)
 (setq message-directory "~/git/gnus/Mail")
 (setq nnml-directory "~/git/gnus/Mail")
 (setq gnus-article-save-directory "~/git/gnus/News")
@@ -5453,6 +5465,19 @@ needed.
 ** Identi.ca mode
 
 #+begin_src emacs-lisp 
+
+(require 'identica-mode)
+
+;;(global-set-key "\C-cip" 'identica-update-status-interactive)
+;; Add this to send direct messages
+;;(global-set-key "\C-cid" 'identica-direct-message-interactive)
+
+#+end_src 
+
+
+
+
+#+begin_src emacs-lisp :tangle no
 
 (require 'identica-mode)
 

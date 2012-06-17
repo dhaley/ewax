@@ -1,15 +1,17 @@
 E-Wax emacs
 
-A bodacious literate elisp instance of Eric Schulte's Emacs Starter Kit.
+A bodacious literate elisp instance of Eric Schulte's Emacs Starter
+Kit.
 
 More power!
+［✔］Win［ ］Lose    
 
 Here's what in the box:
 
-* Org-mode 7.8.08 - how to organize your life and get things done...    
+* Org-mode 7.8.08 - how to organize your life and get things done...
 * Bernt Hansen GTD Org-Mode config (cowabunga, dude!)
 * Ma Gnus v0.6 - the most powerful pop/IMAP/nntp client ever?
-* BBDB 3.02 - the newest big brother for sucking up your contacts' email    
+* BBDB 3.02 - the newest big brother for sucking up your contacts' email
 * ERC - powerful IRC client
 * CLI like Tron would use - eterm and ani-term
 * Solarized Color Theme
@@ -23,7 +25,8 @@ http://eschulte.github.com/emacs24-starter-kit/
 
 Or just do this:
 
-% git clone http://github.com/eschulte/emacs24-starter-kit.git .emacs.d
+% git clone http://github.com/eschulte/emacs24-starter-kit.git
+  .emacs.d
 
 You can now start emacs and let the starter kit download it's required
 packages from Marmalade.
@@ -37,7 +40,7 @@ Open up a scratch buffer and evaluate this lisp
    (lambda (s) (let (el-get-master-branch) (goto-char (point-max))
    (eval-print-last-sexp))))
 
-It might take a while for el-get to clone itself, but when this
+It will take a minute or four for el-get to clone itself, but when this
 process is no longer in a ps listing, then you can close down emacs.
 
 When el-get is done,
@@ -48,22 +51,21 @@ You should see this message:
 
 Okily Dokily!, now Download E-WAX
 
-% cd ~/.emacs.d            
-% git submodule add https://github.com/dhaley/ewax.git $USER
+% cd ~/.emacs.d git submodule add https://github.com/dhaley/ewax.git
+% $USER
                       
 Now, let's run the E-WAX install script.
 
-% cd $USER
-% ./install.sh    
+% cd $USER ./install.sh
 
 This will take probably five to ten minutes while gnus and org-mode
-download (and compile your .el into .elc).
+download (and byte compile your .el into .elc).
     
 When the script is finished, run emacs, which will download some stuff
 with el-get.
 
-You'll know el-get is done when you don't see any git clone action going on
-in your process list.
+You'll know el-get is done when you don't see any git clone action
+going on in your process list.
 
 % ps -ef | grep git
             
@@ -71,8 +73,49 @@ YOU'RE DONE!!!!!
 
 HOPEFULLY!!!
 
+♡(✿ˇ◡ˇ)人(ˇ◡ˇ✿)♡
+    
+Starter Kit functionality that needs improvement:
+
+One thing I don't like about starter kit is that if one has all the
+blocks tanlged off or (no elisp blocks at all) the starter kit will
+throw an error.
+
+To prevent, that I always end my literate config files (in ~/emacs.d/$USER)
+ with the following block just to be safe:
+
+#+begin_src emacs-lisp
+
+(message (concat "0 " (buffer-name) "... Done"))
+    
+#+end_src
+            
+Also, I included a MAKEFILE in E-Wax to automatically delete .el files
+generated from org-babel-tangle file. This is because as you change
+your configs, the starter kit is not smart enough to regenerate your
+files.
+
+It just does this: 	rm -f *.el
+
+This assumes that you don't have any non-literate config files not
+generated from org-mode based config files.
+        
+E-WAX FUNCTIONALITY THAT NEEDS IMPROVEMENT ［ ］Pass［✔］Fail
+
+E-Wax Should probably take fuller advantage of autoloads, to more
+dynamically only load parts of the confiuration as it is need. Right
+now it's pretty monolithic (but good).
+    
+I'm also not that happy with perspective, especailly because it has a bug
+that interferes with EPA writing to a gpg file. So that will get
+replaced as soon as I find something possibly beter.
+    
 More documentation both inside the code and in this file to come...
         
-E-wax is written, stolen or maintained by Damon Haley <dhaley@hushmail.com>
-
+E-wax is written, stolen or maintained by Damon Haley
+<dhaley@hushmail.com>
+http://vinylisland.org
+    
+Remember: This is free software. Reuse and learning from existing code
+is not just allowed but encouraged.
 

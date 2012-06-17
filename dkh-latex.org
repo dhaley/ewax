@@ -1,3 +1,19 @@
+#+TITLE: E-Wax Latex
+#+OPTIONS: toc:nil num:nil ^:nil
+
+This is part of the [[file:dkh-core.org][E-Wax Starter Kit Instance]].
+
+
+#+begin_quote
+
+"Technology is in no sense an instrument of man's making or in his control."
+
+Heidegger
+
+#+end_quote
+
+
+
 #+begin_src emacs-lisp 
 
 (setq TeX-auto-save t)

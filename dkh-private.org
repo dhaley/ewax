@@ -1,3 +1,20 @@
+#+TITLE: E-Wax Private
+#+OPTIONS: toc:nil num:nil ^:nil
+
+This is part of the [[file:dkh-core.org][E-Wax Starter Kit Instance]].
+
+
+#+begin_quote
+
+"a naive belief in the emancipatory nature of online communication that rests on a stubborn refusal to acknowledge its downsides."
+
+Eugeny Morozov
+
+The Net Delusion
+
+#+end_quote
+
+
 * Load private settings and customizations
 
 Override the default variables with user's actual data such as passwords.

@@ -1,3 +1,23 @@
+#+TITLE: E-Wax Perspective
+#+OPTIONS: toc:nil num:nil ^:nil
+
+This is part of the [[file:dkh-core.org][E-Wax Starter Kit Instance]].
+
+
+#+begin_quote
+
+"Technology is a Thing directing human life, a Thing to which human
+life must bow and adapt, an organism' tending toward closure and
+self-determination; it is an end in itself."
+
+Jacques Ellul
+
+#+end_quote
+
+
+
+
+
 #+begin_src emacs-lisp 
 
 (persp-mode)
