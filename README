@@ -16,6 +16,7 @@ Here's what in the box:
 * CLI like Tron would use - eterm and ani-term
 * Solarized Color Theme
 * El-get 3.1
+* PHP and Drupal helper functions and etags support    
 * plus mo Rad Free Stuff
             
 To use this config, you must first get Eric's starter kit implemented
@@ -102,9 +103,19 @@ generated from org-mode based config files.
         
 E-WAX FUNCTIONALITY THAT NEEDS IMPROVEMENT ［ ］Pass［✔］Fail
 
+E-Wax needs much more annotation.  A lot of documentation and comments
+were stripped out when I made this project that should still be put
+back in where relevant.
+
 E-Wax Should probably take fuller advantage of autoloads, to more
 dynamically only load parts of the confiuration as it is need. Right
 now it's pretty monolithic (but good).
+
+A lot of my important GNUS configuration is still in a private
+gnus-init-file and needs to be moved into E-Wax.  It needs a lot of
+annotation for it to make since to someone new to Gnus.
+
+The PHP and Drupal fucntionality need to be reviewed.
     
 I'm also not that happy with perspective, especailly because it has a bug
 that interferes with EPA writing to a gpg file. So that will get
