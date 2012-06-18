@@ -3,6 +3,18 @@
 
 This is part of the [[file:dkh-core.org][E-Wax Starter Kit Instance]].
 
+
+#+begin_quote
+
+"The telescreen received and transmitted simultaneously….There was no
+way of knowing whether you were being watched at any given moment."
+
+George Orwell
+
+1984
+
+#+end_src 
+
 #+begin_src emacs-lisp 
 
 (defvar php-search-url "http://www.php.net/")
