@@ -5596,32 +5596,12 @@ needed.
 
 (require 'identica-mode)
 
-;;(global-set-key "\C-cip" 'identica-update-status-interactive)
-;; Add this to send direct messages
-;;(global-set-key "\C-cid" 'identica-direct-message-interactive)
-
-#+end_src 
-
-
-
-
-#+begin_src emacs-lisp :tangle no
-
-(require 'identica-mode)
-
-(require 'oauth2)
-
-(autoload 'identica-mode "identica-mode" nil t)
-(setq identica-auth-mode "oauth2")
-
 (global-set-key "\C-cip" 'identica-update-status-interactive)
-
+;; Add this to send direct messages
 (global-set-key "\C-cid" 'identica-direct-message-interactive)
 
-;; secrets.el.gpg
-(setq identica-username "username")
-
 #+end_src 
+
 
 ** W3m
 
