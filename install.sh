@@ -39,3 +39,4 @@ git submodule add -f git://git.naquadah.org/erc-track-score.git src/erc-track-sc
 git submodule add -f https://github.com/szermatt/emacs-bash-completion.git src/emacs-bash-completion    
 git submodule add -f http://git.savannah.gnu.org/cgit/identica-mode.git src/identica-mode
 git submodule add -f https://github.com/underhilllabs/drupal-mode.git src/drupal-mode
+git submodule add -f https://github.com/echosa/phpplus-mode
