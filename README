@@ -1,4 +1,4 @@
-E-Wax emacs
+84E-Wax emacs
 
 A bodacious literate elisp instance of Eric Schulte's Emacs Starter
 Kit.
@@ -26,8 +26,7 @@ http://eschulte.github.com/emacs24-starter-kit/
 
 Or just do this:
 
-% git clone http://github.com/eschulte/emacs24-starter-kit.git
-  .emacs.d
+% git clone http://github.com/eschulte/emacs24-starter-kit.git .emacs.d
 
 You can now start emacs and let the starter kit download it's required
 packages from Marmalade.
@@ -52,12 +51,13 @@ You should see this message:
 
 Okily Dokily!, now Download E-WAX
 
-% cd ~/.emacs.d git submodule add https://github.com/dhaley/ewax.git
-% $USER
+% cd ~/.emacs.d
+% git submodule add https://github.com/dhaley/ewax.git $USER
                       
 Now, let's run the E-WAX install script.
 
-% cd $USER ./install.sh
+% cd $USER
+% ./install.sh
 
 This will take probably five to ten minutes while gnus and org-mode
 download (and byte compile your .el into .elc).
