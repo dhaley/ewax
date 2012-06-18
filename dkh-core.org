@@ -335,7 +335,7 @@ annotate your elisp in the following file:
         'org-mime
         'pastebin
         'perspective
-        'php-mode
+;;        'php-mode
         'rainbow-delimiters
         'rainbow-mode
         'rotate-text
@@ -1453,7 +1453,7 @@ like the following:
     (add-hook 'js2-mode-hook 'rainbow-delimiters-mode)
     (add-hook 'scheme-mode-hook 'rainbow-delimiters-mode)
     (add-hook 'c-mode-common-hook 'rainbow-delimiters-mode)
-    (add-hook 'php-mode-hook 'rainbow-delimiters-mode)
+;;    (add-hook 'php-mode-hook 'rainbow-delimiters-mode)
     (add-hook 'emacs-lisp-mode-hook 'rainbow-delimiters-mode))
 
 #+end_src
@@ -2421,7 +2421,7 @@ See ~/git/.emacs.d/dkh-pre-setup.org file
        "\\.org_archive$"   ;; orgmode archive files
        "^\\*jekyll-aa\\*$" ;; local jekyll server
        "\\.diary$"
-       "^mumamo-fetch-major-mode-setup-php-mode$"
+;;       "^mumamo-fetch-major-mode-setup-php-mode$"
        ))
 
                                         ; default groups for ibuffer
@@ -6244,32 +6244,6 @@ file:
 
 #+end_src 
 
-** PHP
-
-#+begin_src emacs-lisp 
-
-(setq php-manual-path "~/docs/php/php-chunked-xhtml/")
-
-(setq php-completion-file "~/git/.emacs.d/php-completion-file")
-
-#+end_src
-
-** Drupal
-
-#+begin_src emacs-lisp 
-
-(require 'drupal-mode)
-
-(setq auto-mode-alist
-      (append
-       '(
-("\\.php$" . php-mode)
-("\.\(module\|test\|install\|theme\)$" . drupal-mode)
-("/drupal.*\.\(php\|inc\)$" . drupal-mode)
-("\.info" . conf-mode)
-         ) auto-mode-alist))
-
-#+end_src          
 
 ** Etags
 

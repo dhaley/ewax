@@ -53,12 +53,28 @@ Samuel Colt
 (global-set-key (kbd "C-x S") 'shell)
 (global-set-key (kbd "C-x T") 'ido-find-file-in-tag-files)
 (global-set-key (kbd "C-x c") 'eval-region)
+
+#+end_src 
+
+
+* Drupal and PHP
+
+#+begin_src emacs-lisp 
+
 (global-set-key (kbd "C-x g D") 'my-drupal-module-lookup)
 (global-set-key (kbd "C-x g P") 'my-php-symbol-lookup)
 (global-set-key (kbd "C-x g b") 'php-browse-manual)
 (global-set-key (kbd "C-x g d") 'my-drupal-symbol-lookup)
 (global-set-key (kbd "C-x g p") 'my-php-function-lookup) ;; also F1
 (global-set-key (kbd "C-x g s") 'php-search-documentation)
+
+
+#+end_src 
+
+* Mo keybinding
+
+#+begin_src emacs-lisp 
+
 (global-set-key (kbd "C-x k") #'(lambda () (interactive)
           (kill-buffer (current-buffer))))
 
