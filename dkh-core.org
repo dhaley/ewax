@@ -385,7 +385,7 @@ annotate your elisp in the following file:
 
 #+begin_src emacs-lisp 
 
-(setq ispell-personal-dictionary "~/git/.emacs.d/.aspell.LANG.pws")
+(setq ispell-personal-dictionary "~/git/.emacs.d/.aspell.US.pws")
 
 #+end_src 
 
