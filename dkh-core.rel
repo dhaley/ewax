@@ -1,0 +1,24 @@
+;; RefTeX parse info file
+;; File: /Users/dh196264/git/ewax/dkh-core.org
+;; User: dh196264 (Damon Haley)
+
+(set reftex-docstruct-symbol '(
+
+
+(xr nil "\\\\\\\\\\\\")
+
+(index-tags)
+
+(is-multi nil)
+
+(bibview-cache)
+
+(master-dir . "/Users/dh196264/git/ewax/")
+
+(label-numbers)
+
+(bof "/Users/dh196264/git/ewax/dkh-core.org")
+
+(eof "/Users/dh196264/git/ewax/dkh-core.org")
+))
+

@@ -3,7 +3,7 @@
 #+CATEGORY: Emacs Init File
 
 #+begin_quote
-"Men are only as good as their technical development allows them to be."
+“Men are only as good as their technical development allows them to be.”
 
 George Orwell
 
@@ -2118,6 +2118,55 @@ This one changes the cursor color on each blink. Define colors in `blink-cursor-
 (add-hook 'before-revert-hook  (lambda () (kill-ring-save (point-min) (point-max))))
 
 #+end_src 
+
+** electric-pair-mode
+
+
+
+new minor mode electric-pair-mode. When on, typing any left bracket
+automatically insert the right matching bracket. Brackets includes the
+ASCII ones: ""''(){}[], but also any unicode ones: «»‹›“”‘’「」『』〈〉
+《》〔〕…. (➲ Matching Brackets in Unicode)
+
+
+#+begin_src emacs-lisp 
+
+(electric-pair-mode)
+
+#+end_src 
+
+
+Deleting one bracket doesn't delete the other. (If you want that,
+install autopairs package. (➲ A Guide on Emacs Package System))
+
+Exactly which brackets are auto-closed depends on the current major
+mode's syntax table. ((info "(elisp) Syntax Tables"))
+
+If you always want certain brackets be inserted in pairs, you can
+customize the variable “electric-pair-pairs”. Its value should be a
+Association List. ((info "(elisp) Association Lists"))
+
+For example, the double curly bracket isn't auto-closed when in
+text-mode. But if you put the following in your emacs init:
+
+#+begin_src emacs-lisp 
+
+(global-set-key (kbd "C-H-'") "“")     ; insert opening double curly bracket by keypad 8
+
+;; setting for auto-close brackets for electric-pair-mode regardless of current major mode syntax table
+(setq electric-pair-pairs '(
+                            (?\" . ?\")
+                            (?\“ . ?\”)
+                            (?\‘ . ?\’)
+                            ) )
+
+
+
+#+end_src
+
+Now type 8 on keypad, it'll insert opening curly bracket, and the
+matching one will be automatically closed by electric-pair-mode.
+
 
 * Org (Organize your life)
 ** Org files

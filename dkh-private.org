@@ -6,11 +6,11 @@ This is part of the [[file:dkh-core.org][E-Wax Starter Kit Instance]].
 
 #+begin_quote
 
-"a naive belief in the emancipatory nature of online communication that rests on a stubborn refusal to acknowledge its downsides."
+“a naive belief in the emancipatory nature of online communication that rests on a stubborn refusal to acknowledge its downsides.”
 
-Eugeny Morozov
+/Eugeny Morozov/
 
-The Net Delusion
+*The Net Delusion*
 
 #+end_quote
 

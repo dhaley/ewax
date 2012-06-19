@@ -6,9 +6,9 @@ This is part of the [[file:dkh-core.org][E-Wax Starter Kit Instance]].
 
 #+begin_quote
 
-"Technology is in no sense an instrument of man's making or in his control."
+“Technology is in no sense an instrument of man's making or in his control.”
 
-Heidegger
+/Heidegger/
 
 #+end_quote
 

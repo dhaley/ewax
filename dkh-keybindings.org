@@ -5,9 +5,9 @@ This is part of the [[file:dkh-core.org][E-Wax Starter Kit Instance]].
 
 #+begin_quote
 
-"A gentleman armed with my invention can keep a dozen ruffians at bay."
+“A gentleman armed with my invention can keep a dozen ruffians at bay.”
 
-Samuel Colt
+/Samuel Colt/
 
 #+end_quote
 

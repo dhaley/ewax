@@ -6,8 +6,8 @@ This is part of the [[file:dkh-core.org][E-Wax Starter Kit Instance]].
 
 #+begin_quote
 
-"The telescreen received and transmitted simultaneously….There was no
-way of knowing whether you were being watched at any given moment."
+“The telescreen received and transmitted simultaneously….There was no
+way of knowing whether you were being watched at any given moment.”
 
 /George Orwell/
 
