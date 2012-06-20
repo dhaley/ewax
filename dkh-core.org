@@ -3992,7 +3992,7 @@ Require unix zip commandline tool."
        (setq gnus-home-directory "~/git/gnus")
      (setq nntp-marks-directory "~/git/gnus/News/")
      (setq nndraft-directory "~/git/gnus/News/drafts/")
-     (setq nndraft-current-directory "~/git/gnus/News/drafts/")
+;;     (setq nndraft-current-directory "~/git/gnus/News/drafts/")
    (setq mail-default-directory "~/git/gnus/Mail")
    (setq gnus-default-directory "~/git/gnus")
    (setq nnmail-message-id-cache-file "~/git/gnus/nnmail_cache")
