@@ -1,6 +1,7 @@
 #+TITLE: Damon Haley's Emacs 24 Configuration
 #+OPTIONS: toc:2 num:nil ^:nil
 #+CATEGORY: Emacs Init File
+#+STARTUP: overview
 
 #+begin_quote
 “Men are only as good as their technical development allows them to be.”
