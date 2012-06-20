@@ -3605,6 +3605,16 @@ at [[http://emacs-journey.blogspot.com/2012/06/improving-ansi-term.html][12:02 P
 
 ** Dired
 
+** [[http://www.emacswiki.org/cgi-bin/wiki?DiredReuseDirectoryBuffer][Resuse directory buffer]]
+
+#+begin_src emacs-lisp 
+
+(put 'dired-find-alternate-file 'disabled nil)
+
+#+end_src 
+
+** General
+
 #+begin_src emacs-lisp 
 
 ;; enable the use of the command `dired-find-alternate-file'
