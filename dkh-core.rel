@@ -1,6 +1,6 @@
 ;; RefTeX parse info file
-;; File: /Users/dh196264/git/ewax/dkh-core.org
-;; User: dh196264 (Damon Haley)
+;; File: /home/vinylisland/git/ewax/dkh-core.org
+;; User: vinylisland (Damon Haley)
 
 (set reftex-docstruct-symbol '(
 
@@ -13,12 +13,12 @@
 
 (bibview-cache)
 
-(master-dir . "/Users/dh196264/git/ewax/")
+(master-dir . "/home/vinylisland/git/ewax/")
 
 (label-numbers)
 
-(bof "/Users/dh196264/git/ewax/dkh-core.org")
+(bof "/home/vinylisland/git/ewax/dkh-core.org")
 
-(eof "/Users/dh196264/git/ewax/dkh-core.org")
+(eof "/home/vinylisland/git/ewax/dkh-core.org")
 ))
 
