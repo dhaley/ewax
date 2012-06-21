@@ -72,13 +72,13 @@ self-determination; it is an end in itself.”
      (defun dkh-persp/devel ()
        (interactive)
        (custom-persp "devel")
-(setq default-directory "/home/www/")
+;;(setq default-directory "/home/www/")
 )
 
      (defun dkh-persp/devel-comp ()
        (interactive)
        (custom-persp "devel_comp")
-(setq default-directory "/home/www/competitions_devel/comp_adm_trunk")
+;;(setq default-directory "/home/www/competitions_devel/comp_adm_trunk")
 )
 
 
@@ -86,7 +86,7 @@ self-determination; it is an end in itself.”
      (defun dkh-persp/test ()
        (interactive)
        (custom-persp "test")
-      (setq default-directory "/home/www/htdocs")
+;;      (setq default-directory "/home/www/htdocs")
 )
 
 

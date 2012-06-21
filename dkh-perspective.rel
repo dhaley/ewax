@@ -1,5 +1,5 @@
 ;; RefTeX parse info file
-;; File: /home/vinylisland/git/ewax/dkh-core.org
+;; File: /home/vinylisland/git/ewax/dkh-perspective.org
 ;; User: vinylisland (Damon Haley)
 
 (set reftex-docstruct-symbol '(
@@ -17,8 +17,8 @@
 
 (label-numbers)
 
-(bof "/home/vinylisland/git/ewax/dkh-core.org")
+(bof "/home/vinylisland/git/ewax/dkh-perspective.org")
 
-(eof "/home/vinylisland/git/ewax/dkh-core.org")
+(eof "/home/vinylisland/git/ewax/dkh-perspective.org")
 ))
 
