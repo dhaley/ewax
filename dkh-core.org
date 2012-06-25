@@ -3603,6 +3603,15 @@ this information will help others in the future. Posted by [[https://profiles.go
 at [[http://emacs-journey.blogspot.com/2012/06/improving-ansi-term.html][12:02 PM]] [[http://www.blogger.com/email-post.g?blogID%3D3610844988855884806&postID%3D7346863015606057752][# ]] [[http://www.blogger.com/post-edit.g?blogID%3D3610844988855884806&postID%3D7346863015606057752&from%3Dpencil][# ]] Labels: [[http://emacs-journey.blogspot.com/search/label/ansi-term][ansi-term]], [[http://emacs-journey.blogspot.com/search/label/emacs][emacs]], [[http://emacs-journey.blogspot.com/search/label/hook][hook]], [[http://emacs-journey.blogspot.com/search/label/term][term]], [[http://emacs-journey.blogspot.com/search/label/terminal][terminal]],
 [[http://emacs-journey.blogspot.com/search/label/utf-8][utf-8]], [[http://emacs-journey.blogspot.com/search/label/utf8][utf8]]
 
+
+*** set up shell
+
+M-x shell runs ~/.emacs_SHELLNAME (or ~/.emacs.d/init_SHELLNAME.sh) on
+startup. True ‪#Emacs‬ knights ought to know that.
+
+On the other hand running M-x ansi-term just executes your regular
+.zshrc/.bashrc/etc. And one more thing - shell != terminal emulator
+
 ** Dired
 
 ** [[http://www.emacswiki.org/cgi-bin/wiki?DiredReuseDirectoryBuffer][Resuse directory buffer]]
@@ -6071,6 +6080,52 @@ or before point."
      (define-key w3m-mode-map "q" 'w3m-previous-buffer)
      (define-key w3m-mode-map "w" 'w3m-next-buffer)
      (define-key w3m-mode-map "x" 'w3m-close-window)))
+
+#+end_src 
+
+*** Sometimes need to re-wrap page
+
+http://emacs-w3m.namazu.org/ml/msg10827.html
+
+#+begin_src emacs-lisp 
+
+(add-hook 'w3m-mode-hook
+          (lambda ()
+            (define-key w3m-mode-map "L" 'w3m-page-fill)))
+
+(defun w3m-page-fill ()
+  (interactive)
+  (let ((w3m-fill-column (min (cond
+                               ((boundp 'mew-summary-wrap-lines-column)
+                                mew-summary-wrap-lines-column)
+                               ((boundp 'message-fill-column)
+                                message-fill-column)
+                               (t
+                                fill-column))
+                              (- (window-width) 5))))
+    (if (eq last-command this-command)
+        (let ((pos (point-marker))
+              (buffer-read-only nil)
+              (inhibit-read-only t)
+              (after-change-functions nil)
+              (inhibit-point-motion-hooks t)
+              beg)
+          (save-excursion
+            (goto-char (point-min))
+            (when (memq 'w3m-header-line-location-title
+                        (get-text-property (point) 'face))
+              (forward-line 1))
+            (if (fboundp 'mew-wrap-lines)
+                (mew-wrap-lines (point) (point-max))
+              (fill-region (point) (point-max))))
+          (goto-char pos))
+      (w3m-redisplay-this-page))))
+
+#+end_src 
+
+#+begin_src emacs-lisp :tangle no
+
+(setq w3m-fill-column 120)
 
 #+end_src 
 
