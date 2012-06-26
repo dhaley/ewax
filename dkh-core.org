@@ -751,6 +751,19 @@ established Emacs alternatives instead.
 
 #+end_src
 
+** Save place
+[2012-06-26 Tue 14:12]
+
+If you wish your place in any file to always be automatically saved,
+simply put this in your `~/.emacs' file:
+
+#+begin_src emacs-lisp 
+
+(setq-default save-place t)
+(require 'saveplace)
+
+#+end_src 
+
 * Functionality (Ease of use)
 ** Flyspell
 It seems like this is needed for about everything
@@ -3062,7 +3075,13 @@ Don't use a file dialog to ask for files
 ** Shells
 *** Eshell
 
+
+
 #+begin_src emacs-lisp 
+
+(setq eshell-directory-name "~/git/.emacs.d/eshell/")
+
+
 
 ;;       (starter-kit-load "eshell")
 
@@ -3677,7 +3696,56 @@ Require unix zip commandline tool."
 
 ** Gnus
 
+
 [[http://wikemacs.org/wiki/Gnus][Some nice tips on using gnus]]
+
+*** saving mail locally
+
+#+begin_src emacs-lisp 
+
+(require 'gnus)
+
+(setq nnml-directory "~/git/gnus/Mail")
+(setq message-directory "~/git/gnus/Mail")
+
+#+end_src
+
+#+begin_src emacs-lisp 
+
+  (setq gnus-ignored-newsgroups "^to\\.\\|^[0-9. ]+\\(\\|$\\)\\|^[\”]\”[#’()]")
+
+#+end_src 
+
+*** getting mail
+
+[[id:501b68d7-b3b5-4699-914f-e7ac1b1718d7][Gnus private]]
+
+*** sending mail
+
+[[id:55e66ec6-5f0d-48b7-aca6-b256c1d41a9f][Smtp Mail private]] 
+
+*** Basic configuration
+
+[[id:501b68d7-b3b5-4699-914f-e7ac1b1718d7][Gnus select method private]]
+
+*** More attractive Summary View
+
+#+begin_src emacs-lisp
+
+       (starter-kit-load "gnus" "pretty-summary")
+
+#+end_src
+
+*** More locations
+
+#+begin_src emacs-lisp 
+
+(setq gnus-article-save-directory "~/git/gnus/News")
+(setq gnus-cache-directory "~/git/gnus/News/cache")
+
+
+#+end_src 
+
 
 #+begin_src emacs-lisp 
 
@@ -3699,26 +3767,6 @@ Require unix zip commandline tool."
 *** Main Gnus IMAP config
 
 #+begin_src emacs-lisp 
-
-(require 'gnus)
-(setq message-directory "~/git/gnus/Mail")
-(setq nnml-directory "~/git/gnus/Mail")
-(setq gnus-article-save-directory "~/git/gnus/News")
-(setq gnus-cache-directory "~/git/gnus/News/cache")
-
-(setq gnus-ignored-newsgroups "^to\\.\\|^[0-9. ]+\\( \\|$\\)\\|^[\”]\”[#’()]")
-
-;;(setq gnus-select-method
-;;      (nntp "Gwene"
-;;            (nntp-address "news.gwene.org"))
-;;      (nntp "Gmane"
-;;            (nntp-address "news.gmane.org"))
-;;      (nntp "Gnus"
-;;            (nntp-address "news.gnus.org"))
-;;      (nnml "freeshell"
-;;            (nnmaildir "" (directory "~/Mail"))
-;;            (nnml-get-new-mail t)))
-
 
 (setq auth-sources (quote ((:source "~/.emacs.d/.authinfo.gpg"
                                     :host t :protocol t))))
@@ -3751,7 +3799,6 @@ Require unix zip commandline tool."
 (setq nntp-marks-is-evil t)
 
 
-(require 'gnus)
 ;; (require 'gnushush)
 
 ;;           (require 'miniedit)
@@ -3940,7 +3987,7 @@ Require unix zip commandline tool."
 
 
 
-(starter-kit-load "gnus" "pretty-summary")
+
 
 (setq gnus-suppress-duplicates t
       gnus-save-duplicate-list t
@@ -4096,16 +4143,6 @@ Require unix zip commandline tool."
 
 #+end_src 
 
-*** Gnus smtp
-
-#+begin_src emacs-lisp 
-
-(setq message-send-mail-function 'smtpmail-send-it
-      smtpmail-default-smtp-server "smtp.host.com")
-
-(setq smtpmail-smtp-service 587)
-
-#+end_src 
 
 
 *** Display chars
@@ -4150,6 +4187,15 @@ Require unix zip commandline tool."
 
 
 #+end_src 
+
+*** from jwiegley
+
+#+begin_src emacs-lisp 
+
+
+
+#+end_src 
+
 
 ** ERC
 
@@ -4452,7 +4498,11 @@ If no TARGET argument is specified, list the contents of `erc-track-exclude'."
       (insert previous))))
 
 #+end_src 
-      
+
+**** logs
+
+(setq erc-log-channels-directory "~/git/.emacs.d/.erc/logs/")
+
 *** start-irc
 
 #+begin_src emacs-lisp 
