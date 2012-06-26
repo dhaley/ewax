@@ -4109,11 +4109,25 @@ Require unix zip commandline tool."
 
 ** ERC
 
+*** Identifying yourself to Nickserv
+
 #+begin_src emacs-lisp
 
 (require 'erc-services)
+(erc-services-mode 1)
+(setq erc-prompt-for-nickserv-password nil)
 
+(defun run-irc-secrets-hook ()
+  (require 'irc-secrets "~/git/.emacs.d/.secret/irc-secrets.el.gpg")
+)
 
+(add-hook 'erc-before-connect 'run-irc-secrets-hook)
+
+#+end_src 
+
+*** Other
+
+#+begin_src emacs-lisp 
 
 (erc-notify-mode 1)
 (load-library "erc-highlight-nicknames")
@@ -4214,7 +4228,8 @@ stuff, to the current ERC buffer."
 
 (setq erc-autojoin-channels-alist
   '((".*\\.freenode.net" "#drupal-colorado" "#emacs" 
-  "#solidstatedepot" "#fsf-members" "#erc" "#conkeror" "#org-mode")
+  "#fsf-members" "#erc" "#conkeror" "#org-mode")
+     (".*\\.debian.org" "#freedombox")
 ;;     (".*\\.gimp.org" "#unix" "#gtk+")
 ;;     (".*\\.gnome.org" "#sparklehorse" "#gtk+")
 ))
