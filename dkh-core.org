@@ -6138,21 +6138,25 @@ http://emacs-w3m.namazu.org/ml/msg10827.html
 (defun i-wanna-be-social ()
   "Connect to IM networks using bitlbee."
   (interactive)
-  (erc :server "localhost" :port 6667 :nick "my_nick")
+  (erc :server "localhost" :port 6667 :nick "dkh")
 )
 
-(setq dkh-bitlebee-password "password")
-
 (defun bitlbee-identify ()
+    (require 'bitlbee-secrets "~/git/.emacs.d/.secret/bitlbee-secrets.el.gpg")
   (when (and (string= "localhost" erc-session-server)
           (string= "&bitlbee" (buffer-name)))
-    (erc-message "PRIVMSG" (format "%s identify user secretpassword"
+        (erc-message "PRIVMSG" (format "%s identify dkh secretpassword"
                              (erc-default-target)
-                             dkh-bitlebee-password))))
-
-(add-hook 'erc-join-hook 'bitlbee-identify)
+                             dkh-bitlbee-password))))
 
 #+end_src 
+
+
+
+
+
+
+
 
 *** The ICQ white pages
 
