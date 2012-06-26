@@ -3648,7 +3648,7 @@ On the other hand running M-x ansi-term just executes your regular
               (seq "~" eol)                 ;; backup-files 
               (seq bol "svn" eol)           ;; svn dirs 
 ;;              (seq ".git" eol)
-              (seq bol "." (not (any "."))) ;; dot-files                                                                                                                                                                    
+;;              (seq bol "." (not (any "."))) ;; dot-files                                                                                                                                                                    
 ;;              (seq ".pyc" eol)
               )))
 (setq dired-omit-extensions 
@@ -4107,6 +4107,50 @@ Require unix zip commandline tool."
 
 #+end_src 
 
+
+*** Display chars
+
+#+begin_src emacs-lisp 
+
+(setq gnus-score-over-mark ?\u2191          ; \u2191 \u2600
+      gnus-score-below-mark ?\u2193         ; \u2193 \u2602
+      gnus-ticked-mark ?\u2691
+      gnus-dormant-mark ?\u2690
+      gnus-expirable-mark ?\u267b
+      gnus-read-mark ?\u2713
+      gnus-del-mark ?\u2717
+      gnus-killed-mark ?\u2620
+      gnus-replied-mark ?\u27f2
+      gnus-forwarded-mark ?\u2933
+      gnus-cached-mark ?\u260d
+      gnus-recent-mark ?\u2605
+      gnus-unseen-mark ?\u2729
+      gnus-unread-mark ?\u2709
+      gnus-summary-line-format (concat "%{|%}"
+                                       "%U%R%z"
+                                       "%{|%}"
+                                       "%(%-18,18f"
+                                       "%{|%}"
+                                       "%*%{%B%} %s%)"
+                                       "\n"))
+#+end_src                                        
+
+*** New settings
+
+#+begin_src emacs-lisp 
+
+(setq message-kill-buffer-on-exit t)
+(setq gnus-fetch-old-headers 'some)
+(setq gnus-asynchronous t)
+(setq gnus-agent-synchronize-flags t)
+
+;; Unbind this key; it's annoying!
+(define-key gnus-summary-mode-map "o" (lambda () (interactive)))
+(setq gnus-article-banner-alist '((iphone . "\\(^Sent from my iPhone$\\)")))
+
+
+#+end_src 
+
 ** ERC
 
 *** Identifying yourself to Nickserv
@@ -4423,7 +4467,71 @@ If no TARGET argument is specified, list the contents of `erc-track-exclude'."
 
 (setq erc-track-showcount t)
 
+#+end_src
+
+*** from dotfiles
+
+#+begin_src emacs-lisp 
+
+(setq erc-prompt ">")
+;;(setq erc-fill-column 75)
+
+(setq erc-autojoin-timing :ident)
+
 #+end_src 
+
+**** Twitter
+
+#+begin_src emacs-lisp 
+
+;; thanks to leathekd
+(defvar twitter-url-pattern
+  (concat "\\(https?://\\)\\(?:.*\\)?\\(twitter.com/\\)"
+          "\\(?:#!\\)?\\([[:alnum:][:punct:]]+\\)")
+  "Matches regular twitter urls, including those with hashbangs,
+but not mobile urls.")
+
+(defun browse-mobile-twitter (url)
+  "When given a twitter url, browse to the mobile version instead"
+  (string-match twitter-url-pattern url)
+  (let ((protocol (match-string 1 url))
+        (u (match-string 2 url))
+        (path (match-string 3 url)))
+    (browse-url (format "%smobile.%s%s" protocol u path) t)))
+
+;; Need to append otherwise the urls will be picked up by
+;; erc-button-url-regexp. Not sure why that is the case.
+(eval-after-load 'erc-button
+  '(add-to-list 'erc-button-alist
+                '(twitter-url-pattern 0 t browse-mobile-twitter 0) t))
+
+#+end_src 
+                
+**** Encryption
+
+#+begin_src emacs-lisp 
+
+(defun znc ()
+  (interactive)
+  (load-file "~/.chorts/chorts.el.gpg")
+  (erc-tls :server "route.heroku.com" :port 10688
+           :nick "technomancy" :password znc-password))
+
+(defun grove-erc ()
+  (interactive)
+  (load-file "~/.chorts/chorts.el.gpg")
+  (add-to-list 'erc-networks-alist '(grove "irc.grove.io"))
+  (add-to-list 'erc-nickserv-alist
+               '(grove "NickServ!NickServ@services."
+                       "This nickname is registered."
+                       "NickServ" "IDENTIFY" nil))
+  (erc-tls :server "heroku.irc.grove.io" :port 6697
+           :nick "technomancy" :password grove-connect-password))
+
+
+
+#+end_src 
+
 
 ** Download utils
 
