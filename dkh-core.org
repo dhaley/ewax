@@ -764,6 +764,55 @@ simply put this in your `~/.emacs' file:
 
 #+end_src 
 
+** Faces
+#+begin_src emacs-lisp 
+
+(custom-set-faces
+ ;; custom-set-faces was added by Custom.
+ ;; If you edit it by hand, you could mess it up, so be careful.
+ ;; Your init file should contain only one such instance.
+ ;; If there is more than one, they won't work right.
+ '(diff-added ((t (:foreground "DarkGreen"))))
+ '(diff-added2 ((t (:foreground "SeaGreen"))))
+ '(diff-changed ((t (:foreground "MediumBlue"))))
+ '(diff-context ((t (:foreground "Black"))))
+ '(diff-file-header ((t (:background "grey85" :foreground "Red"))))
+ '(diff-header ((t (:background "grey85" :foreground "red"))))
+ '(diff-hunk-header ((t (:background "grey90" :foreground "black"))))
+ '(diff-index ((t (:foreground "Green"))))
+ '(diff-nonexistent ((t (:foreground "DarkBlue"))))
+ '(diff-removed ((t (:foreground "firebrick"))))
+ '(diff-removed2 ((t (:foreground "Orange"))))
+ '(font-lock-comment-face ((((class color)) (:foreground "firebrick"))))
+ '(helm-M-x-key ((t (:foreground "dark red" :underline t))))
+ '(helm-candidate-number ((t (:background "#faffb5" :foreground "black"))))
+ '(helm-selection ((t (:background "#b5ffd1" :underline t))))
+ '(helm-separator ((t (:foreground "#ffbfb5"))))
+ '(helm-source-header ((t (:background "#abd7f0" :foreground "black" :underline t))))
+ '(helm-visible-mark ((t (:background "#d1f5ae"))))
+ '(hl-line ((t (:background "cornsilk"))))
+ '(ledger-register-pending-face ((t (:weight bold))))
+ '(lusty-match-face ((t (:inherit helm-match))))
+ '(magit-branch-face ((((class color) (background light)) (:foreground "Blue"))))
+ '(magit-diff-none-face ((((class color) (background light)) (:foreground "grey50"))))
+ '(magit-header ((t (:weight bold))))
+ '(magit-topgit-current ((t nil)))
+ '(match ((t (:background "light cyan"))))
+ '(slime-highlight-edits-face ((((class color) (background light)) (:background "gray98"))))
+ '(trailing-whitespace ((((class color) (background light)) (:background "light salmon"))))
+ '(wg-brace-face ((((class color)) (:foreground "dark slate blue"))))
+ '(wg-command-face ((((class color)) (:foreground "dark cyan"))))
+ '(wg-current-workgroup-face ((((class color)) (:foreground "black"))))
+ '(wg-divider-face ((((class color)) (:foreground "dark slate blue"))))
+ '(wg-filename-face ((((class color)) (:foreground "dark blue"))))
+ '(wg-frame-face ((((class color)) (:foreground "black"))))
+ '(wg-message-face ((((class color)) (:foreground "dark blue"))))
+ '(wg-mode-line-face ((((class color)) (:foreground "dark blue"))))
+ '(wg-other-workgroup-face ((((class color)) (:foreground "dark slate grey"))))
+ '(wg-previous-workgroup-face ((((class color)) (:foreground "dark blue"))))
+ '(whitespace-line ((t (:background "lemon chiffon" :foreground "dark violet")))))
+
+#+end_src 
 * Functionality (Ease of use)
 ** Flyspell
 It seems like this is needed for about everything
@@ -3813,7 +3862,7 @@ Require unix zip commandline tool."
 (setq gnus-outgoing-message-group nil
       gnus-level-subscribed 5)
 
-(setq gnus-topic-line-format "%i[ %u&topic-line; ] %v\n")
+
 
 (defun dkh/unread-face (f)
   (intern (if (> (string-to-number gnus-tmp-number-of-unread) 0) (concat f "-unread") f)))
@@ -4194,7 +4243,170 @@ Require unix zip commandline tool."
 
 
 
+(setq
+ gnus-after-getting-new-news-hook (quote (gnus-group-list-groups gnus-group-save-newsrc gnus-display-time-event-handler))
+)
+
+(setq gnus-started-hook (quote ((lambda nil (run-hooks (quote gnus-after-getting-new-news-hook))))))
+
 #+end_src 
+
+*** gnus aliases
+
+#+begin_src emacs-lisp :tangle no
+
+(require 'gnus-alias)
+
+(setq
+gnus-alias-default-identity "Gmail"
+gnus-alias-identity-alist (quote (("Gmail" "" nil "" nil "" "") ("BoostPro" "" "\"John Wiegley\" <johnw@boostpro.com>" "BoostPro Computing, Inc." nil "" "John Wiegley BoostPro Computing http://www.boostpro.com") ("NewArtisans" "" "\"John Wiegley\" <johnw@newartisans.com>" "New Artisans LLC" nil "" "")))
+gnus-alias-identity-rules (quote (("Ledger Mailing List" ("To" "ledger-cli@googlegroups\\.com" current) "Newartisans") ("Emacs Mailing Lists" ("To" "emacs" current) "Newartisans") ("BoostPro Mail" ("From" "@boostpro\\.com" current) "BoostPro") ("BoostPro Clients" ("To" "@\\(ti\\)\\.com" current) "BoostPro") ("BoostPro Clients (Copied)" ("Cc" "@\\(ti\\)\\.com" current) "BoostPro") ("C++, LLVM, Boost, and Clang Groups" ("Newsgroups" "\\(c\\+\\+\\|clang\\|llvm\\|[Bb]oost\\|[Rr]yppl\\)" current) "BoostPro") ("C++, LLVM, Boost, and Clang Mailing Lists" ("To" "\\(c\\+\\+\\|clang\\|llvm\\|[Bb]oost\\|[Rr]yppl\\)" current) "BoostPro")))
+gnus-alias-override-user-mail-address t
+gnus-alias-unknown-identity-rule (quote error))
+
+#+end_src 
+
+*** dribble file
+
+#+begin_src emacs-lisp 
+
+(setq gnus-always-read-dribble-file t)
+
+ ;; gnus-use-dribble-file nil
+
+#+end_src
+
+#+begin_src emacs-lisp 
+
+(setq gnus-completing-read-function (quote gnus-ido-completing-read))
+
+(setq gnus-default-article-saver (quote gnus-summary-write-to-file))
+
+#+end_src 
+
+*** Gnus group line format
+
+#+begin_src emacs-lisp
+
+(setq gnus-group-line-format "%S%p%P%M%5y: %(%B%G%B%)
+")
+
+;; gnus-group-line-format "%M%S%p%P%(%-40,40G%)%-5uy %ud\n"
+
+#+end_src 
+
+#+begin_src emacs-lisp 
+
+(setq gnus-group-mode-hook (quote (gnus-topic-mode gnus-agent-mode hl-line-mode)))
+
+#+end_src
+
+#+begin_src emacs-lisp 
+
+(setq gnus-group-use-permanent-levels t)
+
+#+end_src
+
+*** ;; no need for .newsrc - rely on .newsrc.eld instead since only using gnus
+
+#+begin_src emacs-lisp 
+
+(setq gnus-read-newsrc-file nil)
+(setq gnus-save-newsrc-file nil)
+
+#+end_src 
+
+*** Scoring
+
+#+begin_src emacs-lisp 
+
+(setq gnus-score-default-duration (quote p))
+(setq gnus-score-expiry-days 30)
+#+end_src 
+
+*** sig
+
+#+begin_src emacs-lisp 
+
+(setq gnus-signature-separator (quote ("^-- $" "^-- *$" "^_____+$")))
+
+#+end_src 
+
+#+begin_src emacs-lisp 
+
+
+(setq gnus-simplify-subject-functions (quote (gnus-simplify-subject-fuzzy)))
+
+;;(setq gnus-sort-gathered-threads-function (quote gnus-thread-sort-by-date) t)
+#+end_src 
+
+#+begin_src emacs-lisp 
+
+(setq gnus-subscribe-newsgroup-method (quote gnus-subscribe-topics))
+
+#+end_src
+
+#+begin_src emacs-lisp 
+
+(setq gnus-sum-thread-tree-single-indent "  ")
+
+#+end_src 
+
+#+begin_src emacs-lisp :tangle no
+
+(setq gnus-summary-line-format "%«%U%R %uS %ur %»%(%*%-14,14f   %1«%B%s%»%)
+")
+
+#+end_src 
+
+#+begin_src emacs-lisp 
+
+(setq gnus-summary-save-parts-default-mime ".*")
+
+#+end_src 
+
+#+begin_src emacs-lisp 
+
+(setq gnus-suspend-gnus-hook (quote (gnus-group-save-newsrc)))
+
+#+end_src 
+
+*** Topic line format
+
+#+begin_src emacs-lisp 
+
+(setq gnus-topic-line-format "%i[ %A: %(%{%n%}%) ]%v
+")
+
+;; (setq gnus-topic-line-format "%i[ %u&topic-line; ] %v\n")
+
+#+end_src 
+
+*** always decrypt
+
+#+begin_src emacs-lisp 
+
+(setq mm-decrypt-option (quote always))
+
+#+end_src 
+
+#+begin_src emacs-lisp 
+
+(custom-set-faces
+ ;; custom-set-faces was added by Custom.
+ ;; If you edit it by hand, you could mess it up, so be careful.
+ ;; Your init file should contain only one such instance.
+ ;; If there is more than one, they won't work right.
+ '(message-cited-text ((((class color)) (:foreground "Blue"))))
+ '(message-header-cc ((((class color)) (:bold t :foreground "green2"))))
+ '(message-header-name ((((class color)) (:bold nil :foreground "Blue"))))
+ '(message-header-other ((((class color)) (:foreground "Firebrick"))))
+ '(message-header-subject ((((class color)) (:foreground "black"))))
+ '(message-header-xheader ((((class color)) (:foreground "Blue"))))
+ '(message-mml ((((class color)) (:foreground "DarkGreen"))))
+ '(message-separator ((((class color)) (:foreground "Tan")))))
+
+ #+end_src 
 
 
 ** ERC
@@ -6305,6 +6517,17 @@ http://emacs-w3m.namazu.org/ml/msg10827.html
 (setq w3m-fill-column 120)
 
 #+end_src 
+
+
+*** jwiegley settings
+
+#+begin_src emacs-lisp 
+
+(setq w3m-cookie-accept-bad-cookies (quote ask))
+(setq w3m-fill-column 80)
+
+#+end_src 
+
 
 ** Bittlebee
 
