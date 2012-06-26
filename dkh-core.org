@@ -4419,11 +4419,13 @@ gnus-alias-unknown-identity-rule (quote error))
 (erc-services-mode 1)
 (setq erc-prompt-for-nickserv-password nil)
 
-(defun run-irc-secrets-hook ()
-  (require 'irc-secrets "~/git/.emacs.d/.secret/irc-secrets.el.gpg")
-)
+(require 'irc-secrets "~/git/.emacs.d/.secret/irc-secrets.el.gpg")
 
-(add-hook 'erc-before-connect 'run-irc-secrets-hook)
+;;(defun run-irc-secrets-hook ()
+;;  (require 'irc-secrets "~/git/.emacs.d/.secret/irc-secrets.el.gpg")
+;;)
+;;
+;;(add-hook 'erc-before-connect 'run-irc-secrets-hook)
 
 #+end_src 
 
