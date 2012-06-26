@@ -4111,6 +4111,10 @@ Require unix zip commandline tool."
 
 #+begin_src emacs-lisp
 
+(require 'erc-services)
+
+
+
 (erc-notify-mode 1)
 (load-library "erc-highlight-nicknames")
 (add-to-list 'erc-modules 'highlight-nicknames)
