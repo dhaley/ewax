@@ -2310,7 +2310,6 @@ text-mode. But if you put the following in your emacs init:
 Now type 8 on keypad, it'll insert opening curly bracket, and the
 matching one will be automatically closed by electric-pair-mode.
 
-
 * Org (Organize your life)
 ** Org files
 
@@ -2465,7 +2464,6 @@ See ~/git/.emacs.d/dkh-pre-setup.org file
 #+end_src 
 
 
-   
 * Navigation (Driving the car)
 ** Ibuffer
 
@@ -3114,7 +3112,6 @@ Don't use a file dialog to ask for files
 (eldoc-mode t)
 
 #+end_src 
-
 
 
 * Utilities (tools)
@@ -7903,24 +7900,73 @@ needed.
 
 ** W3m
 
+#+begin_src emacs-lisp 
+
+(use-package w3m
+  :commands w3m-browse-url
+  :init
+  (progn
+;;    (setq w3m-command "/opt/local/bin/w3m")
+
+    (autoload 'w3m-session-crash-recovery-remove "w3m-session")
+
+    (defun wikipedia-query (term)
+      (interactive (list (read-string "Wikipedia search: " (word-at-point))))
+      (require 'w3m-search)
+      (w3m-search "en.wikipedia" term))
+
+    (eval-when-compile
+      (autoload 'w3m-search-escape-query-string "w3m-search"))
+
+    (defun wolfram-alpha-query (term)
+      (interactive (list (read-string "Ask Wolfram Alpha: " (word-at-point))))
+      (require 'w3m-search)
+      (w3m-browse-url (format "http://m.wolframalpha.com/input/?i=%s"
+                              (w3m-search-escape-query-string term))))
+
+    (defun goto-emacswiki ()
+      (interactive)
+      (w3m-browse-url "http://www.emacswiki.org"))
+
+    (bind-key "H-M-e" 'goto-emacswiki)
+    (bind-key "H-M-g" 'w3m-search)
+    (bind-key "H-M-h" 'wolfram-alpha-query)
+    (bind-key "H-M-w" 'wikipedia-query))
+
+  :config
+  (let (proxy-host proxy-port)
+    (with-temp-buffer
+      (shell-command "scutil --proxy" (current-buffer))
+
+      (when (re-search-forward "HTTPPort : \\([0-9]+\\)" nil t)
+        (setq proxy-port (match-string 1)))
+      (when (re-search-forward "HTTPProxy : \\(\\S-+\\)" nil t)
+        (setq proxy-host (match-string 1))))
+
+    (if (and proxy-host proxy-port)
+        (setq w3m-command-arguments
+              (nconc w3m-command-arguments
+                     (list "-o" (format "http_proxy=http://%s:%s/"
+                                        proxy-host proxy-port)))))
+
+    (use-package w3m-type-ahead
+      :requires w3m
+      :init
+      (add-hook 'w3m-mode-hook 'w3m-type-ahead-mode))
+
+    (bind-key "<return>" 'w3m-view-url-with-external-browser
+              w3m-minor-mode-map)))
+
+#+end_src 
+
+
+
 *** For Gnus
 #+begin_src emacs-lisp 
 
-;; (setq load-path (cons "/usr/share/emacs/site-lisp/w3m/" load-path))
-(require 'w3m)
-
-
-;;             (defun playwav (url)
-;;               (interactive)
-;;               (message "url is %s" url)
-;;               (w3m-view-this-url url)
-;;               )
-
 (setq mm-text-html-renderer 'w3m)
 
-
 ;;(define-key gnus-article-mode-map (kbd "M-w") 'org-w3m-copy-for-org-mode)
-
 (define-key gnus-article-mode-map (kbd "C-c C-x M-w") 'org-w3m-copy-for-org-mode)
 
 #+end_src 
@@ -8365,6 +8411,8 @@ http://emacs-w3m.namazu.org/ml/msg10827.html
 
 (setq w3m-cookie-accept-bad-cookies (quote ask))
 (setq w3m-fill-column 80)
+
+
 
 #+end_src 
 
@@ -9024,7 +9072,6 @@ pre-enabled (similar to the last tweets). whitespace-mode ftw :-)
              (/ days-left 7))))
 
 #+end_src 
-
 
 * Turn off debugging
 
