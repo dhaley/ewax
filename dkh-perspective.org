@@ -52,8 +52,8 @@ self-determination; it is an end in itself.”
   "Connect to IM networks using bitlbee and freenode."
   (interactive)
   (custom-persp "irc"
-                (erc :server "localhost" :port 6667 :nick "my_nick")
-                (erc :server "asimov.freenode.net"  :nick "my_nick" :password "my_pass" :port 6667)
+;;                (erc :server "localhost" :port 6667 :nick "my_nick")
+;;                (erc :server "asimov.freenode.net"  :nick "my_nick" :password "my_pass" :port 6667)
                 ))
 
 (defun dkh-persp/org ()

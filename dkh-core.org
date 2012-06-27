@@ -329,6 +329,7 @@ annotate your elisp in the following file:
         'etags-select
         'expand-region
         'fill-column-indicator
+        'gist
         'guru-mode
         'js2-mode
         'key-chord
@@ -4421,19 +4422,27 @@ gnus-alias-unknown-identity-rule (quote error))
 
 ***** orig settings
 
-***** new settings
+#+begin_src emacs-lisp 
+
+(setq erc-user-full-name (quote user-full-name))
+
+#+end_src 
+
+
+***** jwiegley settings
+
+#+begin_src emacs-lisp 
+
 (custom-set-variables
  '(erc-auto-query (quote window-noselect))
- '(erc-autoaway-message "I'm away (after %i seconds of idle-time)")
- '(erc-autojoin-channels-alist (quote (("oftc.net" "#llvm") ("localhost" "&bitlbee") ("freenode.net" "#emacs" "#boost" "#ledger") ("irc.oftc.net" "#llvm") ("irc.schmorp.de" "#schmorpforge"))))
- '(erc-autojoin-mode t)
+ ;; '(erc-autoaway-message "I'm away (after %i seconds of idle-time)")
+ '(erc-autoaway-message "I'm at the cappuccino bar(after %i seconds of idle-time)")
  '(erc-fools (quote ("JordiGH")))
  '(erc-generate-log-file-name-function (quote erc-generate-log-file-name-short))
  '(erc-header-line-format nil)
  '(erc-hide-list (quote ("JOIN" "NICK" "PART" "QUIT" "MODE")))
  '(erc-ignore-list (quote ("rudybot!.*")))
- '(erc-keywords (quote ("wiegley" "ledger" "eshell")))
- '(erc-log-channels-directory "~/Messages/ERC")
+ '(erc-log-channels-directory "~/git/.emacs.d/.erc/logs/")
  '(erc-log-write-after-send t)
  '(erc-modules (quote (autojoin button completion dcc fill identd irccontrols list log match menu move-to-prompt netsplit networks noncommands readonly replace ring scrolltobottom services smiley stamp spelling track highlight-nicknames)))
  '(erc-nick "dkh")
@@ -4443,13 +4452,120 @@ gnus-alias-unknown-identity-rule (quote error))
  '(erc-replace-alist (quote (("</?FONT>" . ""))))
  '(erc-server "irc.freenode.net")
  '(erc-services-mode t)
- '(erc-text-matched-hook (quote (erc-log-matches erc-hide-fools my-erc-hook)))
+ ;; '(erc-text-matched-hook (quote (erc-log-matches erc-hide-fools my-erc-hook)))
+ '(erc-text-matched-hook (quote (erc-log-matches erc-hide-fools)))
  '(erc-track-enable-keybindings t)
  '(erc-track-exclude-types (quote ("JOIN" "KICK" "NICK" "PART" "QUIT" "MODE" "333" "353")))
  '(erc-track-faces-priority-list (quote (erc-error-face (erc-nick-default-face erc-current-nick-face) erc-current-nick-face erc-keyword-face (erc-nick-default-face erc-pal-face) erc-pal-face erc-nick-msg-face erc-direct-msg-face))))
 
 #+end_src  
 
+****** autojoin
+
+#+begin_src emacs-lisp :tangle no
+
+(setq erc-autojoin-channels-alist
+(quote (("localhost" "&bitlbee")
+        (".*\\.freenode.net" "#emacs" "#conkeror" "#org-mode")
+        ("irc.debian.org" "#freedombox"))))
+
+(erc-autojoin-mode t)
+
+;; (setq erc-autojoin-channels-alist
+;;   '((".*\\.freenode.net" "#drupal-colorado" "#emacs" 
+;;   "#fsf-members" "#erc" "#conkeror" "#org-mode")
+;;      (".*\\.debian.org" "#freedombox")
+;; ;;     (".*\\.gimp.org" "#unix" "#gtk+")
+;; ;;     (".*\\.gnome.org" "#sparklehorse" "#gtk+")
+;; ))
+
+#+end_src 
+
+****** erc keywords
+
+#+begin_src emacs-lisp 
+
+(setq erc-keywords '("\scu\s" "\stor\s" "boulder" "colorado" "Damon" "university"
+   "academic" "organic groups" "relation module" "contextual filter" "gmane" "gwene"
+   "usenet" "proxy" "privacy" "\ssocks\s"
+   "gnus" "workgroups" "wireshark" "chaos tools" "hushmail" 
+ "Stallman" "\sog\s" "compiz" "page manager" "super cookie" "[^\.]php"
+   "nxhtml" "nxml" "erc\-keywords" "libnotify" "emacs 24" "org\W?mode"
+   "\sunity\s" "starter\W?kit" "rate module" "conkeror" "jabber"
+   "noscript" "https\-everywhere" "\wfsf\w" "\seff\s" "Log4j" "\sperl\s"
+   "python" "generic-mode" "rainbow-mode" "SQLi" "sql-mode"
+   "references module" "flag module" "org2blog" "nodeone" "Johan Falk"
+   "singularity" "Lanier" "\serc\s" "mdb2" "\spear\s" "html5" "jquery"
+   "naquadah" "mumamo" "el\-get" "zenburn" "solarized" "gunnars"
+   "speedbar" "cedet" "ecb" "hook_menu_alter" "theme engine" "auto complete"
+   "auto completion" "bbdb" "hippy" "\svariant\s" "json" "magit" "w3m"
+   "dired" "bitcoin" ) )
+
+#+end_src    
+
+
+****** logging
+
+#+begin_src emacs-lisp 
+
+  (if (not (file-exists-p erc-log-channels-directory))
+      (mkdir erc-log-channels-directory t))
+
+#+end_src 
+
+***** technomancy settings
+
+
+#+begin_src emacs-lisp 
+
+(setq erc-prompt ">")
+(setq erc-autojoin-timing :ident)
+(setq erc-fill-column 75)
+
+(setq erc-track-priority-faces-only t
+      erc-flood-protect nil)
+
+(delete 'erc-fool-face 'erc-track-faces-priority-list)
+(delete '(erc-nick-default-face erc-fool-face) 'erc-track-faces-priority-list)
+
+(eval-after-load 'erc
+  '(progn
+     (when (not (package-installed-p 'erc-hl-nicks))
+       (package-install 'erc-hl-nicks))
+     (require 'erc-spelling)
+     (require 'erc-truncate)
+     (require 'erc-hl-nicks)
+     (ignore-errors
+       ;; DO NOT use the version from marmalade
+       (erc-nick-notify-mode t))
+     (add-to-list 'erc-modules 'hl-nicks)
+     (add-to-list 'erc-modules 'spelling)
+     (set-face-foreground 'erc-input-face "dim gray")
+     (set-face-foreground 'erc-my-nick-face "blue")))
+
+;; thanks to leathekd
+(defvar twitter-url-pattern
+  (concat "\\(https?://\\)\\(?:.*\\)?\\(twitter.com/\\)"
+          "\\(?:#!\\)?\\([[:alnum:][:punct:]]+\\)")
+  "Matches regular twitter urls, including those with hashbangs,
+but not mobile urls.")
+
+(defun browse-mobile-twitter (url)
+  "When given a twitter url, browse to the mobile version instead"
+  (string-match twitter-url-pattern url)
+  (let ((protocol (match-string 1 url))
+        (u (match-string 2 url))
+        (path (match-string 3 url)))
+    (browse-url (format "%smobile.%s%s" protocol u path) t)))
+
+;; Need to append otherwise the urls will be picked up by
+;; erc-button-url-regexp. Not sure why that is the case.
+(eval-after-load 'erc-button
+  '(add-to-list 'erc-button-alist
+                '(twitter-url-pattern 0 t browse-mobile-twitter 0) t))
+
+
+#+end_src 
 
 **** ERC initialization
 
@@ -4488,11 +4604,11 @@ gnus-alias-unknown-identity-rule (quote error))
       (interactive)
       (erc :server "localhost"
            :port 6667
-           :nick "johnw"
+           :nick "dkh"
            :password (funcall
                       (plist-get
                        (car (auth-source-search :host "bitlbee"
-                                                :user "johnw"
+                                                :user "dkh"
                                                 :type 'netrc
                                                 :port 6667))
                        :secret)))))
@@ -4502,7 +4618,7 @@ gnus-alias-unknown-identity-rule (quote error))
     (erc-track-minor-mode 1)
     (erc-track-mode 1)
 
-    (use-package erc-alert)
+;;    (use-package erc-alert)
     (use-package erc-highlight-nicknames)
     (use-package erc-patch)
 
@@ -6316,7 +6432,7 @@ http://emacs-w3m.namazu.org/ml/msg10827.html
 
 *** [[http://emacs-fu.blogspot.com/2012/03/social-networking-with-bitlbee-and-erc.html][social networking with bitlbee and erc]]
 
-#+begin_src emacs-lisp 
+#+begin_src emacs-lisp :tangle no
 
 (defun i-wanna-be-social ()
   "Connect to IM networks using bitlbee."
