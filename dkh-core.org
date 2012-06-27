@@ -196,6 +196,7 @@ number of messages kept in the buffer with the variable
 
 #+end_src 
 
+
 **** Utility macros and functions
 
 #+begin_src emacs-lisp 
@@ -219,6 +220,65 @@ number of messages kept in the buffer with the variable
 
 #+end_src 
 
+
+**** Read system environment
+
+#+begin_src emacs-lisp
+
+(let ((plist (expand-file-name "~/.MacOSX/environment.plist")))
+  (when (file-readable-p plist)
+    (let ((dict (cdr (assq 'dict (cdar (xml-parse-file plist))))))
+      (while dict
+        (if (and (listp (car dict))
+                 (eq 'key (caar dict)))
+            (setenv (car (cddr (car dict)))
+                    (car (cddr (car (cddr dict))))))
+        (setq dict (cdr dict))))
+
+    ;; Configure exec-path based on the new PATH
+    (setq exec-path nil)
+    (mapc (apply-partially #'add-to-list 'exec-path)
+          (nreverse (split-string (getenv "PATH") ":")))))
+
+#+end_src 
+          
+****  Load customization settings
+
+#+begin_src emacs-lisp 
+      
+(defvar running-alternate-emacs nil)
+
+(if (string= invocation-directory
+             "/Applications/EmacsAlt.app/Contents/MacOS/")
+
+    (let ((settings (with-temp-buffer
+                      (insert-file-contents
+                       (expand-file-name "settings.el" user-emacs-directory))
+                      (goto-char (point-min))
+                      (read (current-buffer)))))
+
+      (setq running-alternate-emacs t
+            user-data-directory
+            (replace-regexp-in-string "/data/" "/data-alt/"
+                                      user-data-directory))
+
+      (let* ((regexp "/\\.emacs\\.d/data/")
+             (replace "/.emacs.d/data-alt/"))
+        (dolist (setting settings)
+          (let ((value (and (listp setting)
+                            (nth 1 (nth 1 setting)))))
+            (if (and (stringp value)
+                     (string-match regexp value))
+                (setcar (nthcdr 1 (nth 1 setting))
+                        (replace-regexp-in-string regexp replace value)))))
+
+        (eval settings)))
+
+  ;;(load (expand-file-name "settings" user-emacs-directory))
+)
+
+#+end_src   
+     
 *** Enable disabled commands
 
 #+begin_src emacs-lisp 
@@ -340,6 +400,7 @@ annotate your elisp in the following file:
    face-list
    fliptext
    grep+
+   ipa
    keychain-environment
    paste2
    protbuf
@@ -421,6 +482,18 @@ annotate your elisp in the following file:
 
 (package-refresh-contents)
 (dolist (package dkh-required-packages) (when (not (package-installed-p package)) (package-install package)))
+
+#+end_src 
+
+** Help map
+#+begin_src emacs-lisp 
+
+(defvar lisp-find-map)
+(define-prefix-command 'lisp-find-map)
+
+(bind-key "C-h e" 'lisp-find-map)
+
+;;;_  . C-h e ?
 
 #+end_src 
 
@@ -546,13 +619,6 @@ clean-buffer-list-kill-regexps (quote (".*")))
 
 #+end_src 
 
-** Session save config
-
-#+begin_src emacs-lisp 
-
-(setq session-save-file "~/.emacs.d/.session")
-
-#+end_src 
 
 ** Fonts
 
@@ -1183,14 +1249,6 @@ frames with exactly two windows."
 
 #+end_src
 
-*** Winner mode
-
-#+begin_src emacs-lisp 
-
-; a feature to preserve split pane configuration. Use 【Ctrl+c ←】 and 【Ctrl+c →】
-(when (fboundp 'winner-mode) (winner-mode 1))
-
-#+end_src
 
 *** More Window functions
 
@@ -5937,8 +5995,6 @@ Based on `ffap'."
 
 * Value added packages
 ** Abbrev
-*** settings
-
 I like abbrev cause it saves typing
 
 #+begin_src emacs-lisp 
@@ -5984,7 +6040,7 @@ I like abbrev cause it saves typing
 
 ** allout
 
-#+begin_src emacs-lisp 
+#+begin_src emacs-lisp :tangle no
 
 (use-package allout
   :diminish allout-mode
@@ -6014,7 +6070,7 @@ I like abbrev cause it saves typing
     
 ** ascii
 
-#+begin_src emacs-lisp 
+#+begin_src emacs-lisp :tangle no
 
 (use-package ascii
   :commands ascii-on
@@ -6032,7 +6088,7 @@ I like abbrev cause it saves typing
 
 ** archive-region
 
-#+begin_src emacs-lisp 
+#+begin_src emacs-lisp :tangle no
 
 (use-package archive-region
   :commands kill-region-or-archive-region
@@ -6140,8 +6196,7 @@ its content to reflect what's on-disk.
 
 #+end_src 
 
-
-** Persistent bookmarks
+** bookmarks
 
 #+begin_src emacs-lisp 
 
@@ -6186,6 +6241,49 @@ its content to reflect what's on-disk.
 
 #+end_src 
 
+** Bittlebee
+
+
+[[http://emacs-fu.blogspot.com/2012/03/social-networking-with-bitlbee-and-erc.html][social networking with bitlbee and erc]]
+
+#+begin_src emacs-lisp :tangle no
+
+(defun i-wanna-be-social ()
+  "Connect to IM networks using bitlbee."
+  (interactive)
+  (erc :server "localhost" :port 6667 :nick "dkh")
+)
+
+(defun bitlbee-identify ()
+    (require 'bitlbee-secrets "~/git/.emacs.d/.secret/bitlbee-secrets.el.gpg")
+  (when (and (string= "localhost" erc-session-server)
+          (string= "&bitlbee" (buffer-name)))
+        (erc-message "PRIVMSG" (format "%s identify dkh secretpassword"
+                             (erc-default-target)
+                             dkh-bitlbee-password))))
+
+#+end_src 
+
+
+
+*** The ICQ white pages
+
+Ever wondered what this 938748324 person is that sends messages to
+you. AFAIK bitlbee has no builtin support to query the white pages of
+ICQ, therefore i quickly hacked up this one:
+
+#+begin_src emacs-lisp 
+
+(defun erc-cmd-ICQWHOIS (uin)
+  "Queries icq-user with UIN `uin', and returns the result."
+  (let* ((result (myerc-query-icq-user uin))
+         (fname (cdr (assoc 'fname result)))
+         (lname (cdr (assoc 'lname result)))
+         (nick (cdr (assoc 'nick result))))
+    (erc-display-message nil 'notice (current-buffer) (format "%s (%s %s)" nick fname lname))))
+
+#+end_src 
+
 ** Bookmarks
 *** Bookmark locations
 
@@ -6222,7 +6320,6 @@ its content to reflect what's on-disk.
 #+end_src
 
 
-
 ** browse-kill-ring+
 
 #+begin_src emacs-lisp 
@@ -6252,7 +6349,7 @@ its content to reflect what's on-disk.
 
 ** crosshairs
 
-#+begin_src emacs-lisp 
+#+begin_src emacs-lisp :tangle no
 
 (use-package crosshairs
   :bind ("M-o c" . crosshairs-mode))
@@ -6268,8 +6365,6 @@ its content to reflect what's on-disk.
 
 #+end_src
 
-** CSS
-
 #+begin_src emacs-lisp 
 
 (add-hook 'css-mode-hook 'rainbow-mode)
@@ -6278,20 +6373,134 @@ its content to reflect what's on-disk.
 
 ** debbugs
 
-#+begin_src emacs-lisp 
+#+begin_src emacs-lisp :tangle no
 
 (use-package debbugs
   :commands (debbugs-gnu debbugs-gnu-search))
 
 #+end_src 
 
-
 ** dedicated
 
-#+begin_src emacs-lisp 
+#+begin_src emacs-lisp :tangle no
 
 (use-package dedicated
   :bind ("C-. d" . dedicated-mode))
+
+#+end_src 
+
+** Dictem
+
+#+begin_src emacs-lisp 
+
+(setq dictem-server "localhost")
+(require 'dictem)
+
+;;  http://www.myrkr.in-berlin.de/dictionary/
+
+; SEARCH = MATCH + DEFINE
+; Ask for word, database and search strategy
+; and show definitions found
+
+; SHOW DB
+; Show a list of databases provided by DICT server
+(global-set-key "\C-c\M-b" 'dictem-run-show-databases)
+
+(define-key dictem-mode-map [tab] 'dictem-next-link)
+(define-key dictem-mode-map [(backtab)] 'dictem-previous-link)
+(define-key dictem-mode-map [return] 'dictem-run-search)
+
+(dictem-initialize)
+
+(defun my-dictem-run-search ()
+  "Look up definitions for word at point."
+  (interactive)
+  (dictem-run 'dictem-base-search "*" (thing-at-point 'word) ".")
+  (other-window 1))
+
+;;;###autoload
+
+(defun rgr/synonyms()
+ (interactive)
+ (let* ((default (thing-at-point 'symbol))
+        (term (read-string (format "Synonyms for (%s): "
+                                   default) default)))
+   (dictem-run
+    'dictem-base-search
+    "moby-thes" term "exact")))
+
+(define-key mode-specific-map [?S] 'rgr/synonyms)
+
+(dictem-initialize)
+
+;; junk
+
+;; moby-thes is not a valid database, use -D for a list
+;; No matches found for "junk"
+
+    ;; For creating hyperlinks on database names and found matches.
+    ;; Click on them with `mouse-2'
+(add-hook 'dictem-postprocess-match-hook
+         'dictem-postprocess-match)
+
+    ;; For highlighting the separator between the definitions found.
+    ;; This also creates hyperlink on database names.
+(add-hook 'dictem-postprocess-definition-hook
+         'dictem-postprocess-definition-separator)
+
+    ;; For creating hyperlinks in dictem buffer that contains definitions.
+(add-hook 'dictem-postprocess-definition-hook
+         'dictem-postprocess-definition-hyperlinks)
+
+    ;; For creating hyperlinks in dictem buffer that contains information
+    ;; about a database.
+(add-hook 'dictem-postprocess-show-info-hook
+         'dictem-postprocess-definition-hyperlinks)
+
+(add-hook 'dictem-postprocess-definition-hook
+         'dictem-postprocess-each-definition)
+
+
+
+(define-key flyspell-mode-map (kbd "C-+") 'flyspell-check-previous-highlighted-word)
+(define-key flyspell-mode-map (kbd "C-#") 'flyspell-auto-correct-previous-word)
+(define-key flyspell-mode-map (kbd "S-<f2>") 'ispell-word)
+(define-key flyspell-mode-map (kbd "C-<f2>") 'flyspell-auto-correct-previous-word)
+
+(setq synonyms-file "~/.emacs.d/thesaurus/mthesaur.txt")
+(setq synonyms-cache-file "~/.emacs.d/thesaurus/syn.cache")
+(setq synonyms-match-more-flag nil)
+
+(require 'synonyms)
+(define-key mode-specific-map [?S] 'synonyms)
+
+(define-key mode-specific-map [?s] 'dictem-run-search)
+
+
+(define-key dictem-mode-map [tab] 'dictem-next-link)
+(define-key dictem-mode-map [(backtab)] 'dictem-previous-link)
+
+; For creating hyperlinks on database names
+                                      ; and found matches.
+                                      ; Click on them with mouse-2
+(add-hook 'dictem-postprocess-match-hook
+        'dictem-postprocess-match)
+
+        ; For highlighting the separator between the definitions found.
+        ; This also creates hyperlink on database names.
+(add-hook 'dictem-postprocess-definition-hook 
+        'dictem-postprocess-definition-separator)
+
+        ; For creating hyperlinks in dictem buffer
+                                      ; that contains definitions.
+(add-hook 'dictem-postprocess-definition-hook 
+        'dictem-postprocess-definition-hyperlinks)
+
+        ; For creating hyperlinks in dictem buffer
+        ; that contains information about a database.
+(add-hook 'dictem-postprocess-show-info-hook
+        'dictem-postprocess-definition-hyperlinks)
+
 
 #+end_src 
 
@@ -6423,7 +6632,7 @@ its content to reflect what's on-disk.
 
 ** doxymacs
 
-#+begin_src emacs-lisp 
+#+begin_src emacs-lisp :tangle no
 
 (use-package doxymacs
   :disabled t
@@ -6546,7 +6755,7 @@ its content to reflect what's on-disk.
     
 ** emms
 
-#+begin_src emacs-lisp
+#+begin_src emacs-lisp :tangle no
 
 (use-package emms-setup
   :load-path "site-lisp/emms/lisp"
@@ -6736,7 +6945,6 @@ It seems like this is needed for about everything
 
 #+end_src      
 
-
 ** helm
 
 #+begin_src emacs-lisp 
@@ -6860,6 +7068,18 @@ It seems like this is needed for about everything
 
 (use-package ibuffer
   :bind ("C-x C-b" . ibuffer))
+
+#+end_src 
+
+** Identi.ca mode
+
+#+begin_src emacs-lisp 
+
+(require 'identica-mode)
+
+(global-set-key "\C-cip" 'identica-update-status-interactive)
+;; Add this to send direct messages
+(global-set-key "\C-cid" 'identica-direct-message-interactive)
 
 #+end_src 
 
@@ -7240,7 +7460,7 @@ It seems like this is needed for about everything
 
 ** llvm-mode
 
-#+begin_src emacs-lisp 
+#+begin_src emacs-lisp :tangle no
 
 (use-package llvm-mode
   :mode ("\\.ll\\'" . llvm-mode))
@@ -7274,6 +7494,51 @@ needed.
 
 #+end_src 
 
+** Magit
+
+#+begin_src emacs-lisp :tangle no
+
+(use-package magit
+  :bind ("C-x g" . magit-status)
+  :config
+  (progn
+    (setenv "GIT_PAGER" "")
+
+    (add-hook 'magit-log-edit-mode-hook
+              #'(lambda ()
+                  (set-fill-column 72)
+                  (flyspell-mode)))
+
+    (require 'magit-topgit)
+    (require 'rebase-mode)
+
+    (defun start-git-monitor ()
+      (interactive)
+      (start-process "git-monitor" (current-buffer) "~/bin/git-monitor"))
+
+    ;;(add-hook 'magit-status-mode-hook 'start-git-monitor)
+    ))
+
+#+end_src     
+    
+** markdown-mode
+#+begin_src emacs-lisp 
+
+(use-package markdown-mode
+  :mode ("\\.md\\'" . markdown-mode)
+  :init
+  (progn
+    (defun markdown-preview-file ()
+      "run Marked on the current file and revert the buffer"
+      (interactive)
+      (shell-command
+       (format "open -a /Applications/Marked.app %s"
+               (shell-quote-argument (buffer-file-name)))))
+
+    (bind-key "C-x M" 'markdown-preview-file)))
+
+#+end_src 
+    
 ** Use pastebin.com
 
 #+begin_src emacs-lisp 
@@ -7282,133 +7547,359 @@ needed.
 
 #+end_src 
 
-** Dictem
+** paredit
 
 #+begin_src emacs-lisp 
 
-(setq dictem-server "localhost")
-(require 'dictem)
+(use-package paredit
+  :commands paredit-mode
+  :diminish paredit-mode
+  :init
+  (progn
+    (defun mark-containing-sexp ()
+      (interactive)
+      (paredit-backward-up)
+      (mark-sexp))
 
-;;  http://www.myrkr.in-berlin.de/dictionary/
+    (defun paredit-barf-all-the-way-backward ()
+      (interactive)
+      (paredit-split-sexp)
+      (paredit-backward-down)
+      (paredit-splice-sexp))
 
-; SEARCH = MATCH + DEFINE
-; Ask for word, database and search strategy
-; and show definitions found
+    (defun paredit-barf-all-the-way-forward ()
+      (interactive)
+      (paredit-split-sexp)
+      (paredit-forward-down)
+      (paredit-splice-sexp)
+      (if (eolp) (delete-horizontal-space)))
 
-; SHOW DB
-; Show a list of databases provided by DICT server
-(global-set-key "\C-c\M-b" 'dictem-run-show-databases)
+    (defun paredit-slurp-all-the-way-backward ()
+      (interactive)
+      (catch 'done
+        (while (not (bobp))
+          (save-excursion
+            (paredit-backward-up)
+            (if (eq (char-before) ?\()
+                (throw 'done t)))
+          (paredit-backward-slurp-sexp))))
 
-(define-key dictem-mode-map [tab] 'dictem-next-link)
-(define-key dictem-mode-map [(backtab)] 'dictem-previous-link)
-(define-key dictem-mode-map [return] 'dictem-run-search)
+    (defun paredit-slurp-all-the-way-forward ()
+      (interactive)
+      (catch 'done
+        (while (not (eobp))
+          (save-excursion
+            (paredit-forward-up)
+            (if (eq (char-after) ?\))
+                (throw 'done t)))
+          (paredit-forward-slurp-sexp)))))
 
-(dictem-initialize)
+  :config
+  (progn
+    (nconc paredit-commands
+           '("Extreme Barfage & Slurpage"
+             (("C-M-)")
+              paredit-slurp-all-the-way-forward
+              ("(foo (bar |baz) quux zot)"
+               "(foo (bar |baz quux zot))")
+              ("(a b ((c| d)) e f)"
+               "(a b ((c| d)) e f)"))
+             (("C-M-}")
+              paredit-barf-all-the-way-forward
+              ("(foo (bar |baz quux) zot)"
+               "(foo (bar|) baz quux zot)"))
+             (("C-M-(")
+              paredit-slurp-all-the-way-backward
+              ("(foo bar (baz| quux) zot)"
+               "((foo bar baz| quux) zot)")
+              ("(a b ((c| d)) e f)"
+               "(a b ((c| d)) e f)"))
+             (("C-M-{")
+              paredit-barf-all-the-way-backward
+              ("(foo (bar baz |quux) zot)"
+               "(foo bar baz (|quux) zot)"))))
 
-(defun my-dictem-run-search ()
-  "Look up definitions for word at point."
-  (interactive)
-  (dictem-run 'dictem-base-search "*" (thing-at-point 'word) ".")
-  (other-window 1))
+    (paredit-define-keys)
+    (paredit-annotate-mode-with-examples)
+    (paredit-annotate-functions-with-examples)
 
-;;;###autoload
+    (add-hook 'allout-mode-hook
+              #'(lambda ()
+                  (bind-key "M-k" 'paredit-raise-sexp allout-mode-map)
+                  (bind-key "M-h" 'mark-containing-sexp allout-mode-map)))))
 
-(defun rgr/synonyms()
- (interactive)
- (let* ((default (thing-at-point 'symbol))
-        (term (read-string (format "Synonyms for (%s): "
-                                   default) default)))
-   (dictem-run
-    'dictem-base-search
-    "moby-thes" term "exact")))
+#+end_src                   
 
-(define-key mode-specific-map [?S] 'rgr/synonyms)
-
-(dictem-initialize)
-
-;; junk
-
-;; moby-thes is not a valid database, use -D for a list
-;; No matches found for "junk"
-
-    ;; For creating hyperlinks on database names and found matches.
-    ;; Click on them with `mouse-2'
-(add-hook 'dictem-postprocess-match-hook
-         'dictem-postprocess-match)
-
-    ;; For highlighting the separator between the definitions found.
-    ;; This also creates hyperlink on database names.
-(add-hook 'dictem-postprocess-definition-hook
-         'dictem-postprocess-definition-separator)
-
-    ;; For creating hyperlinks in dictem buffer that contains definitions.
-(add-hook 'dictem-postprocess-definition-hook
-         'dictem-postprocess-definition-hyperlinks)
-
-    ;; For creating hyperlinks in dictem buffer that contains information
-    ;; about a database.
-(add-hook 'dictem-postprocess-show-info-hook
-         'dictem-postprocess-definition-hyperlinks)
-
-(add-hook 'dictem-postprocess-definition-hook
-         'dictem-postprocess-each-definition)
-
-
-
-(define-key flyspell-mode-map (kbd "C-+") 'flyspell-check-previous-highlighted-word)
-(define-key flyspell-mode-map (kbd "C-#") 'flyspell-auto-correct-previous-word)
-(define-key flyspell-mode-map (kbd "S-<f2>") 'ispell-word)
-(define-key flyspell-mode-map (kbd "C-<f2>") 'flyspell-auto-correct-previous-word)
-
-(setq synonyms-file "~/.emacs.d/thesaurus/mthesaur.txt")
-(setq synonyms-cache-file "~/.emacs.d/thesaurus/syn.cache")
-(setq synonyms-match-more-flag nil)
-
-(require 'synonyms)
-(define-key mode-specific-map [?S] 'synonyms)
-
-(define-key mode-specific-map [?s] 'dictem-run-search)
-
-
-(define-key dictem-mode-map [tab] 'dictem-next-link)
-(define-key dictem-mode-map [(backtab)] 'dictem-previous-link)
-
-; For creating hyperlinks on database names
-                                      ; and found matches.
-                                      ; Click on them with mouse-2
-(add-hook 'dictem-postprocess-match-hook
-        'dictem-postprocess-match)
-
-        ; For highlighting the separator between the definitions found.
-        ; This also creates hyperlink on database names.
-(add-hook 'dictem-postprocess-definition-hook 
-        'dictem-postprocess-definition-separator)
-
-        ; For creating hyperlinks in dictem buffer
-                                      ; that contains definitions.
-(add-hook 'dictem-postprocess-definition-hook 
-        'dictem-postprocess-definition-hyperlinks)
-
-        ; For creating hyperlinks in dictem buffer
-        ; that contains information about a database.
-(add-hook 'dictem-postprocess-show-info-hook
-        'dictem-postprocess-definition-hyperlinks)
-
-
-#+end_src 
-
-** Identi.ca mode
+** paren
 
 #+begin_src emacs-lisp 
 
-(require 'identica-mode)
-
-(global-set-key "\C-cip" 'identica-update-status-interactive)
-;; Add this to send direct messages
-(global-set-key "\C-cid" 'identica-direct-message-interactive)
+(use-package paren
+  :init
+  (show-paren-mode 1))
 
 #+end_src 
 
+** per-window-point
+
+#+begin_src emacs-lisp 
+
+(use-package per-window-point
+  :init
+  (pwp-mode 1))
+
+#+end_src 
+
+** persistent-scratch
+
+#+begin_src emacs-lisp :tangle no
+
+(use-package persistent-scratch
+  :if (and window-system (not running-alternate-emacs)
+           (not noninteractive)))
+
+#+end_src 
+           
+** popup-ruler
+
+#+begin_src emacs-lisp 
+
+(use-package popup-ruler
+  :bind (("C-. r" . popup-ruler)
+         ("C-. R" . popup-ruler-vertical)))
+
+#+end_src 
+         
+** pp-c-l
+
+#+begin_src emacs-lisp :tangle no
+
+(use-package pp-c-l
+  :init
+  (hook-into-modes 'pretty-control-l-mode '(prog-mode-hook)))
+
+#+end_src 
+  
+** ps-print
+
+#+begin_src emacs-lisp 
+
+(use-package ps-print
+  :defer t
+  :config
+  (progn
+    (defun ps-spool-to-pdf (beg end &rest ignore)
+      (interactive "r")
+      (let ((temp-file (concat (make-temp-name "ps2pdf") ".pdf")))
+        (call-process-region beg end (executable-find "ps2pdf")
+                             nil nil nil "-" temp-file)
+        (call-process (executable-find "open") nil nil nil temp-file)))
+
+    (setq ps-print-region-function 'ps-spool-to-pdf)))
+
+#+end_src
+
+** puppet-mode
+
+#+begin_src emacs-lisp 
+
+(use-package puppet-mode
+  :mode ("\\.pp\\'" . puppet-mode))
+
+#+end_src 
+** recentf
+
+#+begin_src emacs-lisp 
+
+(use-package recentf
+  :if (not noninteractive)
+  :init
+  (progn
+    (recentf-mode 1)
+
+    (defun recentf-add-dired-directory ()
+      (if (file-directory-p dired-directory)
+          (recentf-add-file (file-name-nondirectory dired-directory))))
+
+    (add-hook 'dired-mode-hook 'recentf-add-dired-directory)))
+#+end_src 
+
+;;;_ , selectkey
+
+(use-package selectkey
+  :bind ("C-. s" . selectkey-select-prefix-map))
+
+** Session save config
+
+#+begin_src emacs-lisp 
+
+(setq session-save-file "~/.emacs.d/.session")
+
+#+end_src 
+
+
+#+begin_src emacs-lisp 
+
+(use-package session
+  :if (not noninteractive)
+  :load-path "site-lisp/session/lisp/"
+  :init
+  (progn
+    (session-initialize)
+
+    (defun remove-session-use-package-from-settings ()
+      (when (string= (buffer-file-name)
+                     (expand-file-name "settings.el"
+                                       user-emacs-directory))
+        (save-excursion
+          (goto-char (point-min))
+          (when (re-search-forward "^ '(session-use-package " nil t)
+            (delete-region (line-beginning-position)
+                           (1+ (line-end-position)))))))
+
+    (add-hook 'before-save-hook 'remove-session-use-package-from-settings)
+
+    ;; expanded folded secitons as required
+    (defun le::maybe-reveal ()
+      (when (and (or (memq major-mode  '(org-mode outline-mode))
+                     (and (boundp 'outline-minor-mode)
+                          outline-minor-mode))
+                 (outline-invisible-p))
+        (if (eq major-mode 'org-mode)
+            (org-reveal)
+          (show-subtree))))
+
+    (add-hook 'session-after-jump-to-last-change-hook
+              'le::maybe-reveal)
+
+    (defun save-information ()
+      (message "Saving Emacs information...")
+      (dolist (func kill-emacs-hook)
+        (unless (memq func '(exit-gnus-on-exit server-force-stop))
+          (funcall func)))
+      (unless (or running-alternate-emacs
+                  (eq 'listen (process-status server-process)))
+        (server-start))
+      (clean-buffer-list))
+
+    (run-with-idle-timer 300 t 'save-information)
+
+    (if window-system
+        (add-hook 'after-init-hook 'session-initialize t))))
+
+#+end_src 
+        
+** sh-script
+
+#+begin_src emacs-lisp :tangle no
+
+(use-package sh-script
+  :defer t
+  :config
+  (progn
+    (defvar sh-script-initialized nil)
+    (defun initialize-sh-script ()
+      (unless sh-script-initialized
+        (setq sh-script-initialized t)
+        (info-lookup-add-help :mode 'shell-script-mode
+                              :regexp ".*"
+                              :doc-spec
+                              '(("(bash)Index")))))
+
+    (add-hook 'shell-mode-hook 'initialize-sh-script)))
+
+#+end_src
+
+** sh-toggle
+
+#+begin_src emacs-lisp :tangle no
+
+(use-package sh-toggle
+  :bind ("C-x M-z" . shell-toggle))
+
+#+end_src 
+
+** smart-compile
+
+#+begin_src emacs-lisp :tangle no
+
+(use-package smart-compile
+  :commands smart-compile
+  :bind (("C-c c" . smart-compile)
+         ("A-n"   . next-error)
+         ("A-p"   . previous-error))
+  :init
+  (progn
+    (defun show-compilation ()
+      (interactive)
+      (let ((compile-buf
+             (catch 'found
+               (dolist (buf (buffer-list))
+                 (if (string-match "\\*compilation\\*" (buffer-name buf))
+                     (throw 'found buf))))))
+        (if compile-buf
+            (switch-to-buffer-other-window compile-buf)
+          (call-interactively 'compile))))
+
+    (bind-key "M-O" 'show-compilation)))
+
+#+end_src 
+    
+** springboard
+
+#+begin_src emacs-lisp :tangle no
+
+(use-package springboard
+  :bind ("C-. c" . springboard))
+
+#+end_src 
+
+** stopwatch
+
+#+begin_src emacs-lisp :tangle no
+
+(use-package stopwatch
+  :bind ("<f8>" . stopwatch))
+
+#+end_src 
+
+** texinfo
+
+#+begin_src emacs-lisp 
+
+(use-package texinfo
+  :defines texinfo-section-list
+  :mode ("\\.texi\\'" . texinfo-mode)
+  :config
+  (progn
+    (defun my-texinfo-mode-hook ()
+      (dolist (mapping '((?b . "emph")
+                         (?c . "code")
+                         (?s . "samp")
+                         (?d . "dfn")
+                         (?o . "option")
+                         (?x . "pxref")))
+        (local-set-key (vector (list 'alt (car mapping)))
+                       `(lambda () (interactive)
+                          (TeX-insert-macro ,(cdr mapping))))))
+
+    (add-hook 'texinfo-mode-hook 'my-texinfo-mode-hook)
+
+    (defun texinfo-outline-level ()
+      ;; Calculate level of current texinfo outline heading.
+      (require 'texinfo)
+      (save-excursion
+        (if (bobp)
+            0
+          (forward-char 1)
+          (let* ((word (buffer-substring-no-properties
+                        (point) (progn (forward-word 1) (point))))
+                 (entry (assoc word texinfo-section-list)))
+            (if entry
+                (nth 1 entry)
+              5)))))))
+
+#+end_src               
 
 ** W3m
 
@@ -7878,52 +8369,143 @@ http://emacs-w3m.namazu.org/ml/msg10827.html
 #+end_src 
 
 
-** Bittlebee
 
-*** [[http://emacs-fu.blogspot.com/2012/03/social-networking-with-bitlbee-and-erc.html][social networking with bitlbee and erc]]
-
-#+begin_src emacs-lisp :tangle no
-
-(defun i-wanna-be-social ()
-  "Connect to IM networks using bitlbee."
-  (interactive)
-  (erc :server "localhost" :port 6667 :nick "dkh")
-)
-
-(defun bitlbee-identify ()
-    (require 'bitlbee-secrets "~/git/.emacs.d/.secret/bitlbee-secrets.el.gpg")
-  (when (and (string= "localhost" erc-session-server)
-          (string= "&bitlbee" (buffer-name)))
-        (erc-message "PRIVMSG" (format "%s identify dkh secretpassword"
-                             (erc-default-target)
-                             dkh-bitlbee-password))))
-
-#+end_src 
-
-
-
-
-
-
-
-
-*** The ICQ white pages
-
-Ever wondered what this 938748324 person is that sends messages to
-you. AFAIK bitlbee has no builtin support to query the white pages of
-ICQ, therefore i quickly hacked up this one:
+** winner
+A feature to preserve split pane configuration. Use 【Ctrl+c ←】 and
+【Ctrl+c →】
 
 #+begin_src emacs-lisp 
 
-(defun erc-cmd-ICQWHOIS (uin)
-  "Queries icq-user with UIN `uin', and returns the result."
-  (let* ((result (myerc-query-icq-user uin))
-         (fname (cdr (assoc 'fname result)))
-         (lname (cdr (assoc 'lname result)))
-         (nick (cdr (assoc 'nick result))))
-    (erc-display-message nil 'notice (current-buffer) (format "%s (%s %s)" nick fname lname))))
+(use-package winner
+  :diminish winner-mode
+  :if (not noninteractive)
+  :init
+  (progn
+    (winner-mode 1)
+
+    (bind-key "M-N" 'winner-redo)
+    (bind-key "M-P" 'winner-undo)))
 
 #+end_src 
+    
+** workgroups
+
+#+begin_src emacs-lisp :tangle no
+
+(use-package workgroups
+  :diminish workgroups-mode
+  :commands wg-switch-to-index-1
+  :if (not noninteractive)
+  :init
+  (progn
+    (defvar workgroups-preload-map)
+    (define-prefix-command 'workgroups-preload-map)
+
+    (bind-key "C-\\" 'workgroups-preload-map)
+    (bind-key "C-\\" 'wg-switch-to-index-1 workgroups-preload-map)
+    (bind-key "1" 'wg-switch-to-index-1 workgroups-preload-map))
+
+  :config
+  (progn
+    (workgroups-mode 1)
+
+    (let ((workgroups-file (expand-file-name "workgroups" user-data-directory)))
+      (if (file-readable-p workgroups-file)
+          (wg-load workgroups-file)))
+
+    (bind-key "C-\\" 'wg-switch-to-previous-workgroup wg-map)
+    (bind-key "\\" 'toggle-input-method wg-map)))
+
+#+end_src 
+    
+** wrap-region
+
+#+begin_src emacs-lisp 
+
+(use-package wrap-region
+  :commands wrap-region-mode
+  :diminish wrap-region-mode
+  :config
+  (wrap-region-add-wrappers
+   '(("$" "$")
+     ("/" "/" nil ruby-mode)
+     ("/* " " */" "#" (java-mode javascript-mode css-mode
+                                 c-mode c++-mode))
+     ("`" "`" nil (markdown-mode ruby-mode shell-script-mode)))))
+
+#+end_src 
+
+** yasnippet
+
+#+begin_src emacs-lisp :tangle no
+
+(use-package yasnippet
+  :if (not noninteractive)
+  :diminish yas/minor-mode
+  :commands (yas/minor-mode yas/expand)
+  :mode ("/\\.emacs\\.d/snippets/" . snippet-mode)
+  :init
+  (hook-into-modes #'(lambda () (yas/minor-mode 1))
+                   '(prog-mode-hook
+                     org-mode-hook
+                     ruby-mode-hook
+                     message-mode-hook
+                     gud-mode-hook
+                     erc-mode-hook))
+  :config
+  (progn
+    (yas/initialize)
+    (yas/load-directory (expand-file-name "snippets/" user-emacs-directory))
+
+    (bind-key "<tab>" 'yas/next-field-or-maybe-expand yas/keymap)
+
+    (defun yas/new-snippet (&optional choose-instead-of-guess)
+      (interactive "P")
+      (let ((guessed-directories (yas/guess-snippet-directories)))
+        (switch-to-buffer "*new snippet*")
+        (erase-buffer)
+        (kill-all-local-variables)
+        (snippet-mode)
+        (set (make-local-variable 'yas/guessed-modes)
+             (mapcar #'(lambda (d)
+                         (intern (yas/table-name (car d))))
+                     guessed-directories))
+        (unless (and choose-instead-of-guess
+                     (not (y-or-n-p "Insert a snippet with useful headers? ")))
+          (yas/expand-snippet "\
+# -*- mode: snippet -*-
+# name: $1
+# --
+$0"))))
+
+    (bind-key "C-c y TAB" 'yas/expand)
+    (bind-key "C-c y n" 'yas/new-snippet)
+    (bind-key "C-c y f" 'yas/find-snippets)
+    (bind-key "C-c y r" 'yas/reload-all)
+    (bind-key "C-c y v" 'yas/visit-snippet-file)))
+
+#+end_src     
+
+** zencoding-mode
+
+#+begin_src emacs-lisp 
+
+(use-package zencoding-mode
+  :commands zencoding-mode
+  :init
+  (progn
+    (add-hook 'nxml-mode-hook 'zencoding-mode)
+    (add-hook 'html-mode-hook 'zencoding-mode)
+    (add-hook 'html-mode-hook
+              #'(lambda ()
+                (bind-key "<return>" 'newline-and-indent html-mode-map))))
+
+  :config
+  (progn
+    (defvar zencoding-mode-keymap (make-sparse-keymap))
+    (bind-key "C-c C-c" 'zencoding-expand-line zencoding-mode-keymap)))
+
+#+end_src     
 
 * Programming (IDE)
 ** Magit

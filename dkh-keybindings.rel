@@ -1,6 +1,6 @@
 ;; RefTeX parse info file
 ;; File: /home/vinylisland/git/ewax/dkh-keybindings.org
-;; User: vinylisland (DJ Damon)
+;; User: vinylisland (Damon Haley)
 
 (set reftex-docstruct-symbol '(
 
