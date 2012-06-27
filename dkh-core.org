@@ -167,7 +167,6 @@ http://vinylisland.org
 Remember: This is free software. Reuse and learning from existing code
 is not just allowed but encouraged.
 
-
 * Implementation
   :PROPERTIES:
   :CUSTOM_ID: implementation
@@ -7959,8 +7958,6 @@ needed.
 
 #+end_src 
 
-
-
 *** For Gnus
 #+begin_src emacs-lisp 
 
@@ -8463,6 +8460,83 @@ A feature to preserve split pane configuration. Use 【Ctrl+c ←】 and
 
     (bind-key "C-\\" 'wg-switch-to-previous-workgroup wg-map)
     (bind-key "\\" 'toggle-input-method wg-map)))
+
+#+end_src 
+
+#+begin_src emacs-lisp :tangle no
+
+ (setq wg-prefix-key (kbd "C-8"))
+
+(global-set-key (kbd "C-c e") 'wg-switch-to-workgroup-at-index-0)
+(global-set-key (kbd "C-c p") 'wg-switch-to-workgroup-at-index-9)
+(global-set-key (kbd "C-c d") 'wg-switch-to-workgroup-at-index-7)
+(global-set-key (kbd "C-c Z") 'wg-switch-to-workgroup-at-index-6)
+(global-set-key (kbd "C-c g") 'wg-switch-to-workgroup-at-index-1)
+(global-set-key (kbd "C-c E") 'wg-switch-to-workgroup-at-index-3)
+(global-set-key (kbd "C-c j") 'wg-switch-to-workgroup-at-index-2)
+(global-set-key (kbd "C-c m") 'wg-switch-to-workgroup-at-index-5) ;; main
+(global-set-key (kbd "C-c o") 'wg-switch-to-workgroup-at-index-4)
+(global-set-key (kbd "C-c s") 'wg-switch-to-workgroup-at-index-8)
+(global-set-key (kbd "C-c <DEL>") 'wg-switch-to-previous-workgroup) ;;C-z a C-z C-a
+
+;; f k z
+
+#+end_src
+
+
+#+begin_src emacs-lisp :tangle no
+
+(defun qdot/wg-filter-buffer-list-by-not-major-mode (major-mode buffer-list)
+  "Return only those buffers in BUFFER-LIST in major-mode MAJOR-MODE."
+  (remove-if (lambda (mm) (eq mm major-mode))
+buffer-list :key 'wg-buffer-major-mode))
+
+(defun qdot/wg-filter-buffer-list-by-erc-query (server buffer-list)
+  "Return only those buffers in BUFFER-LIST in major-mode MAJOR-MODE."
+  (remove-if-not (lambda (buf) (erc-query-buffer-p (get-buffer buf)))
+buffer-list :key 'buffer-name))
+
+(defun qdot/wg-buffer-list-filter-not-irc (workgroup buffer-list)
+  "Return only those buffers in BUFFER-LIST in `erc-mode'."
+  (qdot/wg-filter-buffer-list-by-not-major-mode 'erc-mode buffer-list))
+
+(defun qdot/wg-buffer-list-filter-associated-not-irc (workgroup buffer-list)
+  "Return only those buffers in BUFFER-LIST in `erc-mode'."
+  (qdot/wg-filter-buffer-list-by-not-major-mode 'erc-mode (wg-buffer-list-filter-associated workgroup buffer-list)))
+
+
+(defun qdot/wg-buffer-list-filter-erc-channel (workgroup buffer-list)
+  "Return only those buffers in BUFFER-LIST in `erc-mode'."
+  (wg-filter-buffer-list-by-regexp "^#"
+(wg-filter-buffer-list-by-major-mode 'erc-mode buffer-list)))
+
+(defun qdot/wg-buffer-list-filter-erc-query (workgroup buffer-list)
+  "Return only those buffers in BUFFER-LIST in `erc-mode'."
+  (qdot/wg-filter-buffer-list-by-erc-query 'erc-mode buffer-list))
+
+(add-to-list
+ 'wg-buffer-list-filter-definitions
+ '(qdot/erc-query "qdot/erc-query" qdot/wg-buffer-list-filter-erc-query))
+
+(add-to-list
+ 'wg-buffer-list-filter-definitions
+ '(qdot/erc-irc "qdot/erc-channel" qdot/wg-buffer-list-filter-erc-channel))
+
+(add-to-list
+ 'wg-buffer-list-filter-definitions
+ '(qdot/not-irc "qdot/not-irc" qdot/wg-buffer-list-filter-not-irc))
+
+(add-to-list
+ 'wg-buffer-list-filter-definitions
+ '(qdot/associated-not-irc "qdot/associated-not-irc" qdot/wg-buffer-list-filter-associated-not-irc))
+
+(defun qdot/wg-set-buffer-lists ()
+  (wg-set-workgroup-parameter (wg-get-workgroup "work") 'wg-buffer-list-filter-order-alist '((default qdot/associated-not-irc qdot/not-irc all)))
+  (wg-set-workgroup-parameter (wg-get-workgroup "erc") 'wg-buffer-list-filter-order-alist '((default qdot/erc-irc all)))
+  (wg-set-workgroup-parameter (wg-get-workgroup "bitlbee") 'wg-buffer-list-filter-order-alist '((default qdot/erc-query all))))
+
+;; (wg-filter-buffer-list-by-major-mode 'erc-mode (buffer-list))
+;; (wg-filter-buffer-list-by-not-major-mode 'erc-mode (buffer-list))
 
 #+end_src 
     
