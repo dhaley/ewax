@@ -217,6 +217,10 @@ annotate your elisp in the following file:
 
 (add-to-list 'load-path (expand-file-name "~/git/src/gnus/lisp"))
    (require 'gnus-load)
+
+(add-to-list 'load-path (expand-file-name "~/git/src/use-package"))
+(require 'use-package)
+
 #+end_src 
 
 **** Get stable branch
@@ -3950,8 +3954,6 @@ Require unix zip commandline tool."
 
 
 
-;; group topics
-(add-hook 'gnus-group-mode-hook 'gnus-topic-mode)
 
 
 ;;F6 killfiles a poster, F7 ignores a thread
@@ -4297,7 +4299,11 @@ gnus-alias-unknown-identity-rule (quote error))
 
 #+begin_src emacs-lisp 
 
-(setq gnus-group-mode-hook (quote (gnus-topic-mode gnus-agent-mode hl-line-mode)))
+;; group topics
+(add-hook 'gnus-group-mode-hook 'gnus-topic-mode)
+
+
+;; (setq gnus-group-mode-hook (quote (gnus-topic-mode gnus-agent-mode hl-line-mode)))
 
 #+end_src
 
@@ -4419,6 +4425,14 @@ gnus-alias-unknown-identity-rule (quote error))
 (erc-services-mode 1)
 (setq erc-prompt-for-nickserv-password nil)
 
+;; (setq erc-text-matched-hook (quote (erc-log-matches erc-hide-fools my-erc-hook)))
+(setq erc-text-matched-hook (quote (erc-log-matches erc-hide-fools)))
+
+
+(setq erc-track-enable-keybindings t)
+(setq erc-server "irc.freenode.net")
+
+
 (require 'irc-secrets "~/git/.emacs.d/.secret/irc-secrets.el.gpg")
 
 ;;(defun run-irc-secrets-hook ()
@@ -4435,8 +4449,15 @@ gnus-alias-unknown-identity-rule (quote error))
 
 (erc-notify-mode 1)
 (load-library "erc-highlight-nicknames")
-(add-to-list 'erc-modules 'highlight-nicknames)
-(add-to-list 'erc-modules 'match)
+
+;; (add-to-list 'erc-modules 'highlight-nicknames)
+;; (add-to-list 'erc-modules 'match)
+
+(setq erc-modules (quote (autojoin button completion dcc fill identd irccontrols list log match menu move-to-prompt netsplit networks noncommands readonly replace ring scrolltobottom services smiley stamp spelling track highlight-nicknames)))
+
+(setq erc-nick "dkh")
+(setq erc-port 6667)
+(setq erc-priority-people-regexp "\\`[^#].+")
 
 (erc-update-modules)
 
@@ -4444,7 +4465,7 @@ gnus-alias-unknown-identity-rule (quote error))
 (setq erc-auto-discard-away t)
 (setq erc-autoaway-idle-seconds 600)
 (setq erc-autoaway-use-emacs-idle t)
-(setq erc-autoaway-message "cappuccino time")
+(setq erc-autoaway-message "I need a cappuccino")
 
 (erc-button-mode nil) ;slow
 (erc-fill-mode t)
@@ -4484,8 +4505,13 @@ gnus-alias-unknown-identity-rule (quote error))
 (erc-track-mode t)
 (setq erc-track-use-faces t)
 
-(setq erc-track-exclude-types '("JOIN" "NICK" "PART" "QUIT" "MODE"
-                                    "324" "329" "332" "333" "353" "477"))
+;; (setq erc-track-exclude-types '("JOIN" "NICK" "PART" "QUIT" "MODE"
+;;                                     "324" "329" "332" "333" "353" "477"))
+
+(setq erc-track-exclude-types (quote ("JOIN" "KICK" "NICK" "PART" "QUIT" "MODE" "333" "353")))
+(setq erc-track-faces-priority-list (quote (erc-error-face (erc-nick-default-face erc-current-nick-face) erc-current-nick-face erc-keyword-face (erc-nick-default-face erc-pal-face) erc-pal-face erc-nick-msg-face erc-direct-msg-face)))
+;; (setq erc-track-faces-priority-list '(erc-current-nick-face erc-keyword-face erc-pal-face erc-nick-msg-face erc-direct-msg-face))
+(setq erc-user-full-name (quote user-full-name))
 
 (setq erc-track-exclude-server-buffer t)
 
@@ -4507,8 +4533,6 @@ gnus-alias-unknown-identity-rule (quote error))
 (add-hook 'erc-insert-post-hook
     'erc-truncate-buffer)
 
-;; share my real name
-(setq erc-user-full-name "Mi nombre")
 
 (defun erc-cmd-UPTIME (&rest ignore)
   "Display the uptime of the system, as well as some load-related
@@ -4530,15 +4554,33 @@ stuff, to the current ERC buffer."
 (erc :server "asimov.freenode.net"  :nick "my_nick" :password "my_pass" :port 6667)
 ))
 
+;; (setq erc-autojoin-channels-alist
+;;   '((".*\\.freenode.net" "#drupal-colorado" "#emacs" 
+;;   "#fsf-members" "#erc" "#conkeror" "#org-mode")
+;;      (".*\\.debian.org" "#freedombox")
+;; ;;     (".*\\.gimp.org" "#unix" "#gtk+")
+;; ;;     (".*\\.gnome.org" "#sparklehorse" "#gtk+")
+;; ))
+
 (setq erc-autojoin-channels-alist
-  '((".*\\.freenode.net" "#drupal-colorado" "#emacs" 
-  "#fsf-members" "#erc" "#conkeror" "#org-mode")
-     (".*\\.debian.org" "#freedombox")
-;;     (".*\\.gimp.org" "#unix" "#gtk+")
-;;     (".*\\.gnome.org" "#sparklehorse" "#gtk+")
-))
+(quote (("localhost" "&bitlbee")
+        (".*\\.freenode.net" "#emacs" "#conkeror" "#org-mode")
+        ("irc.debian.org" "#freedombox"))))
+
+(erc-autojoin-mode t)
+
+(setq erc-fools (quote ("JordiGH")))
 
 (setq erc-interpret-mirc-color t)
+
+(setq erc-generate-log-file-name-function (quote erc-generate-log-file-name-short))
+
+(setq erc-header-line-format nil)
+
+;; don't show any of this
+(setq erc-hide-list '("JOIN" "PART" "QUIT" "NICK"))
+
+(setq erc-ignore-list (quote ("rudybot!.*")))
 
 ;; The following are commented out by default, but users of other
 ;; non-Emacs IRC clients might find them useful.
@@ -4612,9 +4654,6 @@ stuff, to the current ERC buffer."
 (erc-match-enable)
 (erc-match-mode 1)
 
-(setq erc-track-faces-priority-list
-'(erc-current-nick-face erc-keyword-face erc-pal-face
-erc-nick-msg-face erc-direct-msg-face))
 
 (setq erc-current-nick-highlight-type 'nick)
 
@@ -4687,8 +4726,6 @@ If no TARGET argument is specified, list the contents of `erc-track-exclude'."
     (if target
     (switch-to-buffer target))))
 
-;; don't show any of this
-(setq erc-hide-list '("JOIN" "PART" "QUIT" "NICK"))
 
 (setq erc-max-buffer-size 20000)
 (defvar erc-insert-post-hook)
@@ -4716,6 +4753,8 @@ If no TARGET argument is specified, list the contents of `erc-track-exclude'."
 **** logs
 
 (setq erc-log-channels-directory "~/git/.emacs.d/.erc/logs/")
+
+(setq erc-log-write-after-send t)
 
 *** start-irc
 
@@ -4795,6 +4834,126 @@ but not mobile urls.")
 
 
 #+end_src 
+
+(use-package erc
+  ;; :commands erc
+;;  :if running-alternate-emacs
+  :init
+  (progn
+    (defun irc ()
+      (interactive)
+      (erc-tls :server "asimov.freenode.net"
+               :port 6697
+               :nick "dkh"
+               :password (funcall
+                          (plist-get
+                           (car (auth-source-search :host "asimov.freenode.net"
+                                                    :user "dkh"
+                                                    :type 'netrc
+                                                    :port 6667))
+                           :secret)))
+      (erc-tls :server "irc.debian.org"
+               :port 6697
+               :nick "dkh"
+               :password (funcall
+                          (plist-get
+                           (car (auth-source-search :host "irc.debian.org"
+                                                    :user "dkh"
+                                                    :type 'netrc
+                                                    :port 6667))
+                           :secret))))
+
+    (defun im ()
+      (interactive)
+      (erc :server "localhost"
+           :port 6667
+           :nick "dkh"
+           :password (funcall
+                      (plist-get
+                       (car (auth-source-search :host "bitlbee"
+                                                :user "dkh"
+                                                :type 'netrc
+                                                :port 6667))
+                       :secret)))))
+
+  :config
+  (progn
+    (erc-track-minor-mode 1)
+    (erc-track-mode 1)
+
+    (use-package erc-alert)
+    (use-package erc-highlight-nicknames)
+    (use-package erc-patch)
+
+    (use-package erc-yank
+      :init
+      (bind-key "C-y" 'erc-yank erc-mode-map))
+
+    (use-package wtf
+      :commands wtf-is
+      :init
+      (defun erc-cmd-WTF (term &rest ignore)
+        "Look up definition for TERM."
+        (let ((def (wtf-is term)))
+          (if def
+              (let ((msg (concat "{Term} " (upcase term) " is " def)))
+                (with-temp-buffer
+                  (insert msg)
+                  (kill-ring-save (point-min) (point-max)))
+                (message msg))
+            (message (concat "No definition found for " (upcase term)))))))
+
+    (defun switch-to-bitlbee ()
+      (interactive)
+      (switch-to-buffer-other-window "&bitlbee")
+      (call-interactively 'erc-channel-names)
+      (goto-char (point-max)))
+
+    (bind-key "C-c b" 'switch-to-bitlbee)
+
+    (defun erc-cmd-SHOW (&rest form)
+      "Eval FORM and send the result and the original form as:
+FORM => (eval FORM)."
+      (let* ((form-string (mapconcat 'identity form " "))
+             (result
+              (condition-case err
+                  (eval (read-from-whole-string form-string))
+                (error
+                 (format "Error: %s" err)))))
+        (erc-send-message (format "%s => %S" form-string result))))
+
+    (defun erc-cmd-INFO (&rest ignore)
+      "Send current info node."
+      (unless (get-buffer "*info*")
+        (error "No *info* buffer"))
+      (let (output)
+        (with-current-buffer "*info*"
+          (let* ((file (file-name-nondirectory Info-current-file))
+                 (node Info-current-node))
+            (setq output (format "(info \"(%s)%s\") <-- hit C-x C-e to evaluate"
+                                 file node))))
+        (erc-send-message output)))
+
+    (eval-when-compile
+      (defvar erc-fools))
+
+    (defun erc-cmd-FOOL (term &rest ignore)
+      (add-to-list 'erc-fools term))
+
+    (defun erc-cmd-UNFOOL (term &rest ignore)
+      (setq erc-fools (delete term erc-fools)))
+
+    (defun erc-cmd-OPME ()
+      "Request chanserv to op me."
+      (erc-message "PRIVMSG"
+                   (format "chanserv op %s %s"
+                           (erc-default-target)
+                           (erc-current-nick)) nil))
+
+    (defun erc-cmd-DEOPME ()
+      "Deop myself from current channel."
+      (erc-cmd-DEOP (format "%s" (erc-current-nick))))))
+
 
 
 ** Download utils
