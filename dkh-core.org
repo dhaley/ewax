@@ -173,6 +173,20 @@ is not just allowed but encouraged.
   :CUSTOM_ID: implementation
   :END:
 
+** Messages buffer
+[2012-01-03 Tue 11:42]
+
+The buffer called *Messages* is GnuEmacs’s error log, where all sorts
+of useful information is printed, including information that appears
+in the EchoArea (except for keystroke echoes). You can adjust the
+number of messages kept in the buffer with the variable
+
+#+begin_src emacs-lisp 
+
+(setq message-log-max 1000)
+
+#+end_src
+
 ** Pre-process
 
 If there is anything you want to load before running E-Wax, then
@@ -276,6 +290,7 @@ annotate your elisp in the following file:
    emacs-w3m
    emoticons
    erc-highlight-nicknames
+   erc-nick-notify
    face-list
    fliptext
    grep+
@@ -395,20 +410,6 @@ annotate your elisp in the following file:
 
 #+end_src 
 
-** Messages buffer
-[2012-01-03 Tue 11:42]
-
-The buffer called *Messages* is GnuEmacs’s error log, where all sorts
-of useful information is printed, including information that appears
-in the EchoArea (except for keystroke echoes). You can adjust the
-number of messages kept in the buffer with the variable
-
-#+begin_src emacs-lisp 
-
-(setq message-log-max 1000)
-
-#+end_src
-
 ** Scratch Buffer
 
 #+begin_src emacs-lisp 
@@ -467,6 +468,19 @@ number of messages kept in the buffer with the variable
 (add-to-list 'same-window-regexps "\\*Shell Command Output\\*\\(\\|<[0-9]+>\\)")
 
 (add-to-list 'same-window-regexps "\\*dictem.*")
+
+#+end_src 
+
+*** Clean buffers
+
+#+begin_src emacs-lisp :tangle no
+
+(setq
+clean-buffer-list-kill-never-buffer-names (quote ("*scratch*" "*Messages*" "*server*" "*Group*" "*Org Agenda*" "todo.txt" "&bitlbee"))
+clean-buffer-list-kill-never-regexps (quote ("^ \\*Minibuf-.*\\*$" "^\\*Summary" "^\\*Article" "^#"))
+clean-buffer-list-kill-regexps (quote (".*")))
+
+
 
 #+end_src 
 
@@ -4450,7 +4464,7 @@ gnus-alias-unknown-identity-rule (quote error))
  '(erc-priority-people-regexp "\\`[^#].+")
  '(erc-prompt-for-nickserv-password nil)
  '(erc-replace-alist (quote (("</?FONT>" . ""))))
- '(erc-server "irc.freenode.net")
+ '(erc-server "asimov.freenode.net")
  '(erc-services-mode t)
  ;; '(erc-text-matched-hook (quote (erc-log-matches erc-hide-fools my-erc-hook)))
  '(erc-text-matched-hook (quote (erc-log-matches erc-hide-fools)))
@@ -4578,23 +4592,12 @@ but not mobile urls.")
   (progn
     (defun irc ()
       (interactive)
-      (erc-tls :server "irc.freenode.net"
+      (erc-tls :server "asimov.freenode.net"
                :port 6697
                :nick "dkh"
                :password (funcall
                           (plist-get
-                           (car (auth-source-search :host "irc.freenode.net"
-                                                    :user "dkh"
-                                                    :type 'netrc
-                                                    :port 6667))
-                           :secret)))
-
-      (erc-tls :server "irc.debian.org"
-               :port 6697
-               :nick "dkh"
-               :password (funcall
-                          (plist-get
-                           (car (auth-source-search :host "irc.debian.org"
+                           (car (auth-source-search :host "asimov.freenode.net"
                                                     :user "dkh"
                                                     :type 'netrc
                                                     :port 6667))
