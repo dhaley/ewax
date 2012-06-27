@@ -4415,443 +4415,64 @@ gnus-alias-unknown-identity-rule (quote error))
  #+end_src 
 
 
-** ERC
+*** Erc
 
-*** Identifying yourself to Nickserv
+**** ERC settings
 
-#+begin_src emacs-lisp
+***** orig settings
 
-(require 'erc-services)
-(erc-services-mode 1)
-(setq erc-prompt-for-nickserv-password nil)
+***** new settings
+(custom-set-variables
+ '(erc-auto-query (quote window-noselect))
+ '(erc-autoaway-message "I'm away (after %i seconds of idle-time)")
+ '(erc-autojoin-channels-alist (quote (("oftc.net" "#llvm") ("localhost" "&bitlbee") ("freenode.net" "#emacs" "#boost" "#ledger") ("irc.oftc.net" "#llvm") ("irc.schmorp.de" "#schmorpforge"))))
+ '(erc-autojoin-mode t)
+ '(erc-fools (quote ("JordiGH")))
+ '(erc-generate-log-file-name-function (quote erc-generate-log-file-name-short))
+ '(erc-header-line-format nil)
+ '(erc-hide-list (quote ("JOIN" "NICK" "PART" "QUIT" "MODE")))
+ '(erc-ignore-list (quote ("rudybot!.*")))
+ '(erc-keywords (quote ("wiegley" "ledger" "eshell")))
+ '(erc-log-channels-directory "~/Messages/ERC")
+ '(erc-log-write-after-send t)
+ '(erc-modules (quote (autojoin button completion dcc fill identd irccontrols list log match menu move-to-prompt netsplit networks noncommands readonly replace ring scrolltobottom services smiley stamp spelling track highlight-nicknames)))
+ '(erc-nick "dkh")
+ '(erc-port 6667)
+ '(erc-priority-people-regexp "\\`[^#].+")
+ '(erc-prompt-for-nickserv-password nil)
+ '(erc-replace-alist (quote (("</?FONT>" . ""))))
+ '(erc-server "irc.freenode.net")
+ '(erc-services-mode t)
+ '(erc-text-matched-hook (quote (erc-log-matches erc-hide-fools my-erc-hook)))
+ '(erc-track-enable-keybindings t)
+ '(erc-track-exclude-types (quote ("JOIN" "KICK" "NICK" "PART" "QUIT" "MODE" "333" "353")))
+ '(erc-track-faces-priority-list (quote (erc-error-face (erc-nick-default-face erc-current-nick-face) erc-current-nick-face erc-keyword-face (erc-nick-default-face erc-pal-face) erc-pal-face erc-nick-msg-face erc-direct-msg-face))))
 
-;; (setq erc-text-matched-hook (quote (erc-log-matches erc-hide-fools my-erc-hook)))
-(setq erc-text-matched-hook (quote (erc-log-matches erc-hide-fools)))
+#+end_src  
 
 
-(setq erc-track-enable-keybindings t)
-(setq erc-server "irc.freenode.net")
-
-
-(require 'irc-secrets "~/git/.emacs.d/.secret/irc-secrets.el.gpg")
-
-;;(defun run-irc-secrets-hook ()
-;;  (require 'irc-secrets "~/git/.emacs.d/.secret/irc-secrets.el.gpg")
-;;)
-;;
-;;(add-hook 'erc-before-connect 'run-irc-secrets-hook)
-
-#+end_src 
-
-*** Other
+**** ERC initialization
 
 #+begin_src emacs-lisp 
-
-(erc-notify-mode 1)
-(load-library "erc-highlight-nicknames")
-
-;; (add-to-list 'erc-modules 'highlight-nicknames)
-;; (add-to-list 'erc-modules 'match)
-
-(setq erc-modules (quote (autojoin button completion dcc fill identd irccontrols list log match menu move-to-prompt netsplit networks noncommands readonly replace ring scrolltobottom services smiley stamp spelling track highlight-nicknames)))
-
-(setq erc-nick "dkh")
-(setq erc-port 6667)
-(setq erc-priority-people-regexp "\\`[^#].+")
-
-(erc-update-modules)
-
-(require 'erc-autoaway)
-(setq erc-auto-discard-away t)
-(setq erc-autoaway-idle-seconds 600)
-(setq erc-autoaway-use-emacs-idle t)
-(setq erc-autoaway-message "I need a cappuccino")
-
-(erc-button-mode nil) ;slow
-(erc-fill-mode t)
-
-(require 'erc-log)
-  ;; logging
-  (setq erc-log-channels-directory "~/.emacs.d/.erc/logs/")
-
-  (if (not (file-exists-p erc-log-channels-directory))
-      (mkdir erc-log-channels-directory t))
-
-;; logging:
-(setq erc-log-insert-log-on-open nil)
-(setq erc-log-channels t)
-
-(setq erc-hide-timestamps nil)
-(erc-netsplit-mode t)
-
-(require 'erc-notify)
-      (setq erc-notify-list  '(
-                       "ultimateboy"
-                       "techgeekgirl"
-"technomancy" ;; mentioned conkeror in #emacs
-))
-
-;; (require 'erc-ring)
-(erc-ring-mode t)
-
-(require 'erc-spelling)
-;; enable spell checking
-(erc-spelling-mode 1)
-
-(erc-timestamp-mode t)
-(setq erc-timestamp-format "[%R-%m/%d]")
-
-;; check channels
-(erc-track-mode t)
-(setq erc-track-use-faces t)
-
-;; (setq erc-track-exclude-types '("JOIN" "NICK" "PART" "QUIT" "MODE"
-;;                                     "324" "329" "332" "333" "353" "477"))
-
-(setq erc-track-exclude-types (quote ("JOIN" "KICK" "NICK" "PART" "QUIT" "MODE" "333" "353")))
-(setq erc-track-faces-priority-list (quote (erc-error-face (erc-nick-default-face erc-current-nick-face) erc-current-nick-face erc-keyword-face (erc-nick-default-face erc-pal-face) erc-pal-face erc-nick-msg-face erc-direct-msg-face)))
-;; (setq erc-track-faces-priority-list '(erc-current-nick-face erc-keyword-face erc-pal-face erc-nick-msg-face erc-direct-msg-face))
-(setq erc-user-full-name (quote user-full-name))
-
-(setq erc-track-exclude-server-buffer t)
-
-(defadvice erc-track-find-face (around erc-track-find-face-promote-query activate)
-  (if (erc-query-buffer-p)
-      (setq ad-return-value (intern "erc-current-nick-face"))
-    ad-do-it))
-
-(defadvice erc-track-modified-channels (around erc-track-modified-channels-promote-query activate)
-  (if (erc-query-buffer-p) (setq erc-track-priority-faces-only 'nil))
-  ad-do-it
-  (if (erc-query-buffer-p) (setq erc-track-priority-faces-only 'all)))
-
-;;;; truncate long irc buffers
-(erc-truncate-mode +1)
-
-; auto truncatebuffers
-(defvar erc-insert-post-hook)
-(add-hook 'erc-insert-post-hook
-    'erc-truncate-buffer)
-
-
-(defun erc-cmd-UPTIME (&rest ignore)
-  "Display the uptime of the system, as well as some load-related
-stuff, to the current ERC buffer."
-  (let ((uname-output
-         (replace-regexp-in-string
-          ", load average: " "] {Load average} ["
-          ;; Collapse spaces, remove
-          (replace-regexp-in-string
-           " +" " "
-           ;; Remove beginning and trailing whitespace
-           (replace-regexp-in-string
-            "^ +\\|[ \n]+$" ""
-            (shell-command-to-string "uptime"))))))
-    (erc-send-message
-     (concat "{Uptime} [" uname-output "]"))))
-
-(global-set-key (kbd "C-H-i") (lambda () (interactive)
-(erc :server "asimov.freenode.net"  :nick "my_nick" :password "my_pass" :port 6667)
-))
-
-;; (setq erc-autojoin-channels-alist
-;;   '((".*\\.freenode.net" "#drupal-colorado" "#emacs" 
-;;   "#fsf-members" "#erc" "#conkeror" "#org-mode")
-;;      (".*\\.debian.org" "#freedombox")
-;; ;;     (".*\\.gimp.org" "#unix" "#gtk+")
-;; ;;     (".*\\.gnome.org" "#sparklehorse" "#gtk+")
-;; ))
-
-(setq erc-autojoin-channels-alist
-(quote (("localhost" "&bitlbee")
-        (".*\\.freenode.net" "#emacs" "#conkeror" "#org-mode")
-        ("irc.debian.org" "#freedombox"))))
-
-(erc-autojoin-mode t)
-
-(setq erc-fools (quote ("JordiGH")))
-
-(setq erc-interpret-mirc-color t)
-
-(setq erc-generate-log-file-name-function (quote erc-generate-log-file-name-short))
-
-(setq erc-header-line-format nil)
-
-;; don't show any of this
-(setq erc-hide-list '("JOIN" "PART" "QUIT" "NICK"))
-
-(setq erc-ignore-list (quote ("rudybot!.*")))
-
-;; The following are commented out by default, but users of other
-;; non-Emacs IRC clients might find them useful.
-;; Kill buffers for channels after /part
-;; (setq erc-kill-buffer-on-part t)
-;; Kill buffers for private queries after quitting the server
-;; (setq erc-kill-queries-on-quit t)
-;; Kill buffers for server messages after quitting the server
-;; (setq erc-kill-server-buffer-on-quit t)
-
-(setq erc-query-display 'buffer)
-
-(defun erc-cmd-SHOWOFF (&rest ignore)
-  "Show off implementation"
-  (let* ((chnl (erc-buffer-list))
-         (srvl (erc-buffer-list 'erc-server-buffer-p))
-         (memb (apply '+ (mapcar (lambda (chn)
-                                   (with-current-buffer chn
-                                     (1- (length (erc-get-channel-user-list)))))
-                                 chnl)))
-         (show (format "is connected to %i networks and talks in %i chans to %i ppl overall :>"
-                       (length srvl)
-                       (- (length chnl) (length srvl))
-                       memb)))
-    (erc-send-action (erc-default-target) show)))
-
-(defalias 'erc-cmd-SO 'erc-cmd-SHOWOFF)
-
-(defun erc-cmd-DETAILED-SHOWOFF (&rest ignore)
-  "Show off implementation enriched with even more with details"
-  (let* ((chnl (erc-buffer-list))
-         (srvl (erc-buffer-list 'erc-server-buffer-p)))
-    (mapcar (lambda (srv)
-              (let* ((netn (with-current-buffer srv erc-session-server))
-                     (netp (with-current-buffer srv erc-session-port))
-                     (chns (remove-if-not
-                            (lambda (chn)
-                              (and (string= netn (with-current-buffer chn erc-session-server))
-                                   (eq netp (with-current-buffer chn erc-session-port))))
-                            chnl))
-                     (chnn (1- (length chns)))
-                     (chnm (remove nil
-                                   (mapcar (lambda (chn)
-                                             (with-current-buffer chn
-                                               (erc-get-channel-user-list)))
-                                           chns)))
-                     (chnmn (apply '+ (mapcar '1- (mapcar 'length chnm))))
-                     (show (format "is connected to %s (%s), talking to %i users in %i chans"
-                                   netn
-                                   (buffer-name srv)
-                                   chnmn
-                                   chnn)))
-                (erc-send-action (erc-default-target) show)
-                (sit-for 1)))
-            srvl)))
-
-(defalias 'erc-cmd-DSO 'erc-cmd-DETAILED-SHOWOFF)
-
-(setq erc-server-coding-system '(utf-8 . utf-8))
-
-(defun filter-server-buffers ()
-  (delq nil
-        (mapcar
-         (lambda (x) (and (erc-server-buffer-p x) x))
-         (buffer-list))))
-
-(setq erc-keywords '("\scu\s" "\stor\s" "university"
-   "academic" "organic groups" "relation module" "contextual filter" "gmane" "gwene"
-   "dired" "bitcoin" ) )
-
-(erc-match-enable)
-(erc-match-mode 1)
-
-
-(setq erc-current-nick-highlight-type 'nick)
-
-(setq erc-track-priority-faces-only 'all)
-
-(defun my-erc-md-all-but-emacs ()
-  "Minimal distraction for all channels except #emacs"
-  (interactive)
-  (setq erc-track-priority-faces-only
-        (remove "#emacs" (my-erc-joined-channels))))
-
-(defun my-erc-joined-channels ()
-  "Return all the channels you're in as a list.  This does not include queries."
-  (save-excursion
-    ;; need to get out of ERC mode so we can have *all* channels returned
-    (set-buffer "*scratch*")
-    (mapcar #'(lambda (chanbuf)
-                (with-current-buffer chanbuf (erc-default-target)))
-            (erc-channel-list erc-process))))
-
-(defun erc-cmd-UNTRACK (&optional target)
-  "Add TARGET to the list of target to be tracked."
-  (if target
-      (erc-with-server-buffer
- (let ((untracked (car (erc-member-ignore-case target erc-track-exclude))))
-   (if untracked
-       (erc-display-line
-        (erc-make-notice (format "%s is not currently tracked!" target))
-        'active)
-     (add-to-list 'erc-track-exclude target)
-     (erc-display-line
-      (erc-make-notice (format "Now not tracking %s" target))
-      'active))))
-
-    (if (null erc-track-exclude)
- (erc-display-line (erc-make-notice "Untracked targets list is empty") 'active)
-
-      (erc-display-line (erc-make-notice "Untracked targets list:") 'active)
-      (mapc #'(lambda (item)
-     (erc-display-line (erc-make-notice item) 'active))
-     (erc-with-server-buffer erc-track-exclude))))
-  t)
-
-
-(defun erc-cmd-TRACK (target)
-  "Remove TARGET of the list of targets which they should not be tracked.
-If no TARGET argument is specified, list the contents of `erc-track-exclude'."
-  (when target
-    (erc-with-server-buffer
-      (let ((tracked (not (car (erc-member-ignore-case target erc-track-exclude)))))
- (if tracked
-     (erc-display-line
-      (erc-make-notice (format "%s is currently tracked!" target))
-      'active)
-   (setq erc-track-exclude (remove target erc-track-exclude))
-   (erc-display-line
-    (erc-make-notice (format "Now tracking %s" target))
-    'active)))))
-  t)
-
-(defvar erc-channels-to-visit nil
-  "Channels that have not yet been visited by erc-next-channel-buffer")
-(defun erc-next-channel-buffer ()
-  "Switch to the next unvisited channel. See erc-channels-to-visit"
-  (interactive)
-  (when (null erc-channels-to-visit)
-    (setq erc-channels-to-visit
-      (remove (current-buffer) (erc-channel-list nil))))
-  (let ((target (pop erc-channels-to-visit)))
-    (if target
-    (switch-to-buffer target))))
-
-
-(setq erc-max-buffer-size 20000)
-(defvar erc-insert-post-hook)
-(add-hook 'erc-insert-post-hook 'erc-truncate-buffer)
-(setq erc-truncate-buffer-on-save t)
-
-(defadvice erc-display-prompt (after conversation-erc-display-prompt activate)
-  "Insert last recipient after prompt."
-  (let ((previous
-         (save-excursion
-           (if (and (search-backward-regexp (concat "^[^<]*<" erc-nick ">") nil t)
-                    (search-forward-regexp (concat "^[^<]*<" erc-nick ">"
-                                                   " *\\([^:]*: ?\\)") nil t))
-               (match-string 1)))))
-    ;; when we got something, and it was in the last 3 mins, put it in
-    (when (and
-           previous
-           (> 180 (float-time
-                   (time-since (get-text-property 0 'timestamp previous)))))
-      (set-text-properties 0 (length previous) nil previous)
-      (insert previous))))
-
-#+end_src 
-
-**** logs
-
-(setq erc-log-channels-directory "~/git/.emacs.d/.erc/logs/")
-
-(setq erc-log-write-after-send t)
-
-*** start-irc
-
-#+begin_src emacs-lisp 
-
- (defun start-irc ()
-   "Connect to IRC."
-   (interactive)
-   (erc-tls :server "irc.oftc.net" :port 6697
-        :nick "ootput" :full-name "ootput")
-   (setq erc-autojoin-channels-alist '(("freenode.net" "#emacs" "#screen" "#ion")  ("oftc.net" "#debian")))
-)
-
-(setq erc-track-showcount t)
-
-#+end_src
-
-*** from dotfiles
-
-#+begin_src emacs-lisp 
-
-(setq erc-prompt ">")
-;;(setq erc-fill-column 75)
-
-(setq erc-autojoin-timing :ident)
-
-#+end_src 
-
-**** Twitter
-
-#+begin_src emacs-lisp 
-
-;; thanks to leathekd
-(defvar twitter-url-pattern
-  (concat "\\(https?://\\)\\(?:.*\\)?\\(twitter.com/\\)"
-          "\\(?:#!\\)?\\([[:alnum:][:punct:]]+\\)")
-  "Matches regular twitter urls, including those with hashbangs,
-but not mobile urls.")
-
-(defun browse-mobile-twitter (url)
-  "When given a twitter url, browse to the mobile version instead"
-  (string-match twitter-url-pattern url)
-  (let ((protocol (match-string 1 url))
-        (u (match-string 2 url))
-        (path (match-string 3 url)))
-    (browse-url (format "%smobile.%s%s" protocol u path) t)))
-
-;; Need to append otherwise the urls will be picked up by
-;; erc-button-url-regexp. Not sure why that is the case.
-(eval-after-load 'erc-button
-  '(add-to-list 'erc-button-alist
-                '(twitter-url-pattern 0 t browse-mobile-twitter 0) t))
-
-#+end_src 
-                
-**** Encryption
-
-#+begin_src emacs-lisp 
-
-(defun znc ()
-  (interactive)
-  (load-file "~/.chorts/chorts.el.gpg")
-  (erc-tls :server "route.heroku.com" :port 10688
-           :nick "technomancy" :password znc-password))
-
-(defun grove-erc ()
-  (interactive)
-  (load-file "~/.chorts/chorts.el.gpg")
-  (add-to-list 'erc-networks-alist '(grove "irc.grove.io"))
-  (add-to-list 'erc-nickserv-alist
-               '(grove "NickServ!NickServ@services."
-                       "This nickname is registered."
-                       "NickServ" "IDENTIFY" nil))
-  (erc-tls :server "heroku.irc.grove.io" :port 6697
-           :nick "technomancy" :password grove-connect-password))
-
-
-
-#+end_src 
 
 (use-package erc
   ;; :commands erc
-;;  :if running-alternate-emacs
+ ;; :if running-alternate-emacs
   :init
   (progn
     (defun irc ()
       (interactive)
-      (erc-tls :server "asimov.freenode.net"
+      (erc-tls :server "irc.freenode.net"
                :port 6697
                :nick "dkh"
                :password (funcall
                           (plist-get
-                           (car (auth-source-search :host "asimov.freenode.net"
+                           (car (auth-source-search :host "irc.freenode.net"
                                                     :user "dkh"
                                                     :type 'netrc
                                                     :port 6667))
                            :secret)))
+
       (erc-tls :server "irc.debian.org"
                :port 6697
                :nick "dkh"
@@ -4867,11 +4488,11 @@ but not mobile urls.")
       (interactive)
       (erc :server "localhost"
            :port 6667
-           :nick "dkh"
+           :nick "johnw"
            :password (funcall
                       (plist-get
                        (car (auth-source-search :host "bitlbee"
-                                                :user "dkh"
+                                                :user "johnw"
                                                 :type 'netrc
                                                 :port 6667))
                        :secret)))))
@@ -4954,8 +4575,9 @@ FORM => (eval FORM)."
       "Deop myself from current channel."
       (erc-cmd-DEOP (format "%s" (erc-current-nick))))))
 
+#+end_src       
 
-
+      
 ** Download utils
 
 #+begin_src emacs-lisp 
