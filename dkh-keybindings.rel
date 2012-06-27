@@ -1,0 +1,24 @@
+;; RefTeX parse info file
+;; File: /home/vinylisland/git/ewax/dkh-keybindings.org
+;; User: vinylisland (DJ Damon)
+
+(set reftex-docstruct-symbol '(
+
+
+(xr nil "\\\\\\\\\\\\")
+
+(index-tags)
+
+(is-multi nil)
+
+(bibview-cache)
+
+(master-dir . "/home/vinylisland/git/ewax/")
+
+(label-numbers)
+
+(bof "/home/vinylisland/git/ewax/dkh-keybindings.org")
+
+(eof "/home/vinylisland/git/ewax/dkh-keybindings.org")
+))
+

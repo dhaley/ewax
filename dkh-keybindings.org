@@ -125,3 +125,120 @@ This is part of the [[file:dkh-core.org][E-Wax Starter Kit Instance]].
 
 
 #+end_src 
+
+* jwiegley inspired keybinding
+
+#+begin_src emacs-lisp 
+
+;; (bind-key "M-!" 'async-shell-command)
+;; (bind-key "M-/" 'dabbrev-expand)
+;; (bind-key "M-'" 'insert-pair)
+(bind-key "M-\"" 'insert-pair)
+
+(bind-key "M-[" 'align-code)
+
+;; I don't really use frames
+;;(bind-key "M-`" 'other-frame)
+
+;;(bind-key "M-j" 'delete-indentation-forward)
+(bind-key "H-j" 'delete-indentation-forward)
+(bind-key "M-J" 'delete-indentation)
+
+(bind-key "M-W" 'mark-word)
+
+(bind-key "M-L" 'mark-line)
+
+(bind-key "M-S" 'mark-sentence)
+
+(bind-key "M-X" 'mark-sexp)
+
+;;(bind-key "M-H" 'mark-paragraph)
+
+(bind-key "M-D" 'mark-defun)
+
+(bind-key "M-g c" 'goto-char)
+(bind-key "M-g l" 'goto-line)
+
+(bind-key "M-s n" 'find-name-dired)
+;;(bind-key "M-s o" 'occur)
+
+;;(bind-key "A-M-w" 'copy-code-as-rtf)
+
+;;(bind-key "<C-M-backspace>" 'backward-kill-sexp)
+
+(bind-key "C-M-r" 'isearch-backward-other-window)
+
+(bind-key "C-M-S" 'isearch-forward-other-window)
+
+;; Some further isearch bindings
+;;(bind-key "C-c" 'isearch-toggle-case-fold isearch-mode-map)
+;;(bind-key "C-t" 'isearch-toggle-regexp isearch-mode-map)
+;;(bind-key "C-^" 'isearch-edit-string isearch-mode-map)
+;;(bind-key "C-i" 'isearch-complete isearch-mode-map)
+
+
+;;(bind-key "C-x d" 'delete-whitespace-rectangle)
+;;(bind-key "C-x F" 'set-fill-column)
+;;(bind-key "C-x t" 'toggle-truncate-lines)
+
+
+;;(bind-key "C-x C-d" 'duplicate-line)
+;;(bind-key "C-x C-e" 'pp-eval-last-sexp)
+;;(bind-key "C-x C-n" 'next-line)
+
+(bind-key "C-x M-q" 'refill-paragraph)
+
+(bind-key "C-c <tab>" 'ff-find-other-file)
+
+;;(bind-key "C-c SPC" 'just-one-space)
+
+
+(bind-key "C-c d" 'delete-current-line)
+
+(bind-key "C-c e E" 'elint-current-buffer)
+
+(bind-key "C-c e b" 'do-eval-buffer)
+
+(bind-key "C-c e c" 'cancel-debug-on-entry)
+
+(bind-key "C-c e d" 'debug-on-entry)
+(bind-key "C-c e e" 'toggle-debug-on-error)
+(bind-key "C-c e f" 'emacs-lisp-byte-compile-and-load)
+(bind-key "C-c e l" 'find-library)
+(bind-key "C-c e r" 'eval-region)
+(bind-key "C-c e s" 'scratch)
+(bind-key "C-c e v" 'edit-variable)
+
+(bind-key "C-c e w" 'find-which)
+(bind-key "C-c e z" 'byte-recompile-directory)
+
+(bind-key "C-c f" 'flush-lines)
+;;(bind-key "C-c g" 'goto-line)
+
+(bind-key "C-c K" 'keep-lines)
+
+;;;_ , help-map
+
+(defvar lisp-find-map)
+(define-prefix-command 'lisp-find-map)
+
+(bind-key "C-h e" 'lisp-find-map)
+
+;;;_  . C-h e ?
+
+
+(bind-key "C-h e c" 'finder-commentary)
+(bind-key "C-h e e" 'view-echo-area-messages)
+(bind-key "C-h e f" 'find-function)
+(bind-key "C-h e F" 'find-face-definition)
+
+(bind-key "C-h e d" 'my-describe-symbol)
+(bind-key "C-h e i" 'info-apropos)
+(bind-key "C-h e k" 'find-function-on-key)
+(bind-key "C-h e l" 'find-library)
+
+(bind-key "C-h e s" 'scratch)
+(bind-key "C-h e v" 'find-variable)
+(bind-key "C-h e V" 'apropos-value)
+
+#+end_src 

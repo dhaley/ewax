@@ -6042,6 +6042,22 @@ Based on `ffap'."
 ** Abbrev
 #+begin_src emacs-lisp 
 
+(use-package abbrev
+  :commands abbrev-mode
+  :diminish abbrev-mode
+  :init
+  (hook-into-modes #'abbrev-mode '(text-mode-hook))
+
+  :config
+  (progn
+   (if (file-exists-p abbrev-file-name)
+       (quietly-read-abbrev-file))
+
+   (add-hook 'expand-load-hook
+             (lambda ()
+               (add-hook 'expand-expand-hook 'indent-according-to-mode)
+               (add-hook 'expand-jump-hook 'indent-according-to-mode)))))
+
 
 #+end_src 
 ** Ace-Jump
