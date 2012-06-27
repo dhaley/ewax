@@ -475,6 +475,7 @@ annotate your elisp in the following file:
         'undo-tree
         'window-number
         'winpoint
+        'workgroups
         'xml-rpc
         'yaml-mode
 ))
@@ -4517,6 +4518,10 @@ gnus-alias-unknown-identity-rule (quote error))
    "auto completion" "bbdb" "hippy" "\svariant\s" "json" "magit" "w3m"
    "dired" "bitcoin" ) )
 
+(erc-match-enable)
+(erc-match-mode 1)
+
+
 #+end_src    
 
 
@@ -4548,6 +4553,7 @@ gnus-alias-unknown-identity-rule (quote error))
   '(progn
      (when (not (package-installed-p 'erc-hl-nicks))
        (package-install 'erc-hl-nicks))
+     (require 'erc-notify)
      (require 'erc-spelling)
      (require 'erc-truncate)
      (require 'erc-hl-nicks)
@@ -8435,7 +8441,7 @@ A feature to preserve split pane configuration. Use 【Ctrl+c ←】 and
     
 ** workgroups
 
-#+begin_src emacs-lisp :tangle no
+#+begin_src emacs-lisp
 
 (use-package workgroups
   :diminish workgroups-mode
@@ -8446,15 +8452,26 @@ A feature to preserve split pane configuration. Use 【Ctrl+c ←】 and
     (defvar workgroups-preload-map)
     (define-prefix-command 'workgroups-preload-map)
 
-    (bind-key "C-\\" 'workgroups-preload-map)
-    (bind-key "C-\\" 'wg-switch-to-index-1 workgroups-preload-map)
-    (bind-key "1" 'wg-switch-to-index-1 workgroups-preload-map))
+    (bind-key "C-8" 'workgroups-preload-map)
+    (bind-key "C-8" 'wg-switch-to-index-1 workgroups-preload-map)
+    (bind-key "0" 'wg-switch-to-index-0 workgroups-preload-map)
+    (bind-key " 1" 'wg-switch-to-index-1 workgroups-preload-map)
+    (bind-key " 2" 'wg-switch-to-index-2 workgroups-preload-map)
+    (bind-key " 3" 'wg-switch-to-index-3 workgroups-preload-map)
+    (bind-key " 4" 'wg-switch-to-index-4 workgroups-preload-map)
+    (bind-key " 5" 'wg-switch-to-index-5 workgroups-preload-map)
+    (bind-key " 6" 'wg-switch-to-index-6 workgroups-preload-map)
+    (bind-key " 7" 'wg-switch-to-index-7 workgroups-preload-map)
+    (bind-key " 8" 'wg-switch-to-index-8 workgroups-preload-map)
+    (bind-key " 9" 'wg-switch-to-index-9 workgroups-preload-map)
+)
 
   :config
   (progn
     (workgroups-mode 1)
 
-    (let ((workgroups-file (expand-file-name "workgroups" user-data-directory)))
+
+    (let ((workgroups-file (expand-file-name "workgroups" user-emacs-directory)))
       (if (file-readable-p workgroups-file)
           (wg-load workgroups-file)))
 
@@ -8463,83 +8480,19 @@ A feature to preserve split pane configuration. Use 【Ctrl+c ←】 and
 
 #+end_src 
 
-#+begin_src emacs-lisp :tangle no
 
- (setq wg-prefix-key (kbd "C-8"))
-
-(global-set-key (kbd "C-c e") 'wg-switch-to-workgroup-at-index-0)
-(global-set-key (kbd "C-c p") 'wg-switch-to-workgroup-at-index-9)
-(global-set-key (kbd "C-c d") 'wg-switch-to-workgroup-at-index-7)
-(global-set-key (kbd "C-c Z") 'wg-switch-to-workgroup-at-index-6)
-(global-set-key (kbd "C-c g") 'wg-switch-to-workgroup-at-index-1)
-(global-set-key (kbd "C-c E") 'wg-switch-to-workgroup-at-index-3)
-(global-set-key (kbd "C-c j") 'wg-switch-to-workgroup-at-index-2)
-(global-set-key (kbd "C-c m") 'wg-switch-to-workgroup-at-index-5) ;; main
-(global-set-key (kbd "C-c o") 'wg-switch-to-workgroup-at-index-4)
-(global-set-key (kbd "C-c s") 'wg-switch-to-workgroup-at-index-8)
-(global-set-key (kbd "C-c <DEL>") 'wg-switch-to-previous-workgroup) ;;C-z a C-z C-a
-
-;; f k z
-
-#+end_src
-
+Very large terminal geometries (270x70 or higher) can also cause
+very slow redisplay in xterm. Until I figure out the best way to
+handle this, you should just see what works, and either set your
+background color or turn off morphing with:
 
 #+begin_src emacs-lisp :tangle no
-
-(defun qdot/wg-filter-buffer-list-by-not-major-mode (major-mode buffer-list)
-  "Return only those buffers in BUFFER-LIST in major-mode MAJOR-MODE."
-  (remove-if (lambda (mm) (eq mm major-mode))
-buffer-list :key 'wg-buffer-major-mode))
-
-(defun qdot/wg-filter-buffer-list-by-erc-query (server buffer-list)
-  "Return only those buffers in BUFFER-LIST in major-mode MAJOR-MODE."
-  (remove-if-not (lambda (buf) (erc-query-buffer-p (get-buffer buf)))
-buffer-list :key 'buffer-name))
-
-(defun qdot/wg-buffer-list-filter-not-irc (workgroup buffer-list)
-  "Return only those buffers in BUFFER-LIST in `erc-mode'."
-  (qdot/wg-filter-buffer-list-by-not-major-mode 'erc-mode buffer-list))
-
-(defun qdot/wg-buffer-list-filter-associated-not-irc (workgroup buffer-list)
-  "Return only those buffers in BUFFER-LIST in `erc-mode'."
-  (qdot/wg-filter-buffer-list-by-not-major-mode 'erc-mode (wg-buffer-list-filter-associated workgroup buffer-list)))
-
-
-(defun qdot/wg-buffer-list-filter-erc-channel (workgroup buffer-list)
-  "Return only those buffers in BUFFER-LIST in `erc-mode'."
-  (wg-filter-buffer-list-by-regexp "^#"
-(wg-filter-buffer-list-by-major-mode 'erc-mode buffer-list)))
-
-(defun qdot/wg-buffer-list-filter-erc-query (workgroup buffer-list)
-  "Return only those buffers in BUFFER-LIST in `erc-mode'."
-  (qdot/wg-filter-buffer-list-by-erc-query 'erc-mode buffer-list))
-
-(add-to-list
- 'wg-buffer-list-filter-definitions
- '(qdot/erc-query "qdot/erc-query" qdot/wg-buffer-list-filter-erc-query))
-
-(add-to-list
- 'wg-buffer-list-filter-definitions
- '(qdot/erc-irc "qdot/erc-channel" qdot/wg-buffer-list-filter-erc-channel))
-
-(add-to-list
- 'wg-buffer-list-filter-definitions
- '(qdot/not-irc "qdot/not-irc" qdot/wg-buffer-list-filter-not-irc))
-
-(add-to-list
- 'wg-buffer-list-filter-definitions
- '(qdot/associated-not-irc "qdot/associated-not-irc" qdot/wg-buffer-list-filter-associated-not-irc))
-
-(defun qdot/wg-set-buffer-lists ()
-  (wg-set-workgroup-parameter (wg-get-workgroup "work") 'wg-buffer-list-filter-order-alist '((default qdot/associated-not-irc qdot/not-irc all)))
-  (wg-set-workgroup-parameter (wg-get-workgroup "erc") 'wg-buffer-list-filter-order-alist '((default qdot/erc-irc all)))
-  (wg-set-workgroup-parameter (wg-get-workgroup "bitlbee") 'wg-buffer-list-filter-order-alist '((default qdot/erc-query all))))
-
-;; (wg-filter-buffer-list-by-major-mode 'erc-mode (buffer-list))
-;; (wg-filter-buffer-list-by-not-major-mode 'erc-mode (buffer-list))
+    
+(setq wg-morph-on nil)
 
 #+end_src 
-    
+
+
 ** wrap-region
 
 #+begin_src emacs-lisp 
