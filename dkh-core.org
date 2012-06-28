@@ -154,10 +154,6 @@ annotation for it to make since to someone new to Gnus.
 
 The PHP and Drupal fucntionality need to be reviewed.
 
-I'm also not that happy with perspective, especailly because it has a bug
-that interferes with EPA writing to a gpg file. So that will get
-replaced as soon as I find something possibly beter.
-    
 More documentation both inside the code and in this file to come...
         
 E-wax is written, stolen or maintained by Damon Haley
@@ -462,8 +458,6 @@ annotate your elisp in the following file:
         'org2blog
         'org-mime
         'pastebin
-        'perspective
-;;        'php-mode
         'rainbow-delimiters
         'rainbow-mode
         'rotate-text
@@ -2674,14 +2668,6 @@ See ~/git/.emacs.d/dkh-pre-setup.org file
 
 #+end_src 
 
-** Perspective
-
-#+begin_src emacs-lisp 
-
-(define-prefix-command 'perspective-map)
-(global-set-key (kbd "C-8") 'perspective-map)
-
-#+end_src 
 
 ** IDO
 
@@ -3311,7 +3297,7 @@ a new ansi-term. Here is my enhanced elisp:
 (defun visit-ansi-term ()
   (interactive)
   "Creates an ansi-term and switches to it. If a buffer with name already exists, we simply switch to it."
-  (let ((buffer-of-name (get-buffer (concat "*ansi-term-" (persp-name persp-curr))))
+  (let ((buffer-of-name (get-buffer (concat "*ansi-term-" (wg-name (wg-current-workgroup)))))
 ;;        (default-directory "/home/www")
         (term-cmd "/bin/bash")
 )
@@ -3321,7 +3307,7 @@ a new ansi-term. Here is my enhanced elisp:
             (progn
               (ansi-term term-cmd)
               ;(process-send-string (get-buffer-process new-buff-name) (concat "cd " localdir "\n"))
-              (rename-buffer  (concat "*ansi-term-" (persp-name persp-curr))))))))
+              (rename-buffer  (concat "*ansi-term-" (wg-name (wg-current-workgroup)))))))))
 
 (global-set-key (kbd "C-x <f2>") 'visit-ansi-term)
 
@@ -3370,20 +3356,20 @@ frequently visit with it’s own buffer name and connection parameters:
 
 (defun open-prod ()
   (interactive)
-  (remote-term (concat "ansi-term-" (persp-name persp-curr) ) "ssh" "user@prod.domain.com"))
+  (remote-term (concat "ansi-term-" (wg-name (wg-current-workgroup)) ) "ssh" "user@prod.domain.com"))
 
 (defun open-stage ()
   (interactive)
-  (remote-term (concat "ansi-term-" (persp-name persp-curr) ) "ssh" "user@host-staging.domain.com"))
+  (remote-term (concat "ansi-term-" (wg-name (wg-current-workgroup)) ) "ssh" "user@host-staging.domain.com"))
 
 (defun open-test ()
   (interactive)
-  (remote-term (concat "ansi-term-" (persp-name persp-curr) ) "ssh" "user@localhost"))
+  (remote-term (concat "ansi-term-" (wg-name (wg-current-workgroup)) ) "ssh" "user@localhost"))
 
 
 (defun open-devel ()
   (interactive)
-  (remote-term (concat "ansi-term-" (persp-name persp-curr) ) "ssh" "user@localhost"))
+  (remote-term (concat "ansi-term-" (wg-name (wg-current-workgroup)) ) "ssh" "user@localhost"))
 
 (global-set-key (kbd "C-x <f6>") 'open-devel)
 (global-set-key (kbd "C-x <f7>") 'open-test)
@@ -3770,7 +3756,7 @@ Require unix zip commandline tool."
 
 [[http://wikemacs.org/wiki/Gnus][Some nice tips on using gnus]]
 
-*** saving mail locally
+*** saving mail locally & settings
 
 #+begin_src emacs-lisp 
 
@@ -3778,6 +3764,9 @@ Require unix zip commandline tool."
 
 (setq nnml-directory "~/git/gnus/Mail")
 (setq message-directory "~/git/gnus/Mail")
+(setq gnus-article-save-directory "~/git/gnus/News")
+(setq gnus-cache-directory "~/git/gnus/News/cache")
+(setq gnus-kill-files-directory "~/git/gnus/.gnuskillfiled")
 
 #+end_src
 
@@ -3787,17 +3776,13 @@ Require unix zip commandline tool."
 
 #+end_src 
 
-*** getting mail
+I put all of my settings relating to:
 
-[[id:501b68d7-b3b5-4699-914f-e7ac1b1718d7][Gnus private]]
+**** getting mail
+**** sending mail
+**** gnus select method
 
-*** sending mail
-
-[[id:55e66ec6-5f0d-48b7-aca6-b256c1d41a9f][Smtp Mail private]] 
-
-*** Basic configuration
-
-[[id:501b68d7-b3b5-4699-914f-e7ac1b1718d7][Gnus select method private]]
+in my gnu init file (see below)
 
 *** More attractive Summary View
 
@@ -3807,23 +3792,13 @@ Require unix zip commandline tool."
 
 #+end_src
 
-*** More locations
-
-#+begin_src emacs-lisp 
-
-(setq gnus-article-save-directory "~/git/gnus/News")
-(setq gnus-cache-directory "~/git/gnus/News/cache")
-
-
-#+end_src 
-
 
 #+begin_src emacs-lisp 
 
 (add-hook 'message-sent-hook 'gnus-score-followup-article)
 (add-hook 'message-sent-hook 'gnus-score-followup-thread)
 
-(setq gnus-kill-files-directory "~/git/gnus/.gnuskillfiled") ;;
+
 
 (defun my-gnus ()
   "Start a new Gnus, or locate the existing buffer *Group*."
@@ -4104,6 +4079,19 @@ Require unix zip commandline tool."
 (global-set-key (kbd "C-c x") '(lambda()(interactive)(save-buffers-kill-emacs)))
 ;; Mark gcc'ed (archive) as read:
 (setq gnus-gcc-mark-as-read t)
+
+#+end_src 
+
+
+*** Gnus init file
+
+I put personal stuff like my splitting rules here
+
+If things do not go smoothly at startup, you have to twiddle some
+variables in your `~/.gnus.el' file. This file is similar to
+`~/.emacs', but is read when Gnus starts.
+
+#+begin_src emacs-lisp 
 
 ;; put everything in ~/.emacs.d
 (setq
@@ -5665,7 +5653,7 @@ expands it. Else indents the current line. Acts as normal in minibuffer."
 (defun dkh-shell-with-name (name)
   (interactive "sName: ")
   "Creates a shell with name given by the first argument, and switches to it. If a buffer with name already exists, we simply switch to it."
-  (let ((buffer-of-name (get-buffer (concat "*eshell-" (persp-name persp-curr) "-" name "*")))
+  (let ((buffer-of-name (get-buffer (concat "*eshell-" (wg-name (wg-current-workgroup)) "-" name "*")))
        (localdir name))
     (cond ((bufferp buffer-of-name) ;If the buffer exists, switch to it (assume it is a shell)
            (switch-to-buffer buffer-of-name))
@@ -5673,13 +5661,13 @@ expands it. Else indents the current line. Acts as normal in minibuffer."
             (progn
               (eshell)
               ;(process-send-string (get-buffer-process new-buff-name) (concat "cd " localdir "\n"))
-              (rename-buffer  (concat "*eshell-" (persp-name persp-curr) "-" name "*")))))))
+              (rename-buffer  (concat "*eshell-" (wg-name (wg-current-workgroup)) "-" name "*")))))))
 
 
 (defun dkh-eshell-macs ()
   (interactive)
   "Creates a tool config shell and switches to it. If a buffer with name already exists, we simply switch to it."
-  (let ((buffer-of-name (get-buffer (concat "*eshell-" (persp-name persp-curr) "-tool-config*")))
+  (let ((buffer-of-name (get-buffer (concat "*eshell-" (wg-name (wg-current-workgroup)) "-tool-config*")))
         (default-directory "~/git/ewax"))
     (cond ((bufferp buffer-of-name) ;If the buffer exists, switch to it (assume it is a shell)
            (switch-to-buffer buffer-of-name))
@@ -5687,7 +5675,7 @@ expands it. Else indents the current line. Acts as normal in minibuffer."
             (progn
               (eshell t)
               ;(process-send-string (get-buffer-process new-buff-name) (concat "cd " localdir "\n"))
-              (rename-buffer  (concat "*eshell-" (persp-name persp-curr) "-tool-config*")))))))
+              (rename-buffer  (concat "*eshell-" (wg-name (wg-current-workgroup)) "-tool-config*")))))))
 
 (message (concat "0 " (buffer-name) "... Done"))
 
@@ -8214,7 +8202,7 @@ or before point."
 
 (defun w3m-browse-url-other-workgroup (url &optional newwin)
   (let ((w3m-pop-up-windows t))
-   (dkh-persp/w3m)
+   (wg-switch-to-index-5)
     (w3m-browse-url url newwin)))
 
 (setq browse-url-generic-program "conkeror")

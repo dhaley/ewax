@@ -117,10 +117,6 @@ annotation for it to make since to someone new to Gnus.
 
 The PHP and Drupal fucntionality need to be reviewed.
     
-I'm also not that happy with perspective, especailly because it has a bug
-that interferes with EPA writing to a gpg file. So that will get
-replaced as soon as I find something possibly beter.
-    
 More documentation both inside the code and in this file to come...
         
 E-wax is written, stolen or maintained by Damon Haley
