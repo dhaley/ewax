@@ -4528,7 +4528,7 @@ gnus-alias-unknown-identity-rule (quote error))
    "auto completion" "bbdb" "hippy" "\svariant\s" "json" "magit" "w3m"
    "dired" "bitcoin" ) )
 
-(erc-match-enable)
+;;(erc-match-enable)
 (erc-match-mode 1)
 
 
