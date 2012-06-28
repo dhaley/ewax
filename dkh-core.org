@@ -8486,7 +8486,7 @@ very slow redisplay in xterm. Until I figure out the best way to
 handle this, you should just see what works, and either set your
 background color or turn off morphing with:
 
-#+begin_src emacs-lisp :tangle no
+#+begin_src emacs-lisp
     
 (setq wg-morph-on nil)
 
