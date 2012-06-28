@@ -494,15 +494,26 @@ annotate your elisp in the following file:
 * Custom settings
 ** Custom file location
 
+
+*** Ewax default files directory
+
 #+begin_src emacs-lisp 
 
-(setq custom-file "~/git/.emacs.d/custom.el")
+(setq ewax-default-directory "~/git/.emacs.d")
+
+;;(expand-file-name "dkh-gnus.el" ewax-default-directory)
+
+#+end_src 
+
+#+begin_src emacs-lisp 
+
+(setq custom-file (expand-file-name "custom.el" ewax-default-directory))
 
 #+end_src 
 
 ** Default directory
 
-#+begin_src emacs-lisp 
+#+begin_src emacs-lisp :tangle no
 
 (setq default-directory "~/git/")
 
@@ -2309,9 +2320,8 @@ matching one will be automatically closed by electric-pair-mode.
 
 #+begin_src emacs-lisp 
 
-(setq org-clock-persist-file "~/git/.emacs.d/org-clock-save")
-
-(setq org-id-locations-file "~/git/.emacs.d/.org-id-locations")
+(setq org-clock-persist-file (expand-file-name "org-clock-save" ewax-default-directory))
+(setq org-id-locations-file (expand-file-name "org-id-locations" ewax-default-directory))
 
 #+end_src 
 
@@ -3760,6 +3770,16 @@ Require unix zip commandline tool."
 
 #+begin_src emacs-lisp 
 
+;; (use-package dot-gnus
+;;   :bind (("M-G"   . switch-to-gnus)
+;;          ("C-x m" . compose-mail))
+;;   :init
+;;   (progn
+;;     (setq gnus-init-file (expand-file-name "dkh-gnus" user-emacs-directory)
+;;           gnus-home-directory "~/git/gnus")))
+
+
+
 (require 'gnus)
 
 (setq nnml-directory "~/git/gnus/Mail")
@@ -4112,7 +4132,7 @@ variables in your `~/.gnus.el' file. This file is similar to
 (setq gnus-startup-file "~/git/gnus/.newsrc")
        (setq gnus-directory "~/git/gnus/News")
      (setq gnus-dribble-directory "~/git/gnus/")
-       (setq gnus-home-directory "~/git/gnus")
+
      (setq nntp-marks-directory "~/git/gnus/News/")
      (setq nndraft-directory "~/git/gnus/News/drafts/")
 ;;     (setq nndraft-current-directory "~/git/gnus/News/drafts/")
