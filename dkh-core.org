@@ -479,6 +479,285 @@ annotate your elisp in the following file:
 
 #+end_src 
 
+
+** Recursive-edit-with-single-window
+
+#+begin_src emacs-lisp :tangle no
+
+;; inspired by Erik Naggum's `recursive-edit-with-single-window'
+(defmacro recursive-edit-preserving-window-config (body)
+  "*Return a command that enters a recursive edit after executing BODY.
+ Upon exiting the recursive edit (with\\[exit-recursive-edit] (exit)
+ or \\[abort-recursive-edit] (abort)), restore window configuration
+ in current frame."
+  `(lambda ()
+     "See the documentation for `recursive-edit-preserving-window-config'."
+     (interactive)
+     (save-window-excursion
+       ,body
+       (recursive-edit))))
+
+(bind-key "C-c 0"
+  (recursive-edit-preserving-window-config (delete-window)))
+(bind-key "C-c 1"
+  (recursive-edit-preserving-window-config
+   (if (one-window-p 'ignore-minibuffer)
+       (error "Current window is the only window in its frame")
+     (delete-other-windows))))
+
+#+end_src 
+
+
+#+begin_src emacs-lisp :tangle no
+
+(eval-when-compile
+  (defvar emacs-min-top)
+  (defvar emacs-min-left)
+  (defvar emacs-min-height)
+  (defvar emacs-min-width))
+
+(unless noninteractive
+  (if running-alternate-emacs
+      (progn
+        (defvar emacs-min-top (if (= 1050 (x-display-pixel-height)) 389 537))
+        (defvar emacs-min-left 9)
+        (defvar emacs-min-height (if (= 1050 (x-display-pixel-height)) 25 35))
+        (defvar emacs-min-width 80))
+
+    (defvar emacs-min-top 22)
+    (defvar emacs-min-left (- (x-display-pixel-width) 918))
+    (defvar emacs-min-height (if (= 1050 (x-display-pixel-height)) 55 64))
+    (defvar emacs-min-width 100)))
+
+(defun emacs-min ()
+  (interactive)
+  (set-frame-parameter (selected-frame) 'fullscreen nil)
+  (set-frame-parameter (selected-frame) 'vertical-scroll-bars nil)
+  (set-frame-parameter (selected-frame) 'horizontal-scroll-bars nil)
+  (set-frame-parameter (selected-frame) 'top emacs-min-top)
+  (set-frame-parameter (selected-frame) 'left emacs-min-left)
+  (set-frame-parameter (selected-frame) 'height emacs-min-height)
+  (set-frame-parameter (selected-frame) 'width emacs-min-width)
+
+  (when running-alternate-emacs
+    (set-background-color "grey85")
+    (set-face-background 'fringe "gray80")))
+
+(if window-system
+    (add-hook 'after-init-hook 'emacs-min))
+
+(defun emacs-max ()
+  (interactive)
+  (if t
+      (progn
+        (set-frame-parameter (selected-frame) 'fullscreen 'fullboth)
+        (set-frame-parameter (selected-frame) 'vertical-scroll-bars nil)
+        (set-frame-parameter (selected-frame) 'horizontal-scroll-bars nil))
+    (set-frame-parameter (selected-frame) 'top 26)
+    (set-frame-parameter (selected-frame) 'left 2)
+    (set-frame-parameter (selected-frame) 'width
+                         (floor (/ (float (x-display-pixel-width)) 9.15)))
+    (if (= 1050 (x-display-pixel-height))
+        (set-frame-parameter (selected-frame) 'height
+                             (if (>= emacs-major-version 24)
+                                 66
+                               55))
+      (set-frame-parameter (selected-frame) 'height
+                           (if (>= emacs-major-version 24)
+                               75
+                             64)))))
+
+(defun emacs-toggle-size ()
+  (interactive)
+  (if (> (cdr (assq 'width (frame-parameters))) 100)
+      (emacs-min)
+    (emacs-max)))
+
+(bind-key "C-c m" 'emacs-toggle-size)
+
+#+end_src 
+
+
+
+#+begin_src emacs-lisp 
+
+(setq user-initials "dkh")
+
+(defcustom user-initials nil
+  "*Initials of this user."
+  :set
+  #'(lambda (symbol value)
+      (if (fboundp 'font-lock-add-keywords)
+          (mapc
+           #'(lambda (mode)
+               (font-lock-add-keywords
+                mode (list (list (concat "\\<\\(" value " [^:\n]+\\):")
+                                 1 font-lock-warning-face t))))
+           '(c-mode c++-mode emacs-lisp-mode lisp-mode
+                    python-mode perl-mode java-mode groovy-mode)))
+      (set symbol value))
+  :type 'string
+  :group 'mail)
+
+(defun insert-user-timestamp ()
+  "Insert a quick timestamp using the value of `user-initials'."
+  (interactive)
+  (insert (format "%s (%s): " user-initials
+                  (format-time-string "%Y-%m-%d" (current-time)))))
+
+(bind-key "C-c n" 'insert-user-timestamp)
+(bind-key "C-c o" 'customize-option)
+(bind-key "C-c O" 'customize-group)
+
+(defvar printf-index 0)
+
+(defun insert-counting-printf (arg)
+  (interactive "P")
+  (if arg
+      (setq printf-index 0))
+  (if t
+      (insert (format "std::cerr << \"step %d..\" << std::endl;\n"
+                      (setq printf-index (1+ printf-index))))
+    (insert (format "printf(\"step %d..\\n\");\n"
+                    (setq printf-index (1+ printf-index)))))
+  (forward-line -1)
+  (indent-according-to-mode)
+  (forward-line))
+
+(bind-key "C-c p" 'insert-counting-printf)
+(bind-key "C-c q" 'fill-region)
+(bind-key "C-c r" 'replace-regexp)
+(bind-key "C-c s" 'replace-string)
+(bind-key "C-c u" 'rename-uniquely)
+
+
+#+end_src   
+
+#+begin_src emacs-lisp :tangle no
+
+(defun tinify-url (url)
+  (interactive "sURL to shorten: ")
+  (let* ((api-login "jwiegley")
+         (api-key
+          (funcall
+           (plist-get
+            (car (auth-source-search :host "api.j.mp" :user api-login
+                                     :type 'netrc :port 80))
+            :secret))))
+    (flet ((message (&rest ignore)))
+      (with-current-buffer
+          (let ((query
+                 (format "format=txt&longUrl=%s&login=%s&apiKey=%s"
+                         (url-hexify-string url) api-login api-key)))
+            (url-retrieve-synchronously
+             (concat "http://api.j.mp/v3/shorten?" query)))
+        (goto-char (point-min))
+        (re-search-forward "^$")
+        (prog1
+            (kill-new (buffer-substring (1+ (point)) (1- (point-max))))
+          (kill-buffer (current-buffer)))))))
+
+(bind-key "C-c U" 'tinify-url)
+
+#+end_src
+
+#+begin_src emacs-lisp 
+
+(bind-key "C-c v" 'ffap)
+
+#+end_src
+
+#+begin_src emacs-lisp 
+
+(defun view-clipboard ()
+  (interactive)
+  (delete-other-windows)
+  (switch-to-buffer "*Clipboard*")
+  (let ((inhibit-read-only t))
+    (erase-buffer)
+    (clipboard-yank)
+    (goto-char (point-min))
+    (html-mode)
+    (view-mode)))
+
+(bind-key "C-c V" 'view-clipboard)
+;;(bind-key "C-c z" 'clean-buffer-list)
+
+(bind-key "C-c [" 'align-regexp)
+(bind-key "C-c =" 'count-matches)
+(bind-key "C-c ;" 'comment-or-uncomment-region)
+
+#+end_src 
+
+;;;_  . C-c C-?
+
+#+begin_src emacs-lisp :tangle no
+
+(defun delete-to-end-of-buffer ()
+  (interactive)
+  (kill-region (point) (point-max)))
+
+(bind-key "C-c C-z" 'delete-to-end-of-buffer)
+
+#+end_src
+
+
+;;;_  . C-c M-?
+
+#+begin_src emacs-lisp 
+
+(defun unfill-paragraph (arg)
+  (interactive "*p")
+  (let (beg end)
+    (forward-paragraph arg)
+    (setq end (copy-marker (- (point) 2)))
+    (backward-paragraph arg)
+    (if (eolp)
+        (forward-char))
+    (setq beg (point-marker))
+    (when (> (count-lines beg end) 1)
+      (while (< (point) end)
+        (goto-char (line-end-position))
+        (let ((sent-end (memq (char-before) '(?. ?\; ?! ??))))
+          (delete-indentation 1)
+          (if sent-end
+              (insert ? )))
+        (end-of-line))
+      (save-excursion
+        (goto-char beg)
+        (while (re-search-forward "[^.;!?:]\\([ \t][ \t]+\\)" end t)
+          (replace-match " " nil nil nil 1))))))
+
+(bind-key "C-c M-q" 'unfill-paragraph)
+
+(defun unfill-region (beg end)
+  (interactive "r")
+  (setq end (copy-marker end))
+  (save-excursion
+    (goto-char beg)
+    (while (< (point) end)
+      (unfill-paragraph 1)
+      (forward-paragraph))))
+
+#+end_src       
+
+;;;_ , ctl-period-map
+
+;;;_  . C-. ?
+
+#+begin_src emacs-lisp 
+
+(bind-key "C-. m" 'kmacro-keymap)
+
+#+end_src 
+;;;_  . C-. C-i
+
+#+begin_src emacs-lisp 
+
+(bind-key "C-. C-i" 'indent-rigidly)
+
+#+end_src 
+
 ** Help map
 #+begin_src emacs-lisp 
 
@@ -489,7 +768,8 @@ annotate your elisp in the following file:
 
 ;;;_  . C-h e ?
 
-#+end_src 
+#+end_src
+
 
 * Custom settings
 ** Custom file location
@@ -4605,7 +4885,7 @@ but not mobile urls.")
 
 (use-package erc
   ;; :commands erc
- ;; :if running-alternate-emacs
+;;  :if running-alternate-emacs
   :init
   (progn
     (defun irc ()

@@ -130,6 +130,39 @@ This is part of the [[file:dkh-core.org][E-Wax Starter Kit Instance]].
 
 #+begin_src emacs-lisp 
 
+;;;_. Keybindings
+
+;; Main keymaps for personal bindings are:
+;;
+;;   C-x <letter>  primary map (has many defaults too)
+;;   C-c <letter>  secondary map (not just for mode-specific)
+;;   C-. <letter>  tertiary map
+;;
+;;   M-g <letter>  goto map
+;;   M-s <letter>  search map
+;;   M-o <letter>  markup map (even if only temporarily)
+;;
+;;   C-<capital letter>
+;;   M-<capital letter>
+;;
+;;   A-<anything>
+;;   M-A-<anything>
+;;
+;; Single-letter bindings still available:
+;;   C- ,'";:?<>|!#$%^&*`~ <tab>
+;;   M- ?#
+
+;;;_ , global-map
+
+;;;_  . C-?
+
+(defvar ctl-period-map)
+(define-prefix-command 'ctl-period-map)
+(bind-key "C-." 'ctl-period-map)
+
+(bind-key* "<C-return>" 'other-window)
+
+
 ;; (bind-key "M-!" 'async-shell-command)
 ;; (bind-key "M-/" 'dabbrev-expand)
 ;; (bind-key "M-'" 'insert-pair)
