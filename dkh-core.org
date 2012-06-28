@@ -4441,7 +4441,9 @@ gnus-alias-unknown-identity-rule (quote error))
 
 #+begin_src emacs-lisp 
 
-(setq erc-user-full-name (quote user-full-name))
+;;(setq erc-user-full-name (quote user-full-name))
+
+(setq erc-user-full-name user-full-name)
 
 #+end_src 
 
@@ -4704,7 +4706,7 @@ FORM => (eval FORM)."
 
 #+end_src       
 
-      
+
 ** Download utils
 
 #+begin_src emacs-lisp 
@@ -6043,7 +6045,7 @@ I like abbrev cause it saves typing
 
 ** allout
 
-#+begin_src emacs-lisp :tangle no
+#+begin_src emacs-lisp
 
 (use-package allout
   :diminish allout-mode
@@ -6838,7 +6840,9 @@ ICQ, therefore i quickly hacked up this one:
 
 #+end_src 
 
-;;;_ , ess
+** ess
+
+#+begin_src emacs-lisp :tangle no
 
 (use-package ess-site
   :disabled t
@@ -6858,6 +6862,7 @@ ICQ, therefore i quickly hacked up this one:
     (defun eval-expr-minibuffer-setup ()
       (set-syntax-table emacs-lisp-mode-syntax-table)
       (paredit-mode))))
+#+end_src 
 
 ** flyspell
 
@@ -7732,6 +7737,68 @@ needed.
 (use-package selectkey
   :bind ("C-. s" . selectkey-select-prefix-map))
 
+** Sauron
+*** Settings
+
+#+begin_src emacs-lisp 
+
+(setq sauron-max-line-length 120)
+
+ ;; note, you add (setq sauron-debug t) to get errors which can debug if
+ ;; there's something wrong; normally, we catch such errors, since e.g an error
+ ;; in one of the hooks may cause ERC to fail (i.e., the message won't come
+ ;; trough).
+
+  ;; uncomment to show sauron in the current frame
+  ;; sauron-separate-frame nil
+
+  (setq sauron-hide-mode-line t)
+
+#+end_src 
+
+*** Init
+
+#+begin_src emacs-lisp 
+
+
+(use-package sauron
+:bind (("C-. s" . sauron-toggle-hide-show)
+       ("C-. R" . sauron-clear)))
+
+#+end_src 
+
+
+*** some sound/light effects for certain events
+
+#+begin_src emacs-lisp :tangle no
+
+(add-hook 'sauron-event-added-functions
+  (lambda (origin prio msg &optional props)
+    (if (string-match "ping" msg)
+      (sauron-fx-sox "/usr/share/sounds/ping.wav"))
+    (cond
+      ((= prio 3) (sauron-fx-sox "/usr/share/sounds/pling.wav"))
+      ((= prio 4) (sauron-fx-sox "/usr/share/sounds/plong.wav"))
+      ((= prio 5)
+	(sauron-fx-sox "/usr/share/sounds/alarm.wav")
+	(sauron-fx-gnome-osd(format "%S: %s" origin msg) 5)))))
+
+#+end_src 
+
+*** events to ignore
+
+#+begin_src emacs-lisp 
+
+
+(add-hook 'sauron-event-block-functions
+  (lambda (origin prio msg &optional props)
+    (or
+      (string-match "^*** Users" msg)))) ;; filter out IRC spam
+
+#+end_src 
+
+
+      
 ** Session save config
 
 #+begin_src emacs-lisp 
