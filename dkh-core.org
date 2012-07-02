@@ -5258,6 +5258,15 @@ Embed location maps, with directions from home
        bbdb-phone-style nil
        bbdb-mail-user-agent 'gnus)  ;; (bbdb3)
 
+#+end_src 
+
+
+http://www.emacswiki.org/emacs/UpgradeBBDB
+
+http://www.emacswiki.org/emacs/BbdbCanonicalizeAddresses
+
+#+begin_src emacs-lisp :tangle no
+
 (setq
        bbdb-canonicalize-mail-function
        '(lambda (net)
@@ -5271,11 +5280,17 @@ Embed location maps, with directions from home
                            realnet)
                        (message "Found `%S' in headers! Doing realname search!" ad)
                        (and (car ad)
-                            (setq realnet (bbdb-search-invert (car ad)))
+                            (setq realnet (bbdb-search (bbdb-records) nil nil nil (car ad)))
                             (setq realnet (car (bbdb-record-mail realnet)))
                             (setq net realnet))))
                  net))
            net)))
+
+#+end_src 
+
+
+#+begin_src emacs-lisp 
+
 
 ;;        (add-hook 'message-setup-hook 'bbdb-get-mail-aliases) ;; bbdb 3
 (add-hook 'message-setup-hook 'bbdb-mail-aliases) ; BBDB 3.x
