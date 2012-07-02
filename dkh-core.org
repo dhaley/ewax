@@ -5271,12 +5271,11 @@ Embed location maps, with directions from home
                            realnet)
                        (message "Found `%S' in headers! Doing realname search!" ad)
                        (and (car ad)
-                            (setq realnet (bbdb-search-simple (car ad) nil))
-                            (setq realnet (car (bbdb-record-net realnet)))
+                            (setq realnet (bbdb-search (car ad) nil))
+                            (setq realnet (car (bbdb-record-mail realnet)))
                             (setq net realnet))))
                  net))
-           net))
-)
+           net)))
 
 ;;        (add-hook 'message-setup-hook 'bbdb-get-mail-aliases) ;; bbdb 3
 (add-hook 'message-setup-hook 'bbdb-mail-aliases) ; BBDB 3.x
