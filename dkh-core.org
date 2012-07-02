@@ -2618,6 +2618,13 @@ See ~/git/.emacs.d/dkh-pre-setup.org file
 
 #+end_src 
 
+> I just put a line in my .emacs, e.g.
+> 
+> (add-to-list 'holiday-other-holidays '(holiday-fixed 7 24 "Pioneer Day"))
+
+That's even better! The variable holiday-local-holidays could be another choice.
+
+
 ** Org modules I like
 
 #+begin_src emacs-lisp 
