@@ -4385,7 +4385,6 @@ in my gnu init file (see below)
 
 (global-set-key (kbd "C-c x") '(lambda()(interactive)(save-buffers-kill-emacs)))
 ;; Mark gcc'ed (archive) as read:
-(setq gnus-gcc-mark-as-read t)
 
 #+end_src 
 
@@ -4440,7 +4439,7 @@ variables in your `~/.gnus.el' file. This file is similar to
               )
            ))
 
-           (setq gnus-permanently-visible-groups nil)
+
 
 (setq gnus-summary-save-parts-last-directory "~/Downloads")
 
@@ -4727,12 +4726,298 @@ gnus-alias-unknown-identity-rule (quote error))
 
  #+end_src 
 
+*** Remaining settings
 
-*** Erc
+#+begin_src emacs-lisp 
 
-**** ERC settings
+(setq gnus-novice-user nil)
+(setq gnus-verbose 9)
 
-***** orig settings
+
+
+
+(setq
+ epa-file-cache-passphrase-for-symmetric-encryption t
+ user-full-name "Damon Haley"
+ user-mail-address "damon.haley@colorado.edu"
+ )
+
+
+ (setq
+;;  display-time-mail-file "/var/mail/vinylisland"
+ ;;
+ ;; Personal headers
+ ;;
+ message-default-headers (concat
+                          "X-Face: \"'PJ-yb+fYF0]%?,#==_(s>`~Hw_iwG![Cc+Sq$k>S|QbU)>?}Y51$4)\\9OEt:NL.@kZIqy <UnVZ*!XnGGV:iDO$YDhK7i~$.fs%r^0LJdztkb\\6=DI6by:GdO>.L<,Nd[nsMwrN3b]os1UqBw\n"
+                          "X-Accept-Language: en-us\n"
+                          "X-Operating-System: Debian GNU/Linux\n"
+                          )
+ gnus-treat-display-smileys t
+ ;; How gnus gets address from the from header.
+ gnus-extract-address-components 'mail-extract-address-components
+ ;; Buttonize the different parts, please
+ gnus-buttonized-mime-types  '("multipart/alternative" "multipart/signed"  "multipart/encrypted")
+ ;; But keep buttons for multiple parts
+ gnus-inhibit-mime-unbuttonizing t
+ gnus-article-skip-boring t
+ gnus-expert-user t
+ gnus-treat-strip-multiple-blank-lines 'last
+;; gnus-fetch-old-headers nil
+ gnus-thread-hide-subtree nil
+ gnus-indent-thread-level 1
+ gnus-build-sparse-threads nil
+ gnus-topic-display-empty-topics nil
+ gnus-use-nocem t
+ gnus-use-full-window nil     ;; do not destroy other windows
+ gnus-use-adaptive-scoring nil
+ )
+
+
+;; sort summary
+(setq 
+ gnus-thread-sort-functions '(gnus-thread-sort-by-number
+                              (not gnus-thread-sort-by-date))
+ )
+
+(setq
+ gnus-no-groups-message "No Gnus for Daemon."
+ gnus-gcc-mark-as-read t
+ gnus-summary-expunge-below 0
+ mail-imenu-generic-expression '(("Subject"  "^Subject: *\\(.*\\)" 1)
+                                 ("Cc"     "^C[Cc]: *\\(.*\\)" 1)
+                                 ("To"     "^To: *\\(.*\\)" 1)
+                                 ("From"  "^From: *\\(.*\\)" 1))
+ ;; whether gnus bothers with faces. It should!
+ mail-user-agent 'gnus-user-agent
+ mail-source-delete-incoming nil
+ message-forward-ignored-headers "^Content-Transfer-Encoding:\\|^X-Gnus:\\|^To:\\|^Cc:\\|^From"
+ message-make-forward-subject-function (quote message-forward-subject-fwd)
+ gnus-visual t
+
+ ;; SachaChua
+ gnus-message-archive-group
+ '((lambda (x)
+     (cond
+      ;; Store personal mail messages in the same group I started out in
+      ((string-match "mail.*" group) group)
+      ;; Store personal mail messages in the same group I started out in
+      ((string-match "INBOX.*" group) group)
+      ;; I receive a copy of all messages I send to a list, so there's no need to archive
+      ((string-match "list.*" group) nil)
+      ;; Store everything else in mail.2011 until I can sort it out
+      (t (concat "mail." (format-time-string "%Y")))
+      )
+     )
+   )
+ gnus-update-message-archive-method t
+ gnus-message-archive-method gnus-select-method ;; this line is important
+ )
+
+
+;; Always want to see important groups regardless of whether they are empty.
+(setq gnus-permanently-visible-groups (
+                                       rx(or ".*INBOX" "INBOX.mail" "INBOX.unsorted" "INBOX.mail.unsorted" "unsorted_hushmail" "unsorted_innovate" "list.Sent Items" "Sent Items" "INBOX.monika_fleshner" "INBOX.patricia_rankin" "INBOX.merlyn.holmes" "INBOX.gretchen_oconnell" "INBOX.stein_sture" "INBOX.daryl_kohlerschmidt" "INBOX.managed_services" "INBOX.laima" "laima" "JUNK" "OUTBOX" "TRASH")))
+
+;;       gnus-permanently-visible-groups "\\.*"
+;; all mails should be always displayed in the mailbox
+
+(setq 
+ gnus-visible-headers (quote ("^From:" "^Newsgroups:" "^Subject:" "^Date:" "^Followup-To:" "^Reply-To:" "^Organization:" "^Summary:" "^Keywords:" "^To:" "^[BGF]?Cc:" "^Posted-To:" "^Mail-Copies-To:" "^Mail-Followup-To:" "^Apparently-To:" "^Gnus-Warning:" "^Resent-From:" "^X-Sent:" "^User-Agent:"))
+
+ ;; from http://nijino.homelinux.net/emacs/.gnus.el
+ gnus-signature-limit 8.0
+
+ ;; when to prompt for how many
+ ;; gnus-large-newsgroup 100
+ gnus-large-newsgroup 20
+ )
+
+(setq
+ gnushush-sender-header (quote none)
+ gnushush-user-agent-header (quote none)
+
+ ;; nnmail Setup
+ nnmail-crosspost nil
+ )
+
+;; From pop sources
+(setq nnmail-split-methods 'nnmail-split-fancy)
+
+;; (info "gnus")
+;; See (info "(gnus) Splitting in IMAP"), and search for `fancy'
+;; there.  The variable is nnimap-split-rule for me.
+
+(setq nnimap-split-methods 'nnmail-split-fancy)
+
+(setq nnmail-split-abbrev-alist
+      '((any . "from\\|to\\|cc\\|sender\\|apparently-to\\|resent-from\\|resent-to\\|resent-cc")
+        (mail . "mailer-daemon\\|postmaster\\|uucp")
+        (to . "to\\|cc\\|apparently-to\\|resent-to\\|resent-cc")
+        (from . "from\\|sender\\|resent-from")
+        (daemon-errors . "Cron daemon\\|mailer-daemon")
+        (list . "list-id\\|x-mailing-list\\|to\\|cc\\|sender")))
+
+(setq
+
+                                        ;      when replying we dont want to include peoples signatures.
+ message-cite-function 'message-cite-original-without-signature
+ ;;       message-required-news-headers (remove' Message-ID message-required-news-headers)
+ ;;       message-required-mail-headers (remove' Message-ID message-required-mail-headers)
+ ;; no limit to attachment size
+ message-send-mail-partially-limit nil
+ ;; Use emacs-w3m to render html mails and display images
+ gnus-mime-display-multipart-related-as-mixed t
+
+ mm-inline-text-html-with-images t
+ mm-inline-large-images t
+ mm-verify-option 'always
+ mm-attachment-override-types '("image/.*")
+ mm-external-terminal-program (quote urxvt)
+ gnus-ignored-mime-types '("text/x-vcard")
+ w3m-w3mkey-binding 'info
+ w3m-safe-url-regexp nil
+ mm-w3m-safe-url-regexp nil
+ )
+
+
+
+
+
+;; ---------------------------------------------------------------------
+
+(defun message-check-news-syntax ()
+  "Check the syntax of the message and prompt the user to be sure he wants to send."
+  (and
+   (save-excursion
+     (save-restriction
+       (widen)
+       (and
+        ;; We narrow to the headers and check them first.
+        (save-excursion
+          (save-restriction
+            (message-narrow-to-headers)
+            (message-check-news-header-syntax)))
+        ;; Check the body.
+        (message-check-news-body-syntax))))
+                                        ; sm: this last line is my addition
+   (y-or-n-p "Post the message? ")
+   ))
+
+#+end_src 
+
+
+
+**** ;; from making gnus more like pine
+
+#+begin_src emacs-lisp 
+
+(defvar my-message-attachment-regexp
+  "attach\\|\Wfiles?\W\\|enclose\\|\Wdraft\\|\Wversion")
+(defun check-mail ()
+  "ask for confirmation before sending a mail. Scan for possible attachment"
+  (save-excursion
+    (message-goto-body)
+    (let ((warning ""))
+      (when (and (search-forward-regexp my-message-attachment-regexp nil t nil)
+                 (not (search-forward "<#part" nil t nil)))
+        (setq warning "No attachment.\n"))
+      (goto-char (point-min))
+      (unless (message-y-or-n-p (concat warning "Send the message ? ") nil nil)
+        (error "Message not sent")))))
+(add-hook 'message-send-hook 'check-mail)
+
+#+end_src
+
+#+begin_src emacs-lisp 
+
+(define-key gnus-article-mode-map (kbd "<deletechar>") 'gnus-article-goto-prev-page)
+
+
+;; Set the default value of mm-discouraged-alternatives.
+(eval-after-load "gnus-sum"
+  '(add-to-list
+    'gnus-newsgroup-variables
+    '(mm-discouraged-alternatives
+      . '("text/html" "image/.*" "text/richtext")))
+  )
+
+
+(eval-after-load 'gnus-art
+  '(progn
+     (add-to-list 'gnus-picon-databases "/usr/share/picons")
+     ))
+
+(setq gnus-picon-style 'right)
+
+
+
+(setq gnus-treat-from-picon 'head)
+(setq gnus-treat-display-x-face 'head)
+
+
+
+
+(defun gnus-goto-last-link ()
+  "A lot of articles just have one link to goto"
+  (interactive)
+  (gnus-summary-show-article)
+  (gnus-summary-select-article-buffer)
+  (goto-char (point-max))
+  (forward-line -2)
+  (rgr/browse-url)
+  (let ((cur (wg-name (wg-current-workgroup)))
+        (prev (wg-name (wg-previous-workgroup))))
+  (if (string-equal prev "gnus")
+    (wg-switch-to-index-1)))
+  (gnus-article-show-summary)
+  (gnus-summary-mark-as-read-forward 1)
+  )
+  
+  
+;; from Peter Munster
+
+
+(defun my-alter-summary-map ()
+  (local-set-key (kbd "<f4>") '(lambda () (interactive)
+                                 (gnus-goto-last-link)
+                                 ))
+    (local-set-key (kbd "z") '(lambda () (interactive)
+                                   (gnus-summary-mark-as-read-forward)))
+  (local-set-key ":" 'bbdb-mua-display-records)
+  (local-set-key "d" [?M ?M ?e ?e down]))
+
+(defun my-alter-article-map ()
+  (local-set-key "1" 'delete-other-windows)
+  (local-set-key "q" '(lambda () (interactive)
+                        (gnus-article-show-summary)
+                        (delete-other-windows)))
+  (local-set-key "n" "hnh1")
+  (local-set-key "N" "hNh1")
+  (local-set-key "d" "hMMeenh1")
+  )
+
+(add-hook 'gnus-summary-mode-hook 'my-alter-summary-map)
+(add-hook 'gnus-article-mode-hook 'my-alter-article-map)
+
+
+(add-to-list 'message-syntax-checks '(existing-newsgroups . disabled))
+
+
+
+
+
+
+
+
+#+end_src 
+
+
+** Erc
+
+*** ERC settings
+
+**** orig settings
 
 #+begin_src emacs-lisp 
 
@@ -4743,7 +5028,7 @@ gnus-alias-unknown-identity-rule (quote error))
 #+end_src 
 
 
-***** jwiegley settings
+**** jwiegley settings
 
 #+begin_src emacs-lisp 
 
@@ -4774,7 +5059,7 @@ gnus-alias-unknown-identity-rule (quote error))
 
 #+end_src  
 
-****** autojoin
+***** autojoin
 
 #+begin_src emacs-lisp :tangle no
 
@@ -4795,7 +5080,7 @@ gnus-alias-unknown-identity-rule (quote error))
 
 #+end_src 
 
-****** erc keywords
+***** erc keywords
 
 #+begin_src emacs-lisp 
 
@@ -4822,7 +5107,7 @@ gnus-alias-unknown-identity-rule (quote error))
 #+end_src    
 
 
-****** logging
+***** logging
 
 #+begin_src emacs-lisp 
 
@@ -4831,7 +5116,7 @@ gnus-alias-unknown-identity-rule (quote error))
 
 #+end_src 
 
-***** technomancy settings
+**** technomancy settings
 
 
 #+begin_src emacs-lisp 
@@ -4886,7 +5171,7 @@ but not mobile urls.")
 
 #+end_src 
 
-**** ERC initialization
+*** ERC initialization
 
 #+begin_src emacs-lisp 
 
@@ -5223,11 +5508,6 @@ Embed location maps, with directions from home
       bbdb-message-all-addresses                t
       bbdb-mua-update-interactive-p             '(create . query))
 
-(defun my-alter-summary-map ()
-; ....
-  (local-set-key ":" 'bbdb-mua-display-records))
-
-(add-hook 'gnus-summary-mode-hook 'my-alter-summary-map)
 
 (defun message-read-from-minibuffer (prompt &optional initial-contents)
   "Read from the minibuffer while providing abbrev expansion."
