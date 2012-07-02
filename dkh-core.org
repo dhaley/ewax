@@ -5271,7 +5271,7 @@ Embed location maps, with directions from home
                            realnet)
                        (message "Found `%S' in headers! Doing realname search!" ad)
                        (and (car ad)
-                            (setq realnet (bbdb-search (car ad) nil))
+                            (setq realnet (bbdb-search-invert (car ad)))
                             (setq realnet (car (bbdb-record-mail realnet)))
                             (setq net realnet))))
                  net))
