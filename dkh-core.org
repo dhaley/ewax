@@ -333,7 +333,7 @@ annotate your elisp in the following file:
 (add-to-list 'load-path (expand-file-name "~/git/src/gnus/lisp"))
    (require 'gnus-load)
 
-(add-to-list 'load-path (expand-file-name "~/git/src/use-package"))
+;;(add-to-list 'load-path (expand-file-name "~/git/src/use-package"))
 
 
 #+end_src 
@@ -4211,7 +4211,7 @@ in my gnu init file (see below)
         (if (string-match "," to) "~" "»")
       (if (or (string-match dkh-mails
                             (gnus-extra-header 'Cc headers))
-              (string-match dkh-mails
+              (string-match dkh-mails                                        
                             (gnus-extra-header 'BCc headers)))
           "~"
         " "))))
@@ -4332,10 +4332,6 @@ in my gnu init file (see below)
 
 (define-key mode-specific-map [?m] (lambda()(interactive) (gnus-agent-toggle-plugged t)(gnus 1)))
 
-;; which email addresses to detect for special highlighting
-(defvar dkh-mails
-  "me@google.com")
-
 
 
 
@@ -4425,20 +4421,6 @@ variables in your `~/.gnus.el' file. This file is similar to
    (setq mail-default-directory "~/git/gnus/Mail")
    (setq gnus-default-directory "~/git/gnus")
    (setq nnmail-message-id-cache-file "~/git/gnus/nnmail_cache")
-
-     (setq gnus-posting-styles
-           '(
-             ;;
-             ;; Default (also used when no group is selected)
-             ;; - innovation address
-             ;; - record copy into INBOX
-             ;;
-             (".*"
-              (eval(setq gnushush-user-agent-header (quote real)))
-              ;;                             (eval (setq mml2015-signers '("b39a104a")))
-              )
-           ))
-
 
 
 (setq gnus-summary-save-parts-last-directory "~/Downloads")
@@ -4586,7 +4568,6 @@ gnus-alias-unknown-identity-rule (quote error))
 
 (setq gnus-always-read-dribble-file t)
 
- ;; gnus-use-dribble-file nil
 
 #+end_src
 
@@ -4670,13 +4651,6 @@ gnus-alias-unknown-identity-rule (quote error))
 
 #+end_src 
 
-#+begin_src emacs-lisp :tangle no
-
-(setq gnus-summary-line-format "%«%U%R %uS %ur %»%(%*%-14,14f   %1«%B%s%»%)
-")
-
-#+end_src 
-
 #+begin_src emacs-lisp 
 
 (setq gnus-summary-save-parts-default-mime ".*")
@@ -4696,8 +4670,6 @@ gnus-alias-unknown-identity-rule (quote error))
 (setq gnus-topic-line-format "%i[ %A: %(%{%n%}%) ]%v
 ")
 
-;; (setq gnus-topic-line-format "%i[ %u&topic-line; ] %v\n")
-
 #+end_src 
 
 *** always decrypt
@@ -4708,7 +4680,9 @@ gnus-alias-unknown-identity-rule (quote error))
 
 #+end_src 
 
-#+begin_src emacs-lisp 
+Doesn't look good on Solarized
+
+#+begin_src emacs-lisp :tangle no
 
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
@@ -4732,7 +4706,6 @@ gnus-alias-unknown-identity-rule (quote error))
 
 (setq gnus-novice-user nil)
 (setq gnus-verbose 9)
-
 
 
 
