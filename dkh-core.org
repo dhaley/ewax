@@ -1223,6 +1223,14 @@ simply put this in your `~/.emacs' file:
  '(whitespace-line ((t (:background "lemon chiffon" :foreground "dark violet")))))
 
 #+end_src 
+** autosave
+
+#+begin_src emacs-lisp :tangle no
+
+(setq auto-save-file-name-transforms `((".*" ,temporary-file-directory t))) 
+
+#+end_src 
+
 * Functionality (Ease of use)
 *** Modes
 
@@ -5521,11 +5529,13 @@ http://www.emacswiki.org/emacs/BbdbCanonicalizeAddresses
                            realnet)
                        (message "Found `%S' in headers! Doing realname search!" ad)
                        (and (car ad)
-                            (setq realnet (bbdb-search (bbdb-records) nil nil nil (car ad)))
+                            (setq realnet (bbdb-search nil nil nil nil (car ad)))
                             (setq realnet (car (bbdb-record-mail realnet)))
                             (setq net realnet))))
                  net))
            net)))
+
+;;(bbdb-records)
 
 #+end_src 
 
