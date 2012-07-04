@@ -1,5 +1,5 @@
 ;; RefTeX parse info file
-;; File: /Users/dh196264/git/ewax/dkh-keybindings.org
+;; File: /Users/dh196264/git/ewax/dkh-private.org
 ;; User: dh196264 (Damon Haley)
 
 (set reftex-docstruct-symbol '(
@@ -17,8 +17,8 @@
 
 (label-numbers)
 
-(bof "/Users/dh196264/git/ewax/dkh-keybindings.org")
+(bof "/Users/dh196264/git/ewax/dkh-private.org")
 
-(eof "/Users/dh196264/git/ewax/dkh-keybindings.org")
+(eof "/Users/dh196264/git/ewax/dkh-private.org")
 ))
 

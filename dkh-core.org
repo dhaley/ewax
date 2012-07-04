@@ -163,6 +163,21 @@ http://vinylisland.org
 Remember: This is free software. Reuse and learning from existing code
 is not just allowed but encouraged.
 
+*** E-WAX Goals
+**** Reduce Data Overload
+***** Use Gnus virtual groups, scoring and kill threads to manage large volumes of email and RSS feeds
+***** Use Org-mode to manage a hotlist of 10-20 items at a time
+***** Use Org-mode hierarchies to hide and expand relevant items belonging to hot list
+***** Use workflows that make sense
+****** use magit home buffer for coding
+******* use VC-mode
+******** c x v = (vc-diff)
+
+
+
+
+
+
 * Implementation
   :PROPERTIES:
   :CUSTOM_ID: implementation
@@ -394,6 +409,8 @@ annotate your elisp in the following file:
    erc-nick-notify
    face-list
    fliptext
+   gnus-alias
+   gnus-harvest
    grep+
    ipa
    keychain-environment
@@ -3216,7 +3233,7 @@ smex-save-file is a variable defined in `smex.el'.
 
 ** Registers
 
-#+TITLE: Starter Kit Registers
+#+TITLE:   Starter Kit Registers
 #+OPTIONS: toc:nil num:nil ^:nil
 
 *** Starter Kit Registers
@@ -4058,8 +4075,828 @@ Require unix zip commandline tool."
 
 ** Gnus
 
+*** Settings
+
+#+begin_src emacs-lisp 
+
+;;(setq check-mail-boxes (quote ("~/Messages/incoming/mail\\..*\\.spool")))
+;; (setq check-mail-summary-function (quote check-mail-box-summary))
+
+(setq gnus-activate-level 2)
+(setq gnus-after-getting-new-news-hook (quote (gnus-group-list-groups gnus-group-save-newsrc gnus-display-time-event-handler)))
+
+
+ 
+ (setq gnus-agent-expire-all t)
+ (setq gnus-agent-expire-days 14)
+ (setq gnus-agent-go-online t)
+ (setq gnus-agent-mark-unread-after-downloaded nil)
+ (setq gnus-agent-synchronize-flags t)
+;; (setq gnus-alias-default-identity "cu)
+;; (setq gnus-alias-identity-alist (quote (("cu" "" nil "" nil "" "")
+;; ("VinylIsland" "" "\"Damon Haley\" <dkh@member.fsf.org>" "University of
+;; Colorado" nil "" "Damon Haley
+;; Vinyl Island Society
+;; http://www.vinylisland.org") ("Fang Wax Club" "" "\"Damon Haley\" <vinylisl@ssl-mail.com>" "New Artisans LLC" nil "" ""))))
+;; (setq gnus-alias-identity-rules (quote (("Ledger Mailing List" ("To" "ledger-cli@googlegroups\\.com" current) "NewArtisans") ("Emacs Mailing Lists" ("To" "emacs" current) "NewArtisans") ("Emacs Newsgroups" ("Newsgroups" "emacs" current) "NewArtisans") ("BoostPro Mail" ("From" "@boostpro\\.com" current) "BoostPro") ("BoostPro Clients" ("To" "@\\(ti\\)\\.com" current) "BoostPro") ("BoostPro Clients (Copied)" ("Cc" "@\\(ti\\)\\.com" current) "BoostPro") ("C++, LLVM, Boost, and Clang Groups" ("Newsgroups" "\\(c\\+\\+\\|clang\\|llvm\\|[Bb]oost\\|[Rr]yppl\\)" current) "BoostPro") ("C++, LLVM, Boost, and Clang Mailing Lists" ("To" "\\(c\\+\\+\\|clang\\|llvm\\|[Bb]oost\\|[Rr]yppl\\|llvm\\|cfe\\)" current) "BoostPro"))))
+;; (setq gnus-alias-override-user-mail-address t)
+;; (setq gnus-alias-unknown-identity-rule (quote error))
+
+
+(setq gnus-always-read-dribble-file t)
+ (setq gnus-article-date-lapsed-new-header t)
+ (setq gnus-article-update-date-headers nil)
+ (setq gnus-asynchronous t)
+ (setq gnus-check-new-newsgroups nil)
+ (setq gnus-completing-read-function (quote gnus-ido-completing-read))
+
+ (setq gnus-default-adaptive-score-alist (quote ((gnus-dormant-mark (from 20) (subject 100)) (gnus-ticked-mark (subject 30)) (gnus-read-mark (subject 30)) (gnus-del-mark (subject -150)) (gnus-catchup-mark (subject -150)) (gnus-killed-mark (subject -1000)) (gnus-expirable-mark (from -1000) (subject -1000)))))
+ (setq gnus-default-article-saver (quote gnus-summary-write-to-file))
+
+
+(setq gnus-gcc-mark-as-read t)
+ (setq gnus-generate-tree-function (quote gnus-generate-horizontal-tree))
+ (setq gnus-group-default-list-level 2)
+ (setq gnus-group-line-format "%S%p%P%M%5y: %(%B%G%B%)
+")
+
+;; gnus-group-line-format "%M%S%p%P%(%-40,40G%)%-5uy %ud\n"
+
+
+ (setq gnus-group-mode-hook (quote (gnus-topic-mode gnus-agent-mode hl-line-mode)))
+
+;; (add-hook 'gnus-group-mode-hook 'gnus-topic-mode)
+;; (add-hook 'gnus-group-mode-hook 'hl-line-mode)
+
+
+(setq gnus-group-use-permanent-levels t)
+ (setq gnus-harvest-sender-alist (quote
+ ((".*@\\(cu\\|colorado\\|ti\\)\\.edu" . damon\.haley@colorado\.edu) (".*@fsf\\.org" . dkh@member\.fsf\.org))))
+
+ (setq gnus-ignored-mime-types (quote ("application/x-pkcs7-signature" "application/ms-tnef" "text/x-vcard")))
+ (setq gnus-interactive-exit (quote quiet))
+ (setq gnus-large-newsgroup 4000)
+;; when to prompt for how many
+ ;; gnus-large-newsgroup 100
+;; (setq gnus-large-newsgroup 20)
+;; (setq gnus-local-domain "boostpro.com")
+ (setq gnus-mailing-list-groups "\\`\\(list\\|wg21\\)\\.")
+ (setq gnus-mark-unpicked-articles-as-read t)
+;; (setq gnus-message-archive-group (quote ((format-time-string "sent.%Y"))))
+ (setq gnus-message-replyencrypt nil)
+
+;; (setq gnus-parameters (quote (("list\\." (subscribed . t) (gcc-self . t)) ("list\\.wg21\\.\\(.*\\)" (to-address . "c++std-\\1@accu.org") (to-list . "c++std-\\1@accu.org") (gcc-self . t) (gnus-list-identifiers "\\[c\\+\\+std-.+?\\]") (sieve anyof ((header :contains ("To" "From" "Cc" "Sender") "c++std-\\1@accu.org") (header :contains "list-id" "<c++std-\\1.accu.org>")))) ("\\(johnw\\|INBOX\\)" (total-expire . t) (expiry-target . "mail.archive")) ("johnw" (expiry-wait . immediate)) ("INBOX" (expiry-wait . 14)) ("mail\\." (gnus-use-scoring nil)) ("mail\\.archive" (gnus-summary-line-format "%«%U%R %uS %ur %»%(%*%-14,14f   %4u&size; %1«%B%s%»%)
+;; ")) ("list\\.ledger\\.devel" (to-address . "ledger-cli@googlegroups.com") (to-list . "ledger-cli@googlegroups.com") (gcc-self . t) (sieve anyof ((header :contains ("To" "From" "Cc" "Sender") "ledger-cli@googlegroups.com") (header :contains "list-id" "<ledger-cli.googlegroups.com>")))) ("list\\.bahai\\.tarjuman" (to-address . "TARJUMAN-LIST@listserv.buffalo.edu") (to-list . "TARJUMAN-LIST@listserv.buffalo.edu") (sieve header :contains ("To" "From" "Cc" "Sender") "TARJUMAN-LIST@LISTSERV.BUFFALO.EDU")) ("list\\.emacs\\.devel" (to-address . "emacs-devel@gnu.org") (to-list . "emacs-devel@gnu.org") (total-expire . t) (expiry-wait . 90) (sieve anyof ((header :contains ("To" "From" "Cc" "Sender") "emacs-devel@gnu.org") (header :contains "list-id" "<emacs-devel.gnu.org>")))) ("list\\.emacs\\.help" (to-address . "help-gnu-emacs@gnu.org") (to-list . "help-gnu-emacs@gnu.org") (sieve anyof ((header :contains ("To" "From" "Cc" "Sender") "help-gnu-emacs@gnu.org") (header :contains "list-id" "<help-gnu-emacs.gnu.org>")))) ("list\\.emacs\\.bugs" (to-list . "bug-gnu-emacs@gnu.org") (sieve anyof ((header :matches ("To" "From" "Cc" "Sender") "*@debbugs.gnu.org") (header :contains ("To" "From" "Cc" "Sender") "bug-gnu-emacs@gnu.org") (header :contains "list-id" "<bug-gnu-emacs.gnu.org>")))) ("list\\.emacs\\.diffs" (to-address . "emacs-diffs@gnu.org") (to-list . "emacs-diffs@gnu.org") (sieve anyof ((header :contains ("To" "From" "Cc" "Sender") "emacs-diffs@gnu.org") (header :contains "list-id" "<emacs-diffs.gnu.org>")))) ("list\\.emacs\\.elpa\\.diffs" (to-address . "emacs-elpa-diffs@gnu.org") (to-list . "emacs-diffs@gnu.org") (sieve anyof ((header :contains ("To" "From" "Cc" "Sender") "emacs-elpa-diffs@gnu.org") (header :contains "list-id" "<emacs-elpa-diffs.gnu.org>")))) ("list\\.emacs\\.buildstatus" (to-address . "emacs-buildstatus@gnu.org") (to-list . "emacs-buildstatus@gnu.org") (sieve anyof ((header :contains ("To" "From" "Cc" "Sender") "emacs-buildstatus@gnu.org") (header :contains "list-id" "<emacs-buildstatus.gnu.org>")))) ("list\\.emacs\\.sources" (to-address . "gnu-emacs-sources@gnu.org") (to-list . "gnu-emacs-sources@gnu.org") (sieve anyof ((header :contains ("To" "From" "Cc" "Sender") "gnu-emacs-sources@gnu.org") (header :contains "list-id" "<gnu-emacs-sources.gnu.org>")))) ("list\\.emacs\\.orgmode" (to-address . "emacs-orgmode@gnu.org") (to-list . "emacs-orgmode@gnu.org") (list-identifier . "\\[O\\]") (sieve anyof ((header :contains ("To" "From" "Cc" "Sender") "emacs-orgmode@gnu.org") (header :contains "list-id" "<emacs-orgmode.gnu.org>")))) ("list\\.boost\\.cppnow" (to-address . "boostcon-plan@googlegroups.com") (to-list . "boostcon-plan@googlegroups.com") (sieve anyof ((header :contains ("To" "From" "Cc" "Sender") "boostcon-plan@googlegroups.com") (header :contains "list-id" "<boostcon-plan.googlegroups.com>")))) ("list\\.boost\\.ryppl" (to-address . "ryppl-dev@googlegroups.com") (to-list . "ryppl-dev@googlegroups.com") (sieve anyof ((header :contains ("To" "From" "Cc" "Sender") "ryppl-dev@googlegroups.com") (header :contains "list-id" "<ryppl-dev.googlegroups.com>")))) ("list\\.boost\\.devel" (to-address . "boost@lists.boost.org") (to-list . "boost@lists.boost.org") (list-identifier . "\\[boost\\]") (sieve anyof ((header :contains ("To" "From" "Cc" "Sender") "boost@lists.boost.org") (header :contains "list-id" "<boost.lists.boost.org>")))) ("list\\.boost\\.\\(users\\|announce\\)" (to-address . "boost-\\1@lists.boost.org") (to-list . "boost-\\1@lists.boost.org") (list-identifier . "\\\\[Boost-\\1\\\\]") (sieve anyof ((header :contains ("To" "From" "Cc" "Sender") "boost-\\1@lists.boost.org") (header :contains "list-id" "<boost-\\1.lists.boost.org>")))) ("list\\.isocpp\\.\\(proposals\\|discussion\\)" (to-address . "std-\\1@isocpp.org") (to-list . "std-\\1@isocpp.org") (list-identifier . "\\\\[\\\\(lang\\\\|lib\\\\|std\\\\)-\\1\\\\]") (sieve anyof ((header :contains ("To" "From" "Cc" "Sender") "std-\\1@isocpp.org") (header :contains "list-id" "<std-\\1.isocpp.org>")))) ("list\\.clang\\.devel" (to-address . "cfe-dev@cs.uiuc.edu") (to-list . "cfe-dev@cs.uiuc.edu") (list-identifier . "\\[\\(cfe-dev\\|LLVMdev\\)\\]") (sieve anyof ((header :contains ("To" "From" "Cc" "Sender") "cfe-dev@cs.uiuc.edu") (header :contains "list-id" "<cfe-dev.cs.uiuc.edu>")))) ("list\\.llvm\\.devel" (to-address . "llvmdev@cs.uiuc.edu") (to-list . "llvmdev@cs.uiuc.edu") (list-identifier . "\\[\\(cfe-dev\\|LLVMdev\\)]") (sieve anyof ((header :contains ("To" "From" "Cc" "Sender") "llvmdev@cs.uiuc.edu") (header :contains "list-id" "<llvmdev.cs.uiuc.edu>")))))))
+;; (setq gnus-permanently-visible-groups "INBOX")
+
+;; Always want to see important groups regardless of whether they are empty.
+(setq gnus-permanently-visible-groups (
+                                       rx(or ".*INBOX" "INBOX.mail" "INBOX.unsorted" "INBOX.mail.unsorted" "unsorted_hushmail" "unsorted_innovate" "list.Sent Items" "Sent Items" "INBOX.monika_fleshner" "INBOX.patricia_rankin" "INBOX.merlyn.holmes" "INBOX.gretchen_oconnell" "INBOX.stein_sture" "INBOX.daryl_kohlerschmidt" "INBOX.managed_services" "INBOX.laima" "laima" "JUNK" "OUTBOX" "TRASH")))
+
+
+(setq gnus-read-active-file nil)
+ (setq gnus-read-newsrc-file nil)
+;; (setq gnus-refer-article-method (quote (current (nnir "nnimap:Local") (nntp "LocalNews" (nntp-address "localhost") (nntp-port-number 9119)) (nntp "Gmane" (nntp-address "news.gmane.org")) (nntp "Eternal September" (nntp-address "news.eternal-september.org") (nntp-authinfo-user "jwiegley")))))
+ (setq gnus-refer-thread-use-nnir t)
+ (setq gnus-registry-ignored-groups (quote (("nntp" t) ("^INBOX" t))))
+ (setq gnus-save-killed-list nil)
+ (setq gnus-save-newsrc-file nil)
+ (setq gnus-score-default-duration (quote p))
+ (setq gnus-score-expiry-days 30)
+ (setq gnus-select-group-hook (quote (gnus-group-set-timestamp)))
+;; (setq gnus-select-method (quote (nnimap "Local" (nnimap-stream shell) (nnimap-shell-program "/usr/local/libexec/dovecot/imap"))))
+;; (setq gnus-sieve-crosspost nil)
+;; (setq gnus-sieve-file "~/Messages/dovecot.sieve")
+;; (setq gnus-sieve-select-method "nnimap:Local")
+ (setq gnus-signature-separator (quote ("^-- $" "^-- *$" "^_____+$")))
+
+(setq gnus-simplify-subject-functions (quote (gnus-simplify-subject-fuzzy)))
+;; (setq gnus-sort-gathered-threads-function (quote gnus-thread-sort-by-date) t)
+
+
+(setq gnus-sort-gathered-threads-function (quote gnus-thread-sort-by-date) )
+
+;; (setq gnus-split-methods (quote ((gnus-save-site-lisp-file) (gnus-article-archive-name) (gnus-article-nndoc-name))))
+ (setq gnus-started-hook (quote ((lambda nil (run-hooks (quote gnus-after-getting-new-news-hook))))))
+ (setq gnus-subscribe-newsgroup-method (quote gnus-subscribe-topics))
+ (setq gnus-sum-thread-tree-single-indent "  ")
+ (setq gnus-summary-display-while-building 25)
+ (setq gnus-summary-expunge-below -100)
+;; gnus-summary-expunge-below 0
+
+ (setq gnus-summary-mark-below -100)
+ (setq gnus-summary-pick-line-format "%U%R %uS %ur %(%*%-14,14f  %B%s%)
+")
+
+
+ (setq gnus-summary-prepared-hook (quote (gnus-summary-hide-all-threads)))
+ (setq gnus-summary-save-parts-default-mime ".*")
+ (setq gnus-suspend-gnus-hook (quote (gnus-group-save-newsrc)))
+ (setq gnus-thread-expunge-below -1000)
+ (setq gnus-thread-hide-subtree t)
+;; gnus-thread-hide-subtree nil
+ (setq gnus-thread-sort-functions (quote (gnus-thread-sort-by-most-recent-number gnus-thread-sort-by-score)))
+
+;; ;; sort summary
+;;  (setq 
+;;   gnus-thread-sort-functions '(gnus-thread-sort-by-number
+;;                                (not gnus-thread-sort-by-date))
+;;   )
+
+
+
+(setq gnus-topic-display-empty-topics nil)
+ (setq gnus-topic-line-format "%i[ %A: %(%{%n%}%) ]%v
+")
+
+ (setq gnus-treat-date-lapsed (quote head))
+
+
+(setq gnus-treat-hide-citation-maybe t)
+ (setq gnus-treat-strip-cr t)
+ (setq gnus-treat-strip-leading-blank-lines t)
+ (setq gnus-treat-strip-multiple-blank-lines t)
+
+;;  gnus-treat-strip-multiple-blank-lines 'last
+;; ;; gnus-fetch-old-headers nil
+
+
+(setq gnus-treat-strip-trailing-blank-lines t)
+ (setq gnus-treat-unsplit-urls t)
+ (setq gnus-tree-minimize-window nil)
+ (setq gnus-uncacheable-groups "^nnml")
+ (setq gnus-use-adaptive-scoring (quote (line)))
+
+;; gnus-use-adaptive-scoring nil
+
+(setq gnus-use-cache t)
+ (setq gnus-verbose 4)
+
+;;(setq gnus-verbose 9)
+
+ (setq mail-envelope-from (quote header))
+ (setq mail-host-address "vinylisland.org")
+ (setq mail-setup-with-from nil)
+ (setq mail-source-delete-incoming t)
+
+;;(setq mail-source-delete-incoming nil)
+
+ (setq mail-source-delete-old-incoming-confirm nil)
+ (setq mail-source-report-new-mail-interval 15)
+;; (setq mail-sources (quote ((file :path "/var/mail/johnw"))))
+ (setq mail-specify-envelope-from t)
+ (setq mail-user-agent (quote gnus-user-agent))
+ (setq message-alternative-emails "\\(dhaley\\|vinylisl\\)@\\(hushmail\\|ssl\\-mail\\).com\\|\\(dkh@member\\.fsf\\|news@vinylisland\\)\\.org\\|damon\\.haley@colorado\\.edu")
+ (setq message-fill-column 78)
+ (setq message-interactive t)
+ (setq message-mail-alias-type nil)
+ (setq message-mode-hook (quote (abbrev-mode footnote-mode turn-on-auto-fill turn-on-flyspell turn-on-orgstruct (lambda nil (set-fill-column 78)))))
+ (setq message-send-mail-function (quote message-send-mail-with-sendmail))
+;; no limit to attachment size
+  (setq message-send-mail-partially-limit nil)
+ (setq message-sendmail-envelope-from (quote header))
+ (setq message-sent-hook (quote (my-gnus-score-followup)))
+ (setq message-setup-hook (quote (gnus-alias-determine-identity gnus-harvest-set-from message-check-recipients (lambda nil (bbdb-mail-aliases t)))))
+ (setq message-signature-separator "^-- *$")
+ (setq message-subscribed-address-functions (quote (gnus-find-subscribed-addresses)))
+
+;; turn this on once harvest is working
+;; (setq message-x-completion-alist (quote (("\\([rR]esent-\\|[rR]eply-\\)?[tT]o:\\|[bB]?[cC][cC]:" . gnus-harvest-find-address) ((if (boundp (quote message-newgroups-header-regexp)) message-newgroups-header-regexp message-newsgroups-header-regexp) . message-expand-group))))
+ (setq mm-attachment-override-types (quote ("text/x-vcard" "application/pkcs7-mime" "application/x-pkcs7-mime" "application/pkcs7-signature" "application/x-pkcs7-signature" "image/.*")))
+ (setq mm-decrypt-option (quote always))
+ (setq mm-discouraged-alternatives (quote ("application/msword" "text/richtext")))
+
+;; ;; Set the default value of mm-discouraged-alternatives.
+;; (eval-after-load "gnus-sum"
+;;   '(add-to-list
+;;     'gnus-newsgroup-variables
+;;     '(mm-discouraged-alternatives
+;;       . '("text/html" "image/.*" "text/richtext")))
+;;   )
+
+
+
+(setq mm-inline-text-html-with-images t)
+ (setq mm-text-html-renderer (quote w3m))
+ (setq mm-verify-option (quote always))
+ (setq mm-w3m-safe-url-regexp nil)
+ (setq nnir-imap-default-search-key "imap")
+ (setq nnmail-crosspost nil)
+ (setq nnmail-expiry-wait 30)
+ (setq nnmail-extra-headers (quote (To Cc Newsgroups)))
+ (setq nnmail-scan-directory-mail-source-once t)
+ (setq sc-citation-leader "")
+ (setq sc-confirm-always-p nil)
+ (setq sc-default-attribution "")
+ (setq sc-default-cite-frame (quote ((begin (progn (sc-fill-if-different) (setq sc-tmp-nested-regexp (sc-cite-regexp "") sc-tmp-nonnested-regexp (sc-cite-regexp) sc-tmp-dumb-regexp (concat "\\(" (sc-cite-regexp "") "\\)" (sc-cite-regexp sc-citation-nonnested-root-regexp))))) ("^[ 	]*$" (if sc-cite-blank-lines-p (sc-cite-line) (sc-fill-if-different ""))) ((and (looking-at "^-- ?$") (not (save-excursion (goto-char (match-end 0)) (re-search-forward "^-- ?$" nil t)))) (sc-fill-if-different "")) (sc-reference-tag-string (if (string= sc-reference-tag-string "") (list (quote continue)) nil)) (sc-tmp-dumb-regexp (sc-cite-coerce-dumb-citer)) (sc-tmp-nested-regexp (sc-add-citation-level)) (sc-tmp-nonnested-regexp (sc-cite-coerce-cited-line)) (sc-nested-citation-p (sc-add-citation-level)) (t (sc-cite-line)) (end (sc-fill-if-different "")))))
+ (setq sc-preferred-attribution-list nil)
+ (setq sc-use-only-preference-p t)
+ (setq send-mail-function (quote sendmail-send-it))
+ (setq smtpmail-default-smtp-server "smtp.colorado.edu")
+;; (setq smtpmail-queue-dir "~/Messages/Gnus/Mail/queue/")
+ (setq smtpmail-smtp-server "smtp.colorado.edu")
+ (setq smtpmail-smtp-service 587)
+;; (setq smtpmail-smtp-user "daha1836@colorado.edu")
+;;  (setq smtpmail-starttls-credentials (quote ( ("smtp.colorado.com" 587
+;;  nil nil) jwiegley@gmail.com("mail.johnwiegley.com" 587 nil nil))))
+;; (setq smtpmail-stream-type (quote starttls)))
+
+
+(setq gnus-home-directory "~/git/gnus")
+(setq nnml-directory "~/git/gnus/Mail")
+(setq message-directory "~/git/gnus/Mail")
+(setq gnus-article-save-directory "~/git/gnus/News")
+(setq gnus-cache-directory "~/git/gnus/News/cache")
+(setq gnus-cache-active-file "~/git/gnus/News/cache/active")
+(setq gnus-kill-files-directory "~/git/gnus/.gnuskillfiled")
+(setq gnus-ignored-newsgroups "^to\\.\\|^[0-9. ]+\\(\\|$\\)\\|^[\”]\”[#’()]")
+
+(setq gnus-startup-file "~/git/gnus/.newsrc")
+(setq gnus-directory "~/git/gnus/News")
+(setq gnus-dribble-directory "~/git/gnus/")
+
+(setq nntp-marks-directory "~/git/gnus/News/")
+(setq nndraft-directory "~/git/gnus/News/drafts/")
+;;     (setq nndraft-current-directory "~/git/gnus/News/drafts/")
+(setq mail-default-directory "~/git/gnus/Mail")
+(setq gnus-default-directory "~/git/gnus")
+(setq nnmail-message-id-cache-file "~/git/gnus/nnmail_cache")
+
+
+(setq gnus-summary-save-parts-last-directory "~/Downloads")
+
+
+#+end_src 
+
+*** General
 
 [[http://wikemacs.org/wiki/Gnus][Some nice tips on using gnus]]
+
+#+begin_src emacs-lisp 
+
+(require 'gnus)
+(require 'starttls)
+(require 'nnmairix)
+(require 'message)
+(require 'bbdb-gnus)
+
+;;(gnus-compile)
+(gnus-delay-initialize)
+;;(bbdb-insinuate-gnus)
+
+(defvar switch-to-gnus-unplugged nil)
+(defvar switch-to-gnus-run nil)
+
+(defun switch-to-gnus (&optional arg)
+  (interactive "P")
+  (let* ((alist '("\\`\\*unsent" "\\`\\*Article"
+                  "\\`\\*Summary" "\\`\\*Group"))
+         (candidate
+          (catch 'found
+            (dolist (regexp alist)
+              (dolist (buf (buffer-list))
+                (if (string-match regexp (buffer-name buf))
+                    (throw 'found buf)))))))
+    (if (and switch-to-gnus-run candidate)
+        (progn
+          (if (featurep 'ido)
+              (ido-visit-buffer candidate ido-default-buffer-method)
+            (switch-to-buffer candidate))
+          (if (string-match "Group" (buffer-name candidate))
+              (gnus-group-get-new-news)))
+      (let ((switch-to-gnus-unplugged arg))
+        (gnus)
+        (gnus-group-list-groups gnus-activate-level)
+        (setq switch-to-gnus-run t)))))
+#+end_src 
+
+*** fetchmail
+
+#+begin_src emacs-lisp :tangle no
+        
+(use-package fetchmail-ctl
+  :init
+  (progn
+    (defun maybe-start-fetchmail-and-news ()
+      (interactive)
+      (when (and (not switch-to-gnus-unplugged)
+                 (quickping "imap.gmail.com"))
+        (do-applescript "tell application \"Notify\" to run")
+        (switch-to-fetchmail)))
+
+    (add-hook 'gnus-startup-hook 'maybe-start-fetchmail-and-news)))
+
+#+end_src 
+
+*** Mo jweigley
+
+#+begin_src emacs-lisp 
+    
+
+(add-hook 'gnus-summary-mode-hook 'hl-line-mode)
+
+#+end_src 
+
+*** set up message
+
+#+begin_src emacs-lisp :tangle no
+
+(defun my-message-header-setup-hook ()
+  (message-remove-header "From")
+  (let ((gcc (message-field-value "Gcc")))
+   (when (or (null gcc)
+             (string-match "nnfolder\\+archive:" gcc))
+     (message-remove-header "Gcc")
+     (message-add-header
+      (format "Gcc: %s"
+              (if (string-match "\\`list\\." (or gnus-newsgroup-name ""))
+                  "mail.sent"
+                "INBOX"))))))
+
+(add-hook 'message-header-setup-hook 'my-message-header-setup-hook)
+
+(defadvice gnus-summary-resend-message-edit (after call-my-mhs-hook activate)
+  (my-message-header-setup-hook))
+
+#+end_src 
+
+#+begin_src emacs-lisp 
+  
+(defun my-gnus-summary-save-parts (&optional arg)
+  (interactive "P")
+  (let ((directory "~/Downloads"))
+    (message "Saving all MIME parts to %s..." directory)
+    (gnus-summary-save-parts ".*" directory arg)
+    (message "Saving all MIME parts to %s...done" directory)))
+
+(bind-key "X m" 'my-gnus-summary-save-parts gnus-summary-mode-map)
+
+#+end_src 
+
+#+begin_src emacs-lisp :tangle no
+
+(defun queue-message-if-not-connected ()
+  (set (make-local-variable 'gnus-agent-queue-mail)
+       (if (quickping "smtp.gmail.com") t 'always)))
+
+(add-hook 'message-send-hook 'queue-message-if-not-connected)
+
+(defun kick-postfix-if-needed ()
+  (if (and (quickping "imap.gmail.com")
+           (= 0 (call-process "/usr/bin/sudo" nil nil nil
+                              "/opt/local/libexec/postfix/master" "-t")))
+      (start-process "postfix" nil "/usr/bin/sudo"
+                     "/opt/local/libexec/postfix/master" "-e" "60")))
+
+(add-hook 'message-sent-hook 'kick-postfix-if-needed)
+
+#+end_src 
+
+*** exit gnus
+
+#+begin_src emacs-lisp 
+
+(defun exit-gnus-on-exit ()
+  (if (and (fboundp 'gnus-group-exit)
+           (gnus-alive-p))
+      (with-current-buffer (get-buffer "*Group*")
+        (let (gnus-interactive-exit)
+          (gnus-group-exit)))))
+
+(add-hook 'kill-emacs-hook 'exit-gnus-on-exit)
+
+#+end_src 
+
+*** Bodacious need to get spam reporting working for me
+
+#+begin_src emacs-lisp :tangle no
+
+(defun gmail-report-spam ()
+  "Report the current or marked mails as spam.
+This moves them into the Spam folder."
+  (interactive)
+  (gnus-summary-move-article nil "mail.spam"))
+
+(defun my-gnus-trash-article (arg)
+  (interactive "P")
+  (if (string-match "\\(drafts\\|queue\\|delayed\\)" gnus-newsgroup-name)
+      (gnus-summary-delete-article arg)
+    (gnus-summary-move-article arg "mail.trash")))
+
+#+end_src 
+
+#+begin_src emacs-lisp 
+
+(define-key gnus-summary-mode-map [(meta ?q)] 'gnus-article-fill-long-lines)
+;;(define-key gnus-summary-mode-map [?$] 'gmail-report-spam)
+(define-key gnus-summary-mode-map [?B delete] 'gnus-summary-delete-article)
+;;(define-key gnus-summary-mode-map [?B backspace] 'my-gnus-trash-article)
+
+(define-key gnus-article-mode-map [(meta ?q)] 'gnus-article-fill-long-lines)
+
+(defface gnus-summary-expirable-face
+  '((((class color) (background dark))
+     (:foreground "grey50" :italic t :strike-through t))
+    (((class color) (background light))
+     (:foreground "grey55" :italic t :strike-through t)))
+  "Face used to highlight articles marked as expirable."
+  :group 'gnus-summary-visual)
+
+ (push '((eq mark gnus-expirable-mark) . gnus-summary-expirable-face)
+      gnus-summary-highlight
+)
+
+#+end_src       
+
+*** gnus summary thread
+
+#+begin_src emacs-lisp 
+
+(if window-system
+    (setq
+     gnus-sum-thread-tree-false-root      ""
+     gnus-sum-thread-tree-single-indent   ""
+     gnus-sum-thread-tree-root            ""
+     gnus-sum-thread-tree-vertical        "|"
+     gnus-sum-thread-tree-leaf-with-other "+-> "
+     gnus-sum-thread-tree-single-leaf     "\\-> "
+     gnus-sum-thread-tree-indent          " "))
+
+#+end_src      
+
+#+begin_src emacs-lisp :tangle no
+
+(setq gnus-sum-thread-tree-single-indent "  ")
+
+#+end_src 
+
+#+begin_src emacs-lisp 
+(defsubst dot-gnus-tos (time)
+  "Convert TIME to a floating point number."
+  (+ (* (car time) 65536.0)
+     (cadr time)
+     (/ (or (car (cdr (cdr time))) 0) 1000000.0)))
+
+(defun gnus-user-format-function-S (header)
+  "Return how much time it's been since something was sent."
+  (condition-case err
+      (let ((date (mail-header-date header)))
+        (if (> (length date) 0)
+            (let*
+                ((then (dot-gnus-tos
+                        (apply 'encode-time (parse-time-string date))))
+                 (now (dot-gnus-tos (current-time)))
+                 (diff (- now then))
+                 (str
+                  (cond
+                   ((>= diff (* 86400.0 7.0 52.0))
+                    (if (>= diff (* 86400.0 7.0 52.0 10.0))
+                        (format "%3dY" (floor (/ diff (* 86400.0 7.0 52.0))))
+                      (format "%3.1fY" (/ diff (* 86400.0 7.0 52.0)))))
+                   ((>= diff (* 86400.0 30.0))
+                    (if (>= diff (* 86400.0 30.0 10.0))
+                        (format "%3dM" (floor (/ diff (* 86400.0 30.0))))
+                      (format "%3.1fM" (/ diff (* 86400.0 30.0)))))
+                   ((>= diff (* 86400.0 7.0))
+                    (if (>= diff (* 86400.0 7.0 10.0))
+                        (format "%3dw" (floor (/ diff (* 86400.0 7.0))))
+                      (format "%3.1fw" (/ diff (* 86400.0 7.0)))))
+                   ((>= diff 86400.0)
+                    (if (>= diff (* 86400.0 10.0))
+                        (format "%3dd" (floor (/ diff 86400.0)))
+                      (format "%3.1fd" (/ diff 86400.0))))
+                   ((>= diff 3600.0)
+                    (if (>= diff (* 3600.0 10.0))
+                        (format "%3dh" (floor (/ diff 3600.0)))
+                      (format "%3.1fh" (/ diff 3600.0))))
+                   ((>= diff 60.0)
+                    (if (>= diff (* 60.0 10.0))
+                        (format "%3dm" (floor (/ diff 60.0)))
+                      (format "%3.1fm" (/ diff 60.0))))
+                   (t
+                    (format "%3ds" (floor diff)))))
+                 (stripped
+                  (replace-regexp-in-string "\\.0" "" str)))
+              (concat (cond
+                       ((= 2 (length stripped)) "  ")
+                       ((= 3 (length stripped)) " ")
+                       (t ""))
+                      stripped))))
+    (error "    ")))
+
+(defvar gnus-count-recipients-threshold 5
+  "*Number of recipients to consider as large.")
+
+(defun gnus-user-format-function-r (header)
+  "Given a Gnus message header, returns priority mark.
+Here are the meanings:
+
+The first column represent my relationship to the To: field.  It can be:
+
+         I didn't appear (and the letter had one recipient)
+   :     I didn't appear (and the letter had more than one recipient)
+   <     I was the sole recipient
+   +     I was among a few recipients
+   *     There were many recipients
+
+The second column represents the Cc: field:
+
+    .    I wasn't mentioned, but one other was
+    :    I wasn't mentioned, but others were
+    ^    I was the only Cc mentioned
+    &    I was among a few Cc recipients
+    %    I was among many Cc recipients
+
+These can combine in some ways to tell you at a glance how visible the message
+is:
+
+   >.    Someone wrote to me and one other
+    &    I was copied along with several other people
+   *:    Mail to lots of people in both the To and Cc!"
+  (let* ((to (or (cdr (assoc 'To (mail-header-extra header))) ""))
+         (cc (or (cdr (assoc 'Cc (mail-header-extra header))) ""))
+         (to-len (length (split-string to "\\s-*,\\s-*")))
+         (cc-len (length (split-string cc "\\s-*,\\s-*")))
+         (to-char (cond )))
+    (cond ((string-match gnus-ignored-from-addresses to)
+           (cond ((= to-len 1)
+                  (cond ((string= cc "") "< ")
+                        ((= cc-len 1) "<.")
+                        (t "<:")))
+                 ((< to-len gnus-count-recipients-threshold)
+                  (cond ((string= cc "") "+ ")
+                        ((= cc-len 1) "+.")
+                        (t "+:")))
+                 (t
+                  (cond ((string= cc "") "* ")
+                        ((= cc-len 1) "*.")
+                        (t "*:")))))
+
+          ((string-match gnus-ignored-from-addresses cc)
+           (cond ((= cc-len 1)
+                  (cond ((= to-len 1) " ^")
+                        (t ":^")))
+                 ((< cc-len gnus-count-recipients-threshold)
+                  (cond ((= to-len 1) " &")
+                        (t ":&")))
+                 (t
+                  (cond ((= to-len 1) " %")
+                        (t ":%")))))
+          (t "  "))))
+
+#+end_src
+
+*** gnus-dired
+
+#+begin_src emacs-lisp 
+
+(use-package gnus-dired
+  :commands gnus-dired-mode
+  :init
+  (add-hook 'dired-mode-hook 'gnus-dired-mode))
+
+#+end_src 
+  
+**** gnus scoring
+
+#+begin_src emacs-lisp 
+
+(use-package my-gnus-score
+  :init
+  (progn
+    (defun gnus-group-get-all-new-news ()
+      (interactive)
+      (gnus-group-get-new-news 5)
+      (gnus-group-list-groups 4)
+      (my-gnus-score-groups)
+      (gnus-group-list-groups 4))
+
+    (define-key gnus-group-mode-map [?v ?g] 'gnus-group-get-all-new-news)))
+
+#+end_src     
+
+**** gnus daemon
+
+#+begin_src emacs-lisp :tangle no
+
+(use-package gnus-demon
+  :init
+  (progn
+    (defun gnus-demon-scan-news-2 ()
+      (when gnus-plugged
+        (let ((win (current-window-configuration))
+              (gnus-read-active-file nil)
+              (gnus-check-new-newsgroups nil)
+              (gnus-verbose 2)
+              (gnus-verbose-backends 5))
+          (unwind-protect
+              (save-window-excursion
+                (when (gnus-alive-p)
+                  (with-current-buffer gnus-group-buffer
+                    (gnus-group-get-new-news gnus-activate-level))))
+            (set-window-configuration win)))))
+
+    (gnus-demon-add-handler 'gnus-demon-scan-news-2 5 2)
+
+#+end_src
+
+#+begin_src emacs-lisp :tangle no
+
+    (defun save-gnus-newsrc ()
+      (if (and (fboundp 'gnus-group-exit)
+               (gnus-alive-p))
+          (with-current-buffer (get-buffer "*Group*")
+            (gnus-save-newsrc-file))))
+
+    (gnus-demon-add-handler 'save-gnus-newsrc nil 1)))
+
+#+end_src     
+
+#+begin_src emacs-lisp :tangle no
+
+(use-package nnir
+  :init
+  (progn
+    (defun activate-gnus ()
+      (unless (get-buffer "*Group*") (gnus)))
+
+    (defun gnus-goto-article (message-id)
+      (activate-gnus)
+      (gnus-summary-read-group "INBOX" 15 t)
+      (gnus-summary-refer-article message-id))
+
+    (defvar gnus-query-history nil)
+
+    (defun gnus-query (query &optional arg)
+      (interactive
+       (list (read-string (format "IMAP Query %s: "
+                                  (if current-prefix-arg "All" "Mail"))
+                          (format-time-string "SENTSINCE %d-%b-%Y "
+                                              (time-subtract (current-time)
+                                                             (days-to-time 90)))
+                          'gnus-query-history)
+             current-prefix-arg))
+      (activate-gnus)
+      (let ((nnir-imap-default-search-key "imap")
+            (nnir-ignored-newsgroups
+             (if arg
+                 (concat "\\`" (regexp-opt
+                                '("archive"
+                                  "archive.emacs"
+                                  "list"
+;;                                  "list.bahai"
+;;                                  "list.boost"
+;;                                  "list.clang"
+                                  "list.emacs"
+;;                                  "list.isocpp"
+;;                                  "list.ledger"
+;;                                  "list.llvm"
+;;                                  "list.wg21"
+                                  "mail"
+                                  "mail.save"
+                                  "Drafts"
+                                  "Sent Messages"))
+                         "\\'")
+               "\\`\\(\\(list\\|archive\\)\\.\\|mail\\.\\(spam\\|save\\)\\)")))
+        (gnus-group-make-nnir-group
+         nil `((query    . ,query)
+               (criteria . "")
+               (server   . "nnimap:Local")))))
+
+    (define-key global-map [(alt meta ?f)] 'gnus-query)))
+
+#+end_src     
+
+**** Gnus harvest - eventually use this
+
+#+begin_src emacs-lisp :tangle no
+
+(use-package gnus-harvest
+  :init
+  (if (featurep 'message-x)
+      (gnus-harvest-install 'message-x)
+    (gnus-harvest-install)))
+
+#+end_src 
+
+#+begin_src emacs-lisp 
+
+(use-package gnus-alias
+  :commands (gnus-alias-determine-identity
+             gnus-alias-message-x-completion
+             gnus-alias-select-identity)
+  :init
+  (progn
+    (add-hook 'message-setup-hook 'gnus-alias-determine-identity)
+
+    (if (featurep 'message-x)
+        (add-hook 'message-x-after-completion-functions
+                  'gnus-alias-message-x-completion))
+
+    (define-key message-mode-map "\C-c\C-f\C-p" 'gnus-alias-select-identity)))
+
+(use-package rs-gnus-summary
+  :init
+  (progn
+    (defalias 'gnus-user-format-function-size
+      'rs-gnus-summary-line-message-size)
+
+    (setq gnus-balloon-face-0 'rs-gnus-balloon-0)
+    (setq gnus-balloon-face-1 'rs-gnus-balloon-1)))
+
+(use-package supercite
+  :commands sc-cite-original
+  :init
+  (add-hook 'mail-citation-hook 'sc-cite-original)
+  :config
+  (defun sc-fill-if-different (&optional prefix)
+    "Fill the region bounded by `sc-fill-begin' and point.
+Only fill if optional PREFIX is different than
+`sc-fill-line-prefix'.  If `sc-auto-fill-region-p' is nil, do not
+fill region.  If PREFIX is not supplied, initialize fill
+variables.  This is useful for a regi `begin' frame-entry."
+    (if (not prefix)
+        (setq sc-fill-line-prefix ""
+              sc-fill-begin (line-beginning-position))
+      (if (and sc-auto-fill-region-p
+               (not (string= prefix sc-fill-line-prefix)))
+          (let ((fill-prefix sc-fill-line-prefix))
+            (unless (or (string= fill-prefix "")
+                        (save-excursion
+                          (goto-char sc-fill-begin)
+                          (or (looking-at ">+  +")
+                              (< (length
+                                  (buffer-substring (point)
+                                                    (line-end-position)))
+                                 65))))
+              (fill-region sc-fill-begin (line-beginning-position)))
+            (setq sc-fill-line-prefix prefix
+                  sc-fill-begin (line-beginning-position)))))
+    nil))
+
+(use-package browse-url
+  :commands browse-url
+  :init
+  (progn
+    (defun gnus-article-get-urls-region (min max)
+      "Return a list of urls found in the region between MIN and MAX"
+      (let (url-list)
+        (save-excursion
+          (save-restriction
+            (narrow-to-region min max)
+            (goto-char (point-min))
+            (while (re-search-forward gnus-button-url-regexp nil t)
+              (let ((match-string (match-string-no-properties 0)))
+                (if (and (not (equal (substring match-string 0 4) "file"))
+                         (not (member match-string url-list)))
+                    (setq url-list (cons match-string url-list)))))))
+        url-list))
+
+    (defun gnus-article-get-current-urls ()
+      "Return a list of the urls found in the current `gnus-article-buffer'"
+      (let (url-list)
+        (with-current-buffer gnus-article-buffer
+          (setq url-list
+                (gnus-article-get-urls-region (point-min) (point-max))))
+        url-list))
+
+    (defun gnus-article-browse-urls ()
+      "Visit a URL from the `gnus-article-buffer' by showing a
+buffer with the list of URLs found with the `gnus-button-url-regexp'."
+      (interactive)
+      (gnus-configure-windows 'article)
+      (gnus-summary-select-article nil nil 'pseudo)
+      (let ((temp-buffer (generate-new-buffer " *Article URLS*"))
+            (urls (gnus-article-get-current-urls))
+            (this-window (selected-window))
+            (browse-window (get-buffer-window gnus-article-buffer))
+            (count 0))
+        (save-excursion
+          (save-window-excursion
+            (with-current-buffer temp-buffer
+              (mapc (lambda (string)
+                      (insert (format "\t%d: %s\n" count string))
+                      (setq count (1+ count))) urls)
+              (not-modified)
+              (pop-to-buffer temp-buffer)
+              (setq count
+                    (string-to-number
+                     (char-to-string (if (fboundp
+                                          'read-char-exclusive)
+                                         (read-char-exclusive)
+                                       (read-char)))))
+              (kill-buffer temp-buffer)))
+          (if browse-window
+              (progn (select-window browse-window)
+                     (browse-url (nth count urls)))))
+        (select-window this-window)))
+
+    (define-key gnus-summary-mode-map [(control ?c) (control ?o)]
+      'gnus-article-browse-urls)
+    (define-key gnus-article-mode-map [(control ?c) (control ?o)]
+      'gnus-article-browse-urls)))
+
+#+end_src       
 
 *** saving mail locally & settings
 
@@ -4073,21 +4910,11 @@ Require unix zip commandline tool."
 ;;     (setq gnus-init-file (expand-file-name "dkh-gnus" user-emacs-directory)
 ;;           gnus-home-directory "~/git/gnus")))
 
+;;   :bind (("M-G"   . switch-to-gnus)
+;;          ("C-x m" . compose-mail))
 
+(global-set-key (kbd "C-x m") 'compose-mail)
 
-(require 'gnus)
-
-(setq nnml-directory "~/git/gnus/Mail")
-(setq message-directory "~/git/gnus/Mail")
-(setq gnus-article-save-directory "~/git/gnus/News")
-(setq gnus-cache-directory "~/git/gnus/News/cache")
-(setq gnus-kill-files-directory "~/git/gnus/.gnuskillfiled")
-
-#+end_src
-
-#+begin_src emacs-lisp 
-
-  (setq gnus-ignored-newsgroups "^to\\.\\|^[0-9. ]+\\(\\|$\\)\\|^[\”]\”[#’()]")
 
 #+end_src 
 
@@ -4101,7 +4928,7 @@ in my gnu init file (see below)
 
 *** More attractive Summary View
 
-#+begin_src emacs-lisp
+#+begin_src emacs-lisp :tangle no
 
        (starter-kit-load "gnus" "pretty-summary")
 
@@ -4419,21 +5246,6 @@ variables in your `~/.gnus.el' file. This file is similar to
 
 #+begin_src emacs-lisp 
 
-(setq gnus-startup-file "~/git/gnus/.newsrc")
-       (setq gnus-directory "~/git/gnus/News")
-     (setq gnus-dribble-directory "~/git/gnus/")
-
-     (setq nntp-marks-directory "~/git/gnus/News/")
-     (setq nndraft-directory "~/git/gnus/News/drafts/")
-;;     (setq nndraft-current-directory "~/git/gnus/News/drafts/")
-   (setq mail-default-directory "~/git/gnus/Mail")
-   (setq gnus-default-directory "~/git/gnus")
-   (setq nnmail-message-id-cache-file "~/git/gnus/nnmail_cache")
-
-
-(setq gnus-summary-save-parts-last-directory "~/Downloads")
-
-
 ;; (require 'info)
   (if (featurep 'xemacs)
       (add-to-list 'Info-directory-list "~/.emacs.d/el-get/nognus/texi/")
@@ -4516,13 +5328,20 @@ variables in your `~/.gnus.el' file. This file is similar to
       gnus-recent-mark ?\u2605
       gnus-unseen-mark ?\u2729
       gnus-unread-mark ?\u2709
-      gnus-summary-line-format (concat "%{|%}"
-                                       "%U%R%z"
-                                       "%{|%}"
-                                       "%(%-18,18f"
-                                       "%{|%}"
-                                       "%*%{%B%} %s%)"
-                                       "\n"))
+)
+
+(setq gnus-summary-line-format "%«%U%R %uS %ur %»%(%*%-14,14f   %1«%B%s%»%)
+ ")
+
+;;       gnus-summary-line-format (concat "%{|%}"
+;;                                        "%U%R%z"
+;;                                        "%{|%}"
+;;                                        "%(%-18,18f"
+;;                                        "%{|%}"
+;;                                        "%*%{%B%} %s%)"
+;;                                        "\n"))
+
+
 #+end_src                                        
 
 *** New settings
@@ -4531,8 +5350,8 @@ variables in your `~/.gnus.el' file. This file is similar to
 
 (setq message-kill-buffer-on-exit t)
 (setq gnus-fetch-old-headers 'some)
-(setq gnus-asynchronous t)
-(setq gnus-agent-synchronize-flags t)
+
+
 
 ;; Unbind this key; it's annoying!
 (define-key gnus-summary-mode-map "o" (lambda () (interactive)))
@@ -4541,152 +5360,6 @@ variables in your `~/.gnus.el' file. This file is similar to
 
 #+end_src 
 
-*** from jwiegley
-
-#+begin_src emacs-lisp 
-
-
-
-(setq
- gnus-after-getting-new-news-hook (quote (gnus-group-list-groups gnus-group-save-newsrc gnus-display-time-event-handler))
-)
-
-(setq gnus-started-hook (quote ((lambda nil (run-hooks (quote gnus-after-getting-new-news-hook))))))
-
-#+end_src 
-
-*** gnus aliases
-
-#+begin_src emacs-lisp :tangle no
-
-(require 'gnus-alias)
-
-(setq
-gnus-alias-default-identity "Gmail"
-gnus-alias-identity-alist (quote (("Gmail" "" nil "" nil "" "") ("BoostPro" "" "\"John Wiegley\" <johnw@boostpro.com>" "BoostPro Computing, Inc." nil "" "John Wiegley BoostPro Computing http://www.boostpro.com") ("NewArtisans" "" "\"John Wiegley\" <johnw@newartisans.com>" "New Artisans LLC" nil "" "")))
-gnus-alias-identity-rules (quote (("Ledger Mailing List" ("To" "ledger-cli@googlegroups\\.com" current) "Newartisans") ("Emacs Mailing Lists" ("To" "emacs" current) "Newartisans") ("BoostPro Mail" ("From" "@boostpro\\.com" current) "BoostPro") ("BoostPro Clients" ("To" "@\\(ti\\)\\.com" current) "BoostPro") ("BoostPro Clients (Copied)" ("Cc" "@\\(ti\\)\\.com" current) "BoostPro") ("C++, LLVM, Boost, and Clang Groups" ("Newsgroups" "\\(c\\+\\+\\|clang\\|llvm\\|[Bb]oost\\|[Rr]yppl\\)" current) "BoostPro") ("C++, LLVM, Boost, and Clang Mailing Lists" ("To" "\\(c\\+\\+\\|clang\\|llvm\\|[Bb]oost\\|[Rr]yppl\\)" current) "BoostPro")))
-gnus-alias-override-user-mail-address t
-gnus-alias-unknown-identity-rule (quote error))
-
-#+end_src 
-
-*** dribble file
-
-#+begin_src emacs-lisp 
-
-(setq gnus-always-read-dribble-file t)
-
-
-#+end_src
-
-#+begin_src emacs-lisp 
-
-(setq gnus-completing-read-function (quote gnus-ido-completing-read))
-
-(setq gnus-default-article-saver (quote gnus-summary-write-to-file))
-
-#+end_src 
-
-*** Gnus group line format
-
-#+begin_src emacs-lisp
-
-(setq gnus-group-line-format "%S%p%P%M%5y: %(%B%G%B%)
-")
-
-;; gnus-group-line-format "%M%S%p%P%(%-40,40G%)%-5uy %ud\n"
-
-#+end_src 
-
-#+begin_src emacs-lisp 
-
-;; group topics
-(add-hook 'gnus-group-mode-hook 'gnus-topic-mode)
-
-
-;; (setq gnus-group-mode-hook (quote (gnus-topic-mode gnus-agent-mode hl-line-mode)))
-
-#+end_src
-
-#+begin_src emacs-lisp 
-
-(setq gnus-group-use-permanent-levels t)
-
-#+end_src
-
-*** ;; no need for .newsrc - rely on .newsrc.eld instead since only using gnus
-
-#+begin_src emacs-lisp 
-
-(setq gnus-read-newsrc-file nil)
-(setq gnus-save-newsrc-file nil)
-
-#+end_src 
-
-*** Scoring
-
-#+begin_src emacs-lisp 
-
-(setq gnus-score-default-duration (quote p))
-(setq gnus-score-expiry-days 30)
-#+end_src 
-
-*** sig
-
-#+begin_src emacs-lisp 
-
-(setq gnus-signature-separator (quote ("^-- $" "^-- *$" "^_____+$")))
-
-#+end_src 
-
-#+begin_src emacs-lisp 
-
-
-(setq gnus-simplify-subject-functions (quote (gnus-simplify-subject-fuzzy)))
-
-;;(setq gnus-sort-gathered-threads-function (quote gnus-thread-sort-by-date) t)
-#+end_src 
-
-#+begin_src emacs-lisp 
-
-(setq gnus-subscribe-newsgroup-method (quote gnus-subscribe-topics))
-
-#+end_src
-
-#+begin_src emacs-lisp 
-
-(setq gnus-sum-thread-tree-single-indent "  ")
-
-#+end_src 
-
-#+begin_src emacs-lisp 
-
-(setq gnus-summary-save-parts-default-mime ".*")
-
-#+end_src 
-
-#+begin_src emacs-lisp 
-
-(setq gnus-suspend-gnus-hook (quote (gnus-group-save-newsrc)))
-
-#+end_src 
-
-*** Topic line format
-
-#+begin_src emacs-lisp 
-
-(setq gnus-topic-line-format "%i[ %A: %(%{%n%}%) ]%v
-")
-
-#+end_src 
-
-*** always decrypt
-
-#+begin_src emacs-lisp 
-
-(setq mm-decrypt-option (quote always))
-
-#+end_src 
 
 
 *** Remaining settings
@@ -4694,7 +5367,7 @@ gnus-alias-unknown-identity-rule (quote error))
 #+begin_src emacs-lisp 
 
 (setq gnus-novice-user nil)
-(setq gnus-verbose 9)
+
 
 
 
@@ -4724,35 +5397,26 @@ gnus-alias-unknown-identity-rule (quote error))
  gnus-inhibit-mime-unbuttonizing t
  gnus-article-skip-boring t
  gnus-expert-user t
- gnus-treat-strip-multiple-blank-lines 'last
-;; gnus-fetch-old-headers nil
- gnus-thread-hide-subtree nil
+
  gnus-indent-thread-level 1
  gnus-build-sparse-threads nil
- gnus-topic-display-empty-topics nil
+
  gnus-use-nocem t
  gnus-use-full-window nil     ;; do not destroy other windows
- gnus-use-adaptive-scoring nil
+
  )
 
 
-;; sort summary
-(setq 
- gnus-thread-sort-functions '(gnus-thread-sort-by-number
-                              (not gnus-thread-sort-by-date))
- )
 
 (setq
  gnus-no-groups-message "No Gnus for Daemon."
- gnus-gcc-mark-as-read t
- gnus-summary-expunge-below 0
+ 
  mail-imenu-generic-expression '(("Subject"  "^Subject: *\\(.*\\)" 1)
                                  ("Cc"     "^C[Cc]: *\\(.*\\)" 1)
                                  ("To"     "^To: *\\(.*\\)" 1)
                                  ("From"  "^From: *\\(.*\\)" 1))
  ;; whether gnus bothers with faces. It should!
- mail-user-agent 'gnus-user-agent
- mail-source-delete-incoming nil
+  
  message-forward-ignored-headers "^Content-Transfer-Encoding:\\|^X-Gnus:\\|^To:\\|^Cc:\\|^From"
  message-make-forward-subject-function (quote message-forward-subject-fwd)
  gnus-visual t
@@ -4777,9 +5441,6 @@ gnus-alias-unknown-identity-rule (quote error))
  )
 
 
-;; Always want to see important groups regardless of whether they are empty.
-(setq gnus-permanently-visible-groups (
-                                       rx(or ".*INBOX" "INBOX.mail" "INBOX.unsorted" "INBOX.mail.unsorted" "unsorted_hushmail" "unsorted_innovate" "list.Sent Items" "Sent Items" "INBOX.monika_fleshner" "INBOX.patricia_rankin" "INBOX.merlyn.holmes" "INBOX.gretchen_oconnell" "INBOX.stein_sture" "INBOX.daryl_kohlerschmidt" "INBOX.managed_services" "INBOX.laima" "laima" "JUNK" "OUTBOX" "TRASH")))
 
 ;;       gnus-permanently-visible-groups "\\.*"
 ;; all mails should be always displayed in the mailbox
@@ -4790,17 +5451,15 @@ gnus-alias-unknown-identity-rule (quote error))
  ;; from http://nijino.homelinux.net/emacs/.gnus.el
  gnus-signature-limit 8.0
 
- ;; when to prompt for how many
- ;; gnus-large-newsgroup 100
- gnus-large-newsgroup 20
+ 
  )
 
 (setq
  gnushush-sender-header (quote none)
  gnushush-user-agent-header (quote none)
 
- ;; nnmail Setup
- nnmail-crosspost nil
+ 
+ 
  )
 
 ;; From pop sources
@@ -4826,20 +5485,17 @@ gnus-alias-unknown-identity-rule (quote error))
  message-cite-function 'message-cite-original-without-signature
  ;;       message-required-news-headers (remove' Message-ID message-required-news-headers)
  ;;       message-required-mail-headers (remove' Message-ID message-required-mail-headers)
- ;; no limit to attachment size
- message-send-mail-partially-limit nil
  ;; Use emacs-w3m to render html mails and display images
  gnus-mime-display-multipart-related-as-mixed t
 
- mm-inline-text-html-with-images t
  mm-inline-large-images t
- mm-verify-option 'always
- mm-attachment-override-types '("image/.*")
+ 
+
  mm-external-terminal-program (quote urxvt)
- gnus-ignored-mime-types '("text/x-vcard")
+
  w3m-w3mkey-binding 'info
  w3m-safe-url-regexp nil
- mm-w3m-safe-url-regexp nil
+ 
  )
 
 
@@ -4896,13 +5552,6 @@ gnus-alias-unknown-identity-rule (quote error))
 (define-key gnus-article-mode-map (kbd "<deletechar>") 'gnus-article-goto-prev-page)
 
 
-;; Set the default value of mm-discouraged-alternatives.
-(eval-after-load "gnus-sum"
-  '(add-to-list
-    'gnus-newsgroup-variables
-    '(mm-discouraged-alternatives
-      . '("text/html" "image/.*" "text/richtext")))
-  )
 
 
 (eval-after-load 'gnus-art
@@ -8602,8 +9251,6 @@ needed.
 
 *** For Gnus
 #+begin_src emacs-lisp 
-
-(setq mm-text-html-renderer 'w3m)
 
 ;;(define-key gnus-article-mode-map (kbd "M-w") 'org-w3m-copy-for-org-mode)
 (define-key gnus-article-mode-map (kbd "C-c C-x M-w") 'org-w3m-copy-for-org-mode)
