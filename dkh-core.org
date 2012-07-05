@@ -4123,7 +4123,7 @@ Require unix zip commandline tool."
 ;; gnus-group-line-format "%M%S%p%P%(%-40,40G%)%-5uy %ud\n"
 
 
- (setq gnus-group-mode-hook (quote (gnus-topic-mode gnus-agent-mode hl-line-mode)))
+ (setq gnus-group-mode-hook (quote (gnus-topic-mode gnus-agent-mode)))
 
 ;; (add-hook 'gnus-group-mode-hook 'gnus-topic-mode)
 ;; (add-hook 'gnus-group-mode-hook 'hl-line-mode)
@@ -4324,6 +4324,29 @@ Require unix zip commandline tool."
 
 
 (setq gnus-summary-save-parts-last-directory "~/Downloads")
+
+
+#+end_src 
+
+*** Keep threads collapsed
+
+
+> I have threaded on, but I like threads to start out collapsed in my
+> summary buffer. However, whenever I enter a group, it always expands
+> the very first thread -- the one point is on. I find myself often
+> hitting "T H" to re-collapse this.
+
+> I've searched, but not found any configuration option to control this.
+> Is there something that will keep all threads collapsed until
+> I actually start reading?
+
+- Do not enter the group with SPC, but with RET instead.
+
+- Or use this setting :
+
+#+begin_src emacs-lisp 
+
+  (setq gnus-auto-select-first nil)
 
 
 #+end_src 
