@@ -489,6 +489,7 @@ annotate your elisp in the following file:
         'workgroups
         'xml-rpc
         'yaml-mode
+        'zencoding-mode
 ))
 
 (package-refresh-contents)
@@ -4456,13 +4457,17 @@ Require unix zip commandline tool."
 
 #+end_src 
 
-#+begin_src emacs-lisp :tangle no
+#+begin_src emacs-lisp
 
 (defun queue-message-if-not-connected ()
   (set (make-local-variable 'gnus-agent-queue-mail)
-       (if (quickping "smtp.gmail.com") t 'always)))
+       (if (quickping "smtp.colorado.edu") t 'always)))
 
 (add-hook 'message-send-hook 'queue-message-if-not-connected)
+
+#+end_src 
+
+#+begin_src emacs-lisp :tangle no
 
 (defun kick-postfix-if-needed ()
   (if (and (quickping "imap.gmail.com")
