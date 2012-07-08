@@ -4086,13 +4086,23 @@ Require unix zip commandline tool."
 (setq gnus-activate-level 2)
 (setq gnus-after-getting-new-news-hook (quote (gnus-group-list-groups gnus-group-save-newsrc gnus-display-time-event-handler)))
 
+#+end_src 
 
- 
+*** Gnus agent
+
+#+begin_src emacs-lisp
+
  (setq gnus-agent-expire-all t)
  (setq gnus-agent-expire-days 14)
  (setq gnus-agent-go-online t)
  (setq gnus-agent-mark-unread-after-downloaded nil)
  (setq gnus-agent-synchronize-flags t)
+
+#+end_src 
+
+
+#+begin_src emacs-lisp 
+
 ;; (setq gnus-alias-default-identity "cu)
 ;; (setq gnus-alias-identity-alist (quote (("cu" "" nil "" nil "" "")
 ;; ("VinylIsland" "" "\"Damon Haley\" <dkh@member.fsf.org>" "University of
@@ -4124,11 +4134,12 @@ Require unix zip commandline tool."
 ;; gnus-group-line-format "%M%S%p%P%(%-40,40G%)%-5uy %ud\n"
 
 
- (setq gnus-group-mode-hook (quote (gnus-topic-mode gnus-agent-mode)))
+;;(add-hook 'gnus-group-mode-hook 'gnus-topic-mode)
 
-;; (add-hook 'gnus-group-mode-hook 'gnus-topic-mode)
+(setq gnus-group-mode-hook (quote (gnus-topic-mode gnus-agent-mode)))
+
 ;; (add-hook 'gnus-group-mode-hook 'hl-line-mode)
-
+;;(setq gnus-agent nil)
 
 (setq gnus-group-use-permanent-levels t)
  (setq gnus-harvest-sender-alist (quote
