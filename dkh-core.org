@@ -4090,7 +4090,7 @@ Require unix zip commandline tool."
 
 *** Gnus agent
 
-#+begin_src emacs-lisp
+#+begin_src emacs-lisp :tangle no
 
  (setq gnus-agent-expire-all t)
  (setq gnus-agent-expire-days 14)
@@ -4134,12 +4134,12 @@ Require unix zip commandline tool."
 ;; gnus-group-line-format "%M%S%p%P%(%-40,40G%)%-5uy %ud\n"
 
 
-;;(add-hook 'gnus-group-mode-hook 'gnus-topic-mode)
+(add-hook 'gnus-group-mode-hook 'gnus-topic-mode)
 
-(setq gnus-group-mode-hook (quote (gnus-topic-mode gnus-agent-mode)))
+;;(setq gnus-group-mode-hook (quote (gnus-topic-mode gnus-agent-mode)))
 
 ;; (add-hook 'gnus-group-mode-hook 'hl-line-mode)
-;;(setq gnus-agent nil)
+(setq gnus-agent nil)
 
 (setq gnus-group-use-permanent-levels t)
  (setq gnus-harvest-sender-alist (quote
