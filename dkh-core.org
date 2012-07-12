@@ -348,6 +348,9 @@ annotate your elisp in the following file:
 (add-to-list 'load-path (expand-file-name "~/git/src/gnus/lisp"))
    (require 'gnus-load)
 
+
+(add-to-list 'load-path "~/git/src/org-jira")
+
 ;;(add-to-list 'load-path (expand-file-name "~/git/src/use-package"))
 
 
@@ -409,11 +412,12 @@ annotate your elisp in the following file:
    erc-nick-notify
    face-list
    fliptext
-   gnus-alias
+;;   gnus-alias
    gnus-harvest
    grep+
    ipa
    keychain-environment
+;;   org-jira
    paste2
    protbuf
    psvn
@@ -466,6 +470,7 @@ annotate your elisp in the following file:
         'fill-column-indicator
         'gist
         'guru-mode
+        'jira
         'js2-mode
         'key-chord
         'lorem-ipsum
@@ -2780,6 +2785,27 @@ That's even better! The variable holiday-local-holidays could be another choice.
 
 #+end_src 
 
+** org Jira
+
+#+begin_src emacs-lisp 
+
+(require 'jira)
+(setq jira-url "https://cuboulder.atlassian.net//rpc/xmlrpc")
+
+
+;; you need make sure whether the "/jira" at the end is 
+;; necessary or not, see discussion at the end of this page
+
+(require 'org-jira) 
+(setq jiralib-url "https://cuboulder.atlassian.net") 
+;; jiralib is not explicitly required, since org-jira will load it.
+
+(setq org-jira-working-dir "~/git/dkh-org/.org-jira")
+(setq org-jira-current-project "FIT")
+
+
+
+#+end_src 
 
 * Navigation (Driving the car)
 ** Ibuffer
@@ -4268,7 +4294,7 @@ Require unix zip commandline tool."
   (setq message-send-mail-partially-limit nil)
  (setq message-sendmail-envelope-from (quote header))
  (setq message-sent-hook (quote (my-gnus-score-followup)))
- (setq message-setup-hook (quote (gnus-alias-determine-identity gnus-harvest-set-from message-check-recipients (lambda nil (bbdb-mail-aliases t)))))
+;; (setq message-setup-hook (quote (gnus-alias-determine-identity gnus-harvest-set-from message-check-recipients (lambda nil (bbdb-mail-aliases t)))))
  (setq message-signature-separator "^-- *$")
  (setq message-subscribed-address-functions (quote (gnus-find-subscribed-addresses)))
 
@@ -4449,6 +4475,8 @@ Require unix zip commandline tool."
                 "INBOX"))))))
 
 (add-hook 'message-header-setup-hook 'my-message-header-setup-hook)
+
+
 
 (defadvice gnus-summary-resend-message-edit (after call-my-mhs-hook activate)
   (my-message-header-setup-hook))
@@ -4818,7 +4846,7 @@ is:
 
 #+end_src 
 
-#+begin_src emacs-lisp 
+#+begin_src emacs-lisp :tangle no
 
 (use-package gnus-alias
   :commands (gnus-alias-determine-identity
@@ -4833,6 +4861,10 @@ is:
                   'gnus-alias-message-x-completion))
 
     (define-key message-mode-map "\C-c\C-f\C-p" 'gnus-alias-select-identity)))
+
+#+end_src 
+
+#+begin_src emacs-lisp 
 
 (use-package rs-gnus-summary
   :init
@@ -5030,6 +5062,12 @@ in my gnu init file (see below)
 
 ;;           (require 'miniedit)
 
+#+end_src 
+
+
+#+begin_src emacs-lisp :tangle no
+
+
 (defun store-gnus-outgoing-message-group ()
   (cond ((and gnus-newsgroup-name
               (not (message-news-p))
@@ -5040,6 +5078,11 @@ in my gnu init file (see below)
 (setq gnus-outgoing-message-group nil
       gnus-level-subscribed 5)
 
+
+#+end_src 
+
+
+#+begin_src emacs-lisp 
 
 
 (defun dkh/unread-face (f)
@@ -5459,26 +5502,21 @@ variables in your `~/.gnus.el' file. This file is similar to
  message-forward-ignored-headers "^Content-Transfer-Encoding:\\|^X-Gnus:\\|^To:\\|^Cc:\\|^From"
  message-make-forward-subject-function (quote message-forward-subject-fwd)
  gnus-visual t
+)
 
- ;; SachaChua
- gnus-message-archive-group
- '((lambda (x)
-     (cond
-      ;; Store personal mail messages in the same group I started out in
-      ((string-match "mail.*" group) group)
-      ;; Store personal mail messages in the same group I started out in
-      ((string-match "INBOX.*" group) group)
-      ;; I receive a copy of all messages I send to a list, so there's no need to archive
-      ((string-match "list.*" group) nil)
-      ;; Store everything else in mail.2011 until I can sort it out
-      (t (concat "mail." (format-time-string "%Y")))
-      )
-     )
-   )
- gnus-update-message-archive-method t
- gnus-message-archive-method gnus-select-method ;; this line is important
- )
+#+end_src 
 
+
+#+begin_src emacs-lisp :tangle no
+
+
+ 
+
+#+end_src 
+
+
+
+#+begin_src emacs-lisp 
 
 
 ;;       gnus-permanently-visible-groups "\\.*"
@@ -5711,24 +5749,6 @@ variables in your `~/.gnus.el' file. This file is similar to
 
 ***** autojoin
 
-#+begin_src emacs-lisp :tangle no
-
-(setq erc-autojoin-channels-alist
-(quote (("localhost" "&bitlbee")
-        (".*\\.freenode.net" "#emacs" "#conkeror" "#org-mode")
-        ("irc.debian.org" "#freedombox"))))
-
-(erc-autojoin-mode t)
-
-;; (setq erc-autojoin-channels-alist
-;;   '((".*\\.freenode.net" "#drupal-colorado" "#emacs" 
-;;   "#fsf-members" "#erc" "#conkeror" "#org-mode")
-;;      (".*\\.debian.org" "#freedombox")
-;; ;;     (".*\\.gimp.org" "#unix" "#gtk+")
-;; ;;     (".*\\.gnome.org" "#sparklehorse" "#gtk+")
-;; ))
-
-#+end_src 
 
 ***** erc keywords
 
@@ -5824,6 +5844,8 @@ but not mobile urls.")
 *** ERC initialization
 
 #+begin_src emacs-lisp 
+
+(setq netrc-file "~/git/.emacs.d/.authinfo.gpg")
 
 (use-package erc
   ;; :commands erc
@@ -5937,6 +5959,27 @@ FORM => (eval FORM)."
 #+end_src       
 
 
+*** Jabber conference room backlog
+
+When you enter a Jabber conference room, past messages from people no longer in the room are formatted as
+
+    <root> System message: Message from unknown participant ajk: ...
+
+The following elisp reformats them more legibly:
+
+#+begin_src emacs-lisp 
+
+    (defun my-reformat-jabber-backlog ()
+      "Fix \"unkown participant\" backlog messages from bitlbee."
+      (save-excursion
+        (goto-char (point-min))
+        (if (looking-at
+    	 "^<root> System message: Message from unknown participant \\([^:]+\\):")
+    	(replace-match "<\\1>"))))
+    (add-hook 'erc-insert-modify-hook 'my-reformat-jabber-backlog)
+
+#+end_src 
+    
 ** Download utils
 
 #+begin_src emacs-lisp 
@@ -7507,23 +7550,6 @@ its content to reflect what's on-disk.
 
 [[http://emacs-fu.blogspot.com/2012/03/social-networking-with-bitlbee-and-erc.html][social networking with bitlbee and erc]]
 
-#+begin_src emacs-lisp :tangle no
-
-(defun i-wanna-be-social ()
-  "Connect to IM networks using bitlbee."
-  (interactive)
-  (erc :server "localhost" :port 6667 :nick "dkh")
-)
-
-(defun bitlbee-identify ()
-    (require 'bitlbee-secrets "~/git/.emacs.d/.secret/bitlbee-secrets.el.gpg")
-  (when (and (string= "localhost" erc-session-server)
-          (string= "&bitlbee" (buffer-name)))
-        (erc-message "PRIVMSG" (format "%s identify dkh secretpassword"
-                             (erc-default-target)
-                             dkh-bitlbee-password))))
-
-#+end_src 
 
 
 
