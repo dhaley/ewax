@@ -191,23 +191,25 @@ of useful information is printed, including information that appears
 in the EchoArea (except for keystroke echoes). You can adjust the
 number of messages kept in the buffer with the variable
 
-#+begin_src emacs-lisp 
 
-(setq message-log-max 1000)
+** initialization
 
-#+end_src
-
-*** initialization
 
 #+begin_src emacs-lisp 
 
+(setq message-log-max 16384)
+
+(defconst emacs-start-time (current-time))
+
+(unless noninteractive
+  (message "Loading %s..." load-file-name))
 
 (require 'use-package)
 
 #+end_src 
 
 
-**** Utility macros and functions
+** Utility macros and functions
 
 #+begin_src emacs-lisp 
 
@@ -228,10 +230,29 @@ number of messages kept in the buffer with the variable
   (= 0 (call-process "/sbin/ping" nil nil nil "-c1" "-W50" "-q" host)))
 
 
+(defun cleanup-term-log ()
+  "Do not show ^M in files containing mixed UNIX and DOS line endings."
+  (interactive)
+  (require 'ansi-color)
+  (ansi-color-apply-on-region (point-min) (point-max))
+  (goto-char (point-min))
+  (while (re-search-forward "\\(.\\|
+$\\|P.+\\\\\n\\)" nil t)
+    (overlay-put (make-overlay (match-beginning 0) (match-end 0))
+                 'invisible t))
+  (set-buffer-modified-p nil))
+
+(add-hook 'find-file-hooks
+          (function
+           (lambda ()
+             (if (string-match "/\\.iTerm/.*\\.log\\'"
+                               (buffer-file-name))
+                 (cleanup-term-log)))))
+
 #+end_src 
 
 
-**** Read system environment
+** Read system environment
 
 #+begin_src emacs-lisp
 
@@ -251,29 +272,40 @@ number of messages kept in the buffer with the variable
           (nreverse (split-string (getenv "PATH") ":")))))
 
 #+end_src 
-          
-****  Load customization settings
+
+   
+**  Load customization settings
+
 
 #+begin_src emacs-lisp 
-      
+
 (defvar running-alternate-emacs nil)
 
-(if (string= invocation-directory
-             "/Applications/EmacsAlt.app/Contents/MacOS/")
+#+end_src 
+    
+    
+#+begin_src emacs-lisp :tangle no
+
+
+
+(if (string-match (concat "/Applications/\\(Misc/\\)?"
+                          "Emacs\\([A-Za-z]+\\).app/Contents/MacOS/")
+                  invocation-directory)
 
     (let ((settings (with-temp-buffer
                       (insert-file-contents
                        (expand-file-name "settings.el" user-emacs-directory))
                       (goto-char (point-min))
-                      (read (current-buffer)))))
+                      (read (current-buffer))))
+          (suffix (downcase (match-string 2 invocation-directory))))
 
       (setq running-alternate-emacs t
             user-data-directory
-            (replace-regexp-in-string "/data/" "/data-alt/"
+            (replace-regexp-in-string "/data/" (format "/data-%s/" suffix)
                                       user-data-directory))
 
       (let* ((regexp "/\\.emacs\\.d/data/")
-             (replace "/.emacs.d/data-alt/"))
+             (replace (format "/.emacs.d/data-%s/" suffix)))
         (dolist (setting settings)
           (let ((value (and (listp setting)
                             (nth 1 (nth 1 setting)))))
@@ -284,7 +316,7 @@ number of messages kept in the buffer with the variable
 
         (eval settings)))
 
-  ;;(load (expand-file-name "settings" user-emacs-directory))
+;;  (load (expand-file-name "settings" user-emacs-directory))
 )
 
 #+end_src   
@@ -479,6 +511,7 @@ annotate your elisp in the following file:
         'oauth2
         'org2blog
         'org-mime
+;;        'org-outlook
         'pastebin
         'rainbow-delimiters
         'rainbow-mode
@@ -497,7 +530,7 @@ annotate your elisp in the following file:
         'zencoding-mode
 ))
 
-(package-refresh-contents)
+;; (package-refresh-contents)
 (dolist (package dkh-required-packages) (when (not (package-installed-p package)) (package-install package)))
 
 #+end_src 
@@ -1216,7 +1249,6 @@ simply put this in your `~/.emacs' file:
  '(diff-nonexistent ((t (:foreground "DarkBlue"))))
  '(diff-removed ((t (:foreground "firebrick"))))
  '(diff-removed2 ((t (:foreground "Orange"))))
- '(font-lock-comment-face ((((class color)) (:foreground "firebrick"))))
  '(helm-M-x-key ((t (:foreground "dark red" :underline t))))
  '(helm-candidate-number ((t (:background "#faffb5" :foreground "black"))))
  '(helm-selection ((t (:background "#b5ffd1" :underline t))))
@@ -1224,25 +1256,10 @@ simply put this in your `~/.emacs' file:
  '(helm-source-header ((t (:background "#abd7f0" :foreground "black" :underline t))))
  '(helm-visible-mark ((t (:background "#d1f5ae"))))
  '(hl-line ((t (:background "cornsilk"))))
- '(ledger-register-pending-face ((t (:weight bold))))
- '(lusty-match-face ((t (:inherit helm-match))))
- '(magit-branch-face ((((class color) (background light)) (:foreground "Blue"))))
- '(magit-diff-none-face ((((class color) (background light)) (:foreground "grey50"))))
  '(magit-header ((t (:weight bold))))
  '(magit-topgit-current ((t nil)))
  '(match ((t (:background "light cyan"))))
- '(slime-highlight-edits-face ((((class color) (background light)) (:background "gray98"))))
  '(trailing-whitespace ((((class color) (background light)) (:background "light salmon"))))
- '(wg-brace-face ((((class color)) (:foreground "dark slate blue"))))
- '(wg-command-face ((((class color)) (:foreground "dark cyan"))))
- '(wg-current-workgroup-face ((((class color)) (:foreground "black"))))
- '(wg-divider-face ((((class color)) (:foreground "dark slate blue"))))
- '(wg-filename-face ((((class color)) (:foreground "dark blue"))))
- '(wg-frame-face ((((class color)) (:foreground "black"))))
- '(wg-message-face ((((class color)) (:foreground "dark blue"))))
- '(wg-mode-line-face ((((class color)) (:foreground "dark blue"))))
- '(wg-other-workgroup-face ((((class color)) (:foreground "dark slate grey"))))
- '(wg-previous-workgroup-face ((((class color)) (:foreground "dark blue"))))
  '(whitespace-line ((t (:background "lemon chiffon" :foreground "dark violet")))))
 
 #+end_src 
@@ -5055,9 +5072,6 @@ in my gnu init file (see below)
 (copy-face 'my-gnus-face 'my-topic-face)
 
 
-(setq nntp-marks-is-evil t)
-
-
 ;; (require 'gnushush)
 
 ;;           (require 'miniedit)
@@ -5743,7 +5757,11 @@ variables in your `~/.gnus.el' file. This file is similar to
  '(erc-text-matched-hook (quote (erc-log-matches erc-hide-fools)))
  '(erc-track-enable-keybindings t)
  '(erc-track-exclude-types (quote ("JOIN" "KICK" "NICK" "PART" "QUIT" "MODE" "333" "353")))
- '(erc-track-faces-priority-list (quote (erc-error-face (erc-nick-default-face erc-current-nick-face) erc-current-nick-face erc-keyword-face (erc-nick-default-face erc-pal-face) erc-pal-face erc-nick-msg-face erc-direct-msg-face))))
+ '(erc-track-faces-priority-list (quote (erc-error-face
+ (erc-nick-default-face erc-current-nick-face) erc-current-nick-face
+ erc-keyword-face (erc-nick-default-face erc-pal-face) erc-pal-face
+ erc-nick-msg-face erc-direct-msg-face)))
+)
 
 #+end_src  
 
@@ -5792,6 +5810,8 @@ variables in your `~/.gnus.el' file. This file is similar to
 #+begin_src emacs-lisp 
 
 (setq erc-prompt ">")
+
+
 (setq erc-autojoin-timing :ident)
 (setq erc-fill-column 75)
 
@@ -5845,7 +5865,9 @@ but not mobile urls.")
 
 #+begin_src emacs-lisp 
 
-(setq netrc-file "~/git/.emacs.d/.authinfo.gpg")
+;;(setq netrc-file "~/git/.emacs.d/.authinfo.gpg")
+
+
 
 (use-package erc
   ;; :commands erc
