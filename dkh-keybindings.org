@@ -47,7 +47,9 @@ This is part of the [[file:dkh-core.org][E-Wax Starter Kit Instance]].
 (global-set-key (kbd "C-c y")  'wg-bury-buffer)
 (global-set-key (kbd "C-c z")  'org-table-insert-column)
 
-(global-set-key (kbd "C-x <f10>") 'dkh-eshell-macs)
+(global-set-key (kbd "C-8 e") 'dkh-eshell-macs)
+(global-set-key (kbd "C-8 g") 'git-fit)
+(global-set-key (kbd "C-8 a") 'visit-ansi-term)
 (global-set-key (kbd "C-x <f5>") 'repeat-complex-command)
 (global-set-key (kbd "C-x M") 'dkh-shell-with-name)
 (global-set-key (kbd "C-x M-m") 'shell)

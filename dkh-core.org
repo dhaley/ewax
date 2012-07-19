@@ -497,6 +497,7 @@ annotate your elisp in the following file:
         'buffer-move
         'color-theme
         'color-theme-solarized
+;;        'erc-alert
         'etags-select
         'expand-region
         'fill-column-indicator
@@ -3502,6 +3503,12 @@ Don't use a file dialog to ask for files
 ** Shells
 *** Eshell
 
+#+begin_src emacs-lisp 
+
+(setq eshell-aliases-file "~/git/.emacs.d/eshell/alias")
+
+#+end_src 
+
 #+begin_src emacs-lisp :tangle no
 
 (setq eshell-directory-name "~/git/.emacs.d/eshell/")
@@ -3596,7 +3603,7 @@ Don't use a file dialog to ask for files
           (find-file file))
 
 
-(setq eshell-aliases-file "~/git/.emacs.d/eshell/alias")
+
 
   (require 'em-smart)
   (setq eshell-where-to-jump 'begin)
@@ -3665,7 +3672,7 @@ a new ansi-term. Here is my enhanced elisp:
   "Creates an ansi-term and switches to it. If a buffer with name already exists, we simply switch to it."
   (let ((buffer-of-name (get-buffer (concat "*ansi-term-" (wg-name (wg-current-workgroup)))))
 ;;        (default-directory "/home/www")
-        (term-cmd "/bin/bash")
+        (term-cmd "/bin/zsh")
 )
     (cond ((bufferp buffer-of-name) ;If the buffer exists, switch to it (assume it is a shell)
            (switch-to-buffer buffer-of-name))
@@ -3675,9 +3682,28 @@ a new ansi-term. Here is my enhanced elisp:
               ;(process-send-string (get-buffer-process new-buff-name) (concat "cd " localdir "\n"))
               (rename-buffer  (concat "*ansi-term-" (wg-name (wg-current-workgroup)))))))))
 
-(global-set-key (kbd "C-x <f2>") 'visit-ansi-term)
+;;(global-set-key (kbd "C-8 a") 'visit-ansi-term)
 
 #+end_src 
+
+#+begin_src emacs-lisp 
+
+(defun visit-devel ()
+  (interactive)
+  "Creates an ansi-term and switches to it. If a buffer with name already exists, we simply switch to it."
+  (let ((buffer-of-name (get-buffer (concat "*ansi-term-" (wg-name (wg-current-workgroup)))))
+        (default-directory "/Users/daha1836/data/releases/fit/master")
+        (term-cmd "/bin/zsh")
+)
+    (cond ((bufferp buffer-of-name) ;If the buffer exists, switch to it (assume it is a shell)
+           (switch-to-buffer buffer-of-name))
+          ( t 
+            (progn
+              (ansi-term term-cmd)
+              ;(process-send-string (get-buffer-process new-buff-name) (concat "cd " localdir "\n"))
+              (rename-buffer  (concat "*ansi-term-" (wg-name (wg-current-workgroup)))))))))
+#+end_src 
+
 
 Localhost
 
@@ -3737,7 +3763,16 @@ frequently visit with it’s own buffer name and connection parameters:
   (interactive)
   (remote-term (concat "ansi-term-" (wg-name (wg-current-workgroup)) ) "ssh" "user@localhost"))
 
-(global-set-key (kbd "C-x <f6>") 'open-devel)
+
+(defun git-fit ()
+(interactive)
+(magit-status 
+(getenv "FIT_REPO")))
+
+;;(global-set-key (kbd "C-8 g") 'git-fit)
+
+
+(global-set-key (kbd "C-x <f6>") 'visit-devel)
 (global-set-key (kbd "C-x <f7>") 'open-test)
 (global-set-key (kbd "C-x <f8>") 'open-stage)
 (global-set-key (kbd "C-x <f9>") 'open-prod)
@@ -5719,11 +5754,7 @@ variables in your `~/.gnus.el' file. This file is similar to
 
 *** ERC settings
 
-**** orig settings
-
 #+begin_src emacs-lisp 
-
-;;(setq erc-user-full-name (quote user-full-name))
 
 (setq erc-user-full-name user-full-name)
 
@@ -5736,7 +5767,6 @@ variables in your `~/.gnus.el' file. This file is similar to
 
 (custom-set-variables
  '(erc-auto-query (quote window-noselect))
- ;; '(erc-autoaway-message "I'm away (after %i seconds of idle-time)")
  '(erc-autoaway-message "I'm at the cappuccino bar(after %i seconds of idle-time)")
  '(erc-fools (quote ("JordiGH")))
  '(erc-generate-log-file-name-function (quote erc-generate-log-file-name-short))
@@ -5765,15 +5795,13 @@ variables in your `~/.gnus.el' file. This file is similar to
 
 #+end_src  
 
-***** autojoin
-
 
 ***** erc keywords
 
 #+begin_src emacs-lisp 
 
-(setq erc-keywords '("\scu\s" "\stor\s" "boulder" "colorado" "Damon" "university"
-   "academic" "organic groups" "relation module" "contextual filter" "gmane" "gwene"
+(setq erc-keywords '("\scu\s" "\stor\s" "Damon" 
+   "relation module" "contextual filter" "gmane" "gwene"
    "usenet" "proxy" "privacy" "\ssocks\s"
    "gnus" "workgroups" "wireshark" "chaos tools" "hushmail" 
  "Stallman" "\sog\s" "compiz" "page manager" "super cookie" "[^\.]php"
@@ -5864,10 +5892,6 @@ but not mobile urls.")
 *** ERC initialization
 
 #+begin_src emacs-lisp 
-
-;;(setq netrc-file "~/git/.emacs.d/.authinfo.gpg")
-
-
 
 (use-package erc
   ;; :commands erc
@@ -6985,8 +7009,7 @@ expands it. Else indents the current line. Acts as normal in minibuffer."
 (defun dkh-eshell-macs ()
   (interactive)
   "Creates a tool config shell and switches to it. If a buffer with name already exists, we simply switch to it."
-  (let ((buffer-of-name (get-buffer (concat "*eshell-" (wg-name (wg-current-workgroup)) "-tool-config*")))
-        (default-directory "~/git/ewax"))
+  (let ((buffer-of-name (get-buffer (concat "*eshell-" (wg-name (wg-current-workgroup)) "-tool-config*"))))
     (cond ((bufferp buffer-of-name) ;If the buffer exists, switch to it (assume it is a shell)
            (switch-to-buffer buffer-of-name))
           ( t 
@@ -9066,8 +9089,8 @@ needed.
 
 
 (use-package sauron
-:bind (("C-. s" . sauron-toggle-hide-show)
-       ("C-. R" . sauron-clear)))
+:bind ("C-. s" . sauron-toggle-hide-show)
+       ("C-. R" . sauron-clear))
 
 #+end_src 
 
