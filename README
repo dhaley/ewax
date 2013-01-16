@@ -1,10 +1,12 @@
+DEPRECATED: replaced by https://github.com/dhaley/dot-emacs
+
 E-Wax emacs
 
 A bodacious literate elisp instance of Eric Schulte's Emacs Starter
 Kit.
 
 More power!
-［✔］Win［ ］Lose    
+［✔］Win［ ］Lose
 
 Here's what in the box:
 
@@ -16,9 +18,9 @@ Here's what in the box:
 * CLI like Tron would use - eterm and ani-term
 * Solarized Color Theme
 * El-get 3.1
-* PHP and Drupal helper functions and etags support    
+* PHP and Drupal helper functions and etags support
 * plus mo Rad Free Stuff
-            
+
 To use this config, you must first get Eric's starter kit implemented
 in emacs 24 following these installation instructions:
 
@@ -53,7 +55,7 @@ Okily Dokily!, now Download E-WAX
 
 % cd ~/.emacs.d
 % git submodule add https://github.com/dhaley/ewax.git $USER
-                      
+
 Now, let's run the E-WAX install script.
 
 % cd $USER
@@ -61,7 +63,7 @@ Now, let's run the E-WAX install script.
 
 This will take probably five to ten minutes while gnus and org-mode
 download (and byte compile your .el into .elc).
-    
+
 When the script is finished, run emacs, which will download some stuff
 with el-get.
 
@@ -69,13 +71,13 @@ You'll know el-get is done when you don't see any git clone action
 going on in your process list.
 
 % ps -ef | grep git
-            
+
 YOU'RE DONE!!!!!
 
 HOPEFULLY!!!
 
 ♡(✿ˇ◡ˇ)人(ˇ◡ˇ✿)♡
-    
+
 Starter Kit functionality that needs improvement:
 
 One thing I don't like about starter kit is that if one has all the
@@ -88,19 +90,19 @@ To prevent, that I always end my literate config files (in ~/emacs.d/$USER)
 #+begin_src emacs-lisp
 
 (message (concat "0 " (buffer-name) "... Done"))
-    
+
 #+end_src
-            
+
 Also, I included a MAKEFILE in E-Wax to automatically delete .el files
 generated from org-babel-tangle file. This is because as you change
 your configs, the starter kit is not smart enough to regenerate your
 files.
 
-It just does this: 	rm -f *.el
+It just does this:      rm -f *.el
 
 This assumes that you don't have any non-literate config files not
 generated from org-mode based config files.
-        
+
 E-WAX FUNCTIONALITY THAT NEEDS IMPROVEMENT ［ ］Pass［✔］Fail
 
 E-Wax needs much more annotation.  A lot of documentation and comments
@@ -116,13 +118,12 @@ gnus-init-file and needs to be moved into E-Wax.  It needs a lot of
 annotation for it to make since to someone new to Gnus.
 
 The PHP and Drupal fucntionality need to be reviewed.
-    
+
 More documentation both inside the code and in this file to come...
-        
+
 E-wax is written, stolen or maintained by Damon Haley
 <dhaley@hushmail.com>
 http://vinylisland.org
-    
+
 Remember: This is free software. Reuse and learning from existing code
 is not just allowed but encouraged.
-
